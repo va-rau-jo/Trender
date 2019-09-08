@@ -29,13 +29,15 @@ class Sidebar extends Component {
     this.state = {
       selected: null
     }
+    this.setSelected = this.setSelected.bind(this)
   }
 
-  setSelected = (index) => {
+  setSelected = (index) => {  
     this.setState({
       selected: index
     });
-    console.log(index);
+    //console.log(index);
+    this.props.updateSummary(index);
   }
 
   render() {
@@ -50,8 +52,8 @@ class Sidebar extends Component {
         <MenuList>
           {this.props.playlists.map((value, index) => {
             return (
-              <MenuItem button key={index} selected={this.state.selected === {index}} 
-                 onClick={() => this.setSelected({index})}>
+              <MenuItem button key={index} 
+                 onClick={() => this.setSelected(index)}>
                 <Typography className={classes.listItem}>{value.name}</Typography>
               </MenuItem>
             )

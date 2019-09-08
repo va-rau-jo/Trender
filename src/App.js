@@ -15,7 +15,7 @@ const styles = () => ({
     width: '100%'
   },
   sidebar: {
-    flex: '0 0 50%'
+    flex: '0 0 20%'
   },
   summary : {
     flex: '1'
@@ -25,13 +25,18 @@ const styles = () => ({
 class App extends Component {
   constructor(props) {
     super(props);
-    let accessToken = queryString.parse(window.location.search).access_token;
-    this.state = { authToken: accessToken };
-    if (accessToken)
-      this.getPlaylistData(accessToken);
+    let authToken = queryString.parse(window.location.search).access_token;
+    this.state = {
+      accessToken: authToken,
+      selected: -1
+    };
+    this.updateSummary = this.updateSummary.bind(this);
+    if (authToken)
+      this.getPlaylistData(authToken);
   }
 
-  getPlaylistData(accessToken) {
+  getPlaylistData() {
+    let accessToken = this.state.accessToken;
     fetch(base_url + 'me/playlists', {
       headers: {'Authorization' : 'Bearer ' + accessToken}
     })
@@ -41,6 +46,7 @@ class App extends Component {
         this.setState({
           playlists: items
         });
+        console.log(items[0].name);
 
         let trackDataPromises = items.map(playlist => {
           let responsePromise = fetch(playlist.tracks.href, {
@@ -50,25 +56,28 @@ class App extends Component {
           return trackDataPromise;
         });
         let allTracksDataPromises = Promise.all(trackDataPromises);
-        let playlistsPromise = allTracksDataPromises.then(trackDatas => {
-          trackDatas.forEach((trackData, i) => {
-            items[i].trackDatas = trackData.items
-              .map(item => item.track)
-              .map(trackData => ({
-                name: trackData.name,
-                duration: trackData.duration_ms / 1000
-              }))
-          })
-          return items
+        allTracksDataPromises.then(trackDatas => {
+          console.log(trackDatas[0].items)
+          this.setState({
+            songs: trackDatas
+          });
         });
-        return playlistsPromise });
+      });
+  }
+
+  updateSummary(index) {
+    // console.log("appjs" + index)
+    // console.log("appjs state: " + this.state.songs)
+    this.setState({
+      selected: index
+    });
   }
 
   render() {
-    const { authToken, playlists } = this.state;
+    const { accessToken, playlists } = this.state;
     const { classes } = this.props;
-    if (this.state && !authToken) {
-        window.location.replace('http://localhost:8888')
+    if (this.state && !accessToken) {
+      window.location.replace('http://localhost:8888')
       return null;
     } else if (!playlists){ 
       return (
@@ -81,11 +90,11 @@ class App extends Component {
         <div>
           <Toolbar/>
           <div className={classes.page}>
-            <div className={classes.sidebar} >
-              <Sidebar playlists={this.state.playlists} />
+            <div className={classes.sidebar}>
+              <Sidebar updateSummary={this.updateSummary} playlists={this.state.playlists} />
             </div>
             <div className={classes.summary}>
-              <Summary accessToken={this.state.authToken} playlists={this.state.playlists}/>
+              <Summary songs={this.state.songs} selected={this.state.selected} playlists={this.state.playlists}/>
             </div>
           </div>
         </div>

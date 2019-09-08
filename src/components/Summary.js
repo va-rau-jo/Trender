@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Typography, withStyles } from '@material-ui/core';
+import { List, ListItem, Typography, withStyles } from '@material-ui/core';
 
 const styles = () => ({
   page: {
@@ -10,11 +10,14 @@ const styles = () => ({
     textAlign: 'center',
     width: '100%'
   },
+  songs : {
+    flex: '1 0 33%'
+  },
   additions: {
-    flex: '0 0 50%'
+    flex: '0 0 33%'
   },
   removals : {
-    flex: '1 0 50%'
+    flex: '1 0 33%'
   }
 });
 
@@ -23,51 +26,38 @@ class Sidebar extends Component {
     super(props);
   }
 
-  getSongs = (id) => {
-    let songs = [];
-
-    fetch(base_url + 'playlists/' + id + '/tracks', {
-      headers: {'Authorization' : 'Bearer ' + accessToken}
-    })
-      .then(res => res.json())
-      .then(playlistData => {
-        let items = playlistData.items;
-
-        for (let i = 0; i < items.length; i++) {
-          let song = (
-            <MenuItem key={items[i]} value={items[i]}>
-              {items[i]}
-            </MenuItem>
-          );
-          songs.push(song);
-        }
-        return songs;
-      });
-  }
-
-  populateSummary = (index) => {
-    let id = this.props.playlists[index].id;
-
-    let songs = getSongs(id);
-
-
-  }
-
   render() {
-    const { classes } = this.props;
-    return (
-      <div className={classes.page}>
-        <div className={classes.additions}>
-          <Typography>Additions</Typography>
-          <div>
-            {this.getSongs(0)}
+    const { classes, selected, songs} = this.props;
+    if (selected === -1 || !songs)
+      return null;
+    else {
+      //console.log(songs)
+      let songArray = songs[selected].items
+      return (
+        <div className={classes.page}>
+          <div className={classes.songs}>
+            <Typography>Songs</Typography>
+            <List>
+              {songArray.map((value, index) => {
+                //console.log(value)
+                return (
+                  <ListItem key={index}>
+                    <Typography>{value.track.name}</Typography>
+                  </ListItem>
+                )
+              })}
+            </List>
+          </div>
+          <div className={classes.additions}>
+            <Typography>Additions</Typography>
+            
+          </div>
+          <div className={classes.removals}>
+            <Typography>Removals</Typography>
           </div>
         </div>
-        <div className={classes.removals}>
-          <Typography>Removals</Typography>
-        </div>
-      </div>
-    );
+      );
+    }
   }
 }
 
