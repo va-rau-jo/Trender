@@ -1,4 +1,4 @@
-import React, { Component, Route } from 'react';
+import React, { Component } from 'react';
 import queryString from 'query-string';
 import Toolbar from './components/Toolbar'
 import Sidebar from './components/Sidebar'
@@ -42,13 +42,22 @@ class App extends Component {
     })
       .then(res => res.json())
       .then(playlistData => {
-        let items = playlistData.items;
+        let playListItems = playlistData.items;
+        // Filter by month names
+        let regex = /^January|February|March|April|May|June|July|August|September|October|November|December$/;
+        for(let i = playListItems.length - 1; i >= 0; i--) {
+          if(!regex.test(playListItems[i].name)) {
+            playListItems.splice(i, 1);
+          }
+        }
+        // Save playlists
         this.setState({
-          playlists: items
+          playlists: playListItems
         });
-        console.log(items[0].name);
 
-        let trackDataPromises = items.map(playlist => {
+        // Save song data to state
+        let trackDataPromises = playListItems.map(playlist => {
+          // Fetches more trackData from playlist's details link
           let responsePromise = fetch(playlist.tracks.href, {
             headers: {'Authorization': 'Bearer ' + accessToken}
           });
@@ -57,7 +66,6 @@ class App extends Component {
         });
         let allTracksDataPromises = Promise.all(trackDataPromises);
         allTracksDataPromises.then(trackDatas => {
-          console.log(trackDatas[0].items)
           this.setState({
             songs: trackDatas
           });

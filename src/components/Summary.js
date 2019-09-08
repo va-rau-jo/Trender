@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { List, ListItem, Typography, withStyles } from '@material-ui/core';
+import { List, ListItem, MenuItem, Select, Typography, withStyles } from '@material-ui/core';
 
 const styles = () => ({
   page: {
@@ -11,21 +11,20 @@ const styles = () => ({
     width: '100%'
   },
   songs : {
-    flex: '1 0 33%'
+    flex: '25%'
+  },
+  changes:{
+    flex: '75%'
   },
   additions: {
-    flex: '0 0 33%'
+    flex: '33%'
   },
   removals : {
-    flex: '1 0 33%'
+    flex: '33%'
   }
 });
 
 class Sidebar extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { classes, selected, songs} = this.props;
     if (selected === -1 || !songs)
@@ -48,13 +47,17 @@ class Sidebar extends Component {
               })}
             </List>
           </div>
-          <div className={classes.additions}>
-            <Typography>Additions</Typography>
+          <div className={classes.changes}>
             
+            <div className={classes.additions}>
+              <Typography>Additions</Typography>
+              
+            </div>
+            <div className={classes.removals}>
+              <Typography>Removals</Typography>
+            </div>
           </div>
-          <div className={classes.removals}>
-            <Typography>Removals</Typography>
-          </div>
+          
         </div>
       );
     }
