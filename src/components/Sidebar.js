@@ -14,7 +14,7 @@ const styles = () => ({
     margin: '0px 0px 0px 15px',
   },
   listItem: {
-    color: '#27E8A7',
+    color: 'white'
   },
   titleText: {
     color: 'white',

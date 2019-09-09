@@ -35,44 +35,64 @@ class App extends Component {
       this.getPlaylistData(authToken);
   }
 
+  filterPlaylistsByMonth(playlists) {
+    let regex = /^January|February|March|April|May|June|July|August|September|October|November|December$/;
+    for(let i = playlists.length - 1; i >= 0; i--) {
+      if(!regex.test(playlists[i].name)) {
+        playlists.splice(i, 1);
+      }
+    }
+  }
+
   getPlaylistData() {
     let accessToken = this.state.accessToken;
     fetch(base_url + 'me/playlists', {
       headers: {'Authorization' : 'Bearer ' + accessToken}
     })
-      .then(res => res.json())
-      .then(playlistData => {
-        let playListItems = playlistData.items;
-        if (playListItems) {
-          // Filter by month names
-          let regex = /^January|February|March|April|May|June|July|August|September|October|November|December$/;
-          for(let i = playListItems.length - 1; i >= 0; i--) {
-            if(!regex.test(playListItems[i].name)) {
-              playListItems.splice(i, 1);
-            }
-          }
-          // Save playlists
-          this.setState({
-            playlists: playListItems
-          });
+    .then(res => {
+      this.setState({ accessError: !res.ok });
+      return res.json();
+    })
+    .then(playlistData => {     
+      let playlistItems = playlistData.items;
+      if (playlistItems) {
+        this.filterPlaylistsByMonth(playlistItems);
+        this.setState({
+          playlists: playlistItems
+        });
+        console.log(playlistItems[0])
 
-          // Save song data to state
-          let trackDataPromises = playListItems.map(playlist => {
-            // Fetches more trackData from playlist's details link
-            let responsePromise = fetch(playlist.tracks.href, {
-              headers: {'Authorization': 'Bearer ' + accessToken}
-            });
-            let trackDataPromise = responsePromise.then(response => response.json())
-            return trackDataPromise;
+        // Get track data for each playlist object
+        let trackDataPromises = playlistItems.map(playlist => {
+          // Fetches more trackData from playlist's details link
+          let responsePromise = fetch(playlist.tracks.href, {
+            headers: {'Authorization': 'Bearer ' + accessToken}
           });
-          let allTracksDataPromises = Promise.all(trackDataPromises);
-          allTracksDataPromises.then(trackDatas => {
-            this.setState({
-              songs: trackDatas
-            });
+          let trackDataPromise = responsePromise.then(response => response.json())
+          return trackDataPromise;
+        });
+        let songs = [];
+        // Only map relevant properties to songs array and save
+        // song array in state
+        Promise.all(trackDataPromises).then(trackDatas => {
+          trackDatas.forEach((trackData, i) => {
+            songs[i] = trackData.items
+              .map(item => item.track)
+              .map(trackData => ({
+                added_at: trackData.added_at,
+                artists: trackData.artists,
+                duration: trackData.duration_ms / 1000,
+                explicit: trackData.explicit,
+                name: trackData.name,
+              }))
           });
-        }
-      });
+          this.setState({
+            songs: songs
+          });
+          //console.log(songs)
+        });
+      }
+    });
   }
 
   updateSummary(index) {
@@ -84,9 +104,10 @@ class App extends Component {
   }
 
   render() {
-    const { accessToken, playlists } = this.state;
+    const { accessToken, accessError, playlists } = this.state;
     const { classes } = this.props;
-    if (this.state && !accessToken) {
+    //console.log(this.state)
+    if ((this.state && !accessToken) || accessError) {
       window.location.replace('http://localhost:8888')
       return null;
     } else if (!playlists){ 
