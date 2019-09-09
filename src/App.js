@@ -43,33 +43,35 @@ class App extends Component {
       .then(res => res.json())
       .then(playlistData => {
         let playListItems = playlistData.items;
-        // Filter by month names
-        let regex = /^January|February|March|April|May|June|July|August|September|October|November|December$/;
-        for(let i = playListItems.length - 1; i >= 0; i--) {
-          if(!regex.test(playListItems[i].name)) {
-            playListItems.splice(i, 1);
+        if (playListItems) {
+          // Filter by month names
+          let regex = /^January|February|March|April|May|June|July|August|September|October|November|December$/;
+          for(let i = playListItems.length - 1; i >= 0; i--) {
+            if(!regex.test(playListItems[i].name)) {
+              playListItems.splice(i, 1);
+            }
           }
-        }
-        // Save playlists
-        this.setState({
-          playlists: playListItems
-        });
-
-        // Save song data to state
-        let trackDataPromises = playListItems.map(playlist => {
-          // Fetches more trackData from playlist's details link
-          let responsePromise = fetch(playlist.tracks.href, {
-            headers: {'Authorization': 'Bearer ' + accessToken}
-          });
-          let trackDataPromise = responsePromise.then(response => response.json())
-          return trackDataPromise;
-        });
-        let allTracksDataPromises = Promise.all(trackDataPromises);
-        allTracksDataPromises.then(trackDatas => {
+          // Save playlists
           this.setState({
-            songs: trackDatas
+            playlists: playListItems
           });
-        });
+
+          // Save song data to state
+          let trackDataPromises = playListItems.map(playlist => {
+            // Fetches more trackData from playlist's details link
+            let responsePromise = fetch(playlist.tracks.href, {
+              headers: {'Authorization': 'Bearer ' + accessToken}
+            });
+            let trackDataPromise = responsePromise.then(response => response.json())
+            return trackDataPromise;
+          });
+          let allTracksDataPromises = Promise.all(trackDataPromises);
+          allTracksDataPromises.then(trackDatas => {
+            this.setState({
+              songs: trackDatas
+            });
+          });
+        }
       });
   }
 
