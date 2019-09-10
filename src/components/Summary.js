@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import { List, ListItem, MenuItem, Select, Typography, withStyles } from '@material-ui/core';
+import Header from './Header';
 
 const styles = () => ({
   additions: { // additions div
@@ -8,6 +9,9 @@ const styles = () => ({
   additionListItem: { // song in additions div
     color: '#27E8A7',
   },
+  body: {
+    display: 'flex'
+  },
   changes:{ // additions and removals div
     display: 'flex',
     flex: '100%'
@@ -15,7 +19,6 @@ const styles = () => ({
   page: {
     alignitems: 'stretch',
     color: 'white',
-    display: 'flex',
     flexdirection: 'row',
     textAlign: 'center',
     width: '100%'
@@ -29,9 +32,12 @@ const styles = () => ({
   select: { // select component
     border: '5px solid black',
     color: 'white',
-    width: '100px'
+    width: '120px'
   },
-  songs : { // song lsit
+  songList: {
+    margin: '0px 0px 0px 15px'
+  },
+  songs : { // song list div
     flex: '25%'
   },
   selectDiv:{ // whole
@@ -102,7 +108,6 @@ class Sidebar extends Component {
    */
   getSelectOptions(options) {
     let components = [];
-    //console.log(options[0])
     for (let i = 0; i < options.length; i++) {
       let menuItemComponent = (
         <MenuItem key={i} value={i}>
@@ -131,7 +136,10 @@ class Sidebar extends Component {
    */
   removeSelectedPlaylist(array) {
     let a = array.slice();
-    a.splice(this.state.selected, 1);
+    a.splice(this.props.selected, 1);
+    console.log("sliced")
+    console.log(a)
+    console.log("selected: " + this.props.selected)
     return a;
   }
 
@@ -145,55 +153,53 @@ class Sidebar extends Component {
       let options = this.getSelectOptions(this.removeSelectedPlaylist(playlists));
       // Index 0 is additions, index 1 is removals
       let changes = this.getPlaylistChanges();
-      console.log(playlists[selected].images[0].url)
       return (
         <div className={classes.page}>
-          <div>
-            <img src={playlists[selected].images[0].url} alt="Playlist" />
-          </div>
-          <div className={classes.songs}>
-            <Typography>Songs</Typography>
-            <List>
-              {songs[selected].map((value, index) => {
-                return (
-                  <ListItem key={index}>
-                    <Typography>{value.name}</Typography>
-                  </ListItem>
-                )
-              })}
-            </List>
-          </div>
-          <div className={classes.selectDiv}>
-            <Select className={classes.select} onChange={this.handleSelectChange} value={this.state.compareIndex}>
-              {options}
-            </Select>
-            <div className={classes.changes}>            
-              <div className={classes.additions}>
-                <Typography>Additions</Typography>
-                <div>
-                  <List>
-                    {changes[0].map((value, index) => {
-                      return (
-                        <ListItem key={index} className={classes.additionListItem}>
-                          <Typography>{value.name}</Typography>
-                        </ListItem>
-                      )
-                    })}
-                  </List>
+          <Header playlist1={playlists[selected]} playlist2={this.removeSelectedPlaylist(playlists)[this.state.compareIndex]} />
+          <div className={classes.body}>
+            <div className={classes.songs}>
+              <List className={classes.songList}>
+                {songs[selected].map((value, index) => {
+                  return (
+                    <ListItem key={index}>
+                      <Typography>{value.name}</Typography>
+                    </ListItem>
+                  )
+                })}
+              </List>
+            </div>
+            <div className={classes.selectDiv}>
+              <Select className={classes.select} onChange={this.handleSelectChange} value={this.state.compareIndex}>
+                {options}
+              </Select>
+              <div className={classes.changes}>            
+                <div className={classes.additions}>
+                  <Typography>Additions</Typography>
+                  <div>
+                    <List>
+                      {changes[0].map((value, index) => {
+                        return (
+                          <ListItem key={index} className={classes.additionListItem}>
+                            <Typography>{value.name}</Typography>
+                          </ListItem>
+                        )
+                      })}
+                    </List>
+                  </div>
                 </div>
-              </div>
-              <div className={classes.removals}>
-               <Typography>Removals</Typography>
-               <div>
-                  <List>
-                    {changes[1].map((value, index) => {
-                      return (
-                        <ListItem key={index} className={classes.removalListItem}>
-                          <Typography>{value.name}</Typography>
-                        </ListItem>
-                      )
-                    })}
-                  </List>
+                <div className={classes.removals}>
+                <Typography>Removals</Typography>
+                <div>
+                    <List>
+                      {changes[1].map((value, index) => {
+                        return (
+                          <ListItem key={index} className={classes.removalListItem}>
+                            <Typography>{value.name}</Typography>
+                          </ListItem>
+                        )
+                      })}
+                    </List>
+                  </div>
                 </div>
               </div>
             </div>

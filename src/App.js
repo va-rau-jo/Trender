@@ -15,7 +15,7 @@ const styles = () => ({
     width: '100%'
   },
   sidebar: {
-    flex: '0 0 20%'
+    flex: '0 0 15%'
   },
   summary : {
     flex: '1'
