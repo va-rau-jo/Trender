@@ -59,7 +59,6 @@ class Sidebar extends Component {
     this.state = {
       compareIndex: 0,
       songs: props.songs,
-      items: ["🍰 Cake", "🍩 Donut", "🍎 Apple", "🍕 Pizza"],
     };
     this.handleSelectChange = this.handleSelectChange.bind(this);
   }
@@ -137,6 +136,9 @@ class Sidebar extends Component {
     });
   }
 
+  /**
+   * Event handler that starts when the user starts dragging a song
+   */
   onDragStart = (event, index) => {
     this.draggedItem = this.state.songs[this.props.selected][index];
     event.dataTransfer.effectAllowed = "move";
@@ -144,6 +146,9 @@ class Sidebar extends Component {
     event.dataTransfer.setDragImage(event.target.parentNode, 20, 20);
   }
 
+  /**
+   * Event handler for when a song is in the process of being reordered
+   */
   onDragOver = index => {
     let songArray = this.state.songs;
     let monthlySongs = songArray[this.props.selected];
@@ -155,18 +160,20 @@ class Sidebar extends Component {
     }
 
     // filter out the currently dragged item
-    let items = monthlySongs.filter(item => item !== this.draggedItem);
+    let updatedSongs = monthlySongs.filter(item => item !== this.draggedItem);
     // add the dragged item after the dragged over item
-    items.splice(index, 0, this.draggedItem);
-    songArray[this.props.selected] = items;
+    updatedSongs.splice(index, 0, this.draggedItem);
+    songArray[this.props.selected] = updatedSongs;
     this.setState({
       songs: songArray
     });
   };
 
+  /**
+   * Event handler for when the user is done reordering a song
+   */
   onDragEnd = () => {
     this.draggedIndex = null;
-    console.log(this.state.songs[this.props.selected])
   };
 
   /**
@@ -202,9 +209,8 @@ class Sidebar extends Component {
               <List className={classes.songList} >
                 {this.state.songs[selected].map((item, idx) => (
                   <ListItem key={idx} onDragOver={() => this.onDragOver(idx)}>
-                    <div
-                      className={classes.draggable}
-                      draggable
+                    <div draggable
+                      className={classes.draggable} 
                       onDragStart={e => this.onDragStart(e, idx)}
                       onDragEnd={this.onDragEnd}
                     >
@@ -212,13 +218,6 @@ class Sidebar extends Component {
                     </div>
                   </ListItem>
                 ))}
-                {/* {songs[selected].map((value, index) => {
-                  return (
-                    <ListItem key={index}>
-                        <Typography>{value.name}</Typography>
-                    </ListItem>
-                  )
-                })} */}
               </List>
             </div>
             <div className={classes.selectDiv}>
