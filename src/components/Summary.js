@@ -210,10 +210,9 @@ class Sidebar extends Component {
                 {this.state.songs[selected].map((item, idx) => (
                   <ListItem key={idx} onDragOver={() => this.onDragOver(idx)}>
                     <div draggable
-                      className={classes.draggable} 
+                      className={classes.draggable}
                       onDragStart={e => this.onDragStart(e, idx)}
-                      onDragEnd={this.onDragEnd}
-                    >
+                      onDragEnd={this.onDragEnd}>
                       <Typography>{item.name}</Typography>
                     </div>
                   </ListItem>
@@ -254,23 +253,6 @@ class Sidebar extends Component {
                   </div>
                 </div>
               </div>
-            </div>
-            <div>
-            <h3>List of items</h3>
-          <ul>
-            {this.state.items.map((item, idx) => (
-              <li key={item} onDragOver={() => this.onDragOver(idx)}>
-                <div
-                  className={classes.draggable}
-                  draggable
-                  onDragStart={e => this.onDragStart(e, idx)}
-                  onDragEnd={this.onDragEnd}
-                >
-                  <span className="content">{item}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
             </div>
           </div>
         </div> 
