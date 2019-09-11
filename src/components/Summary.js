@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import { List, ListItem, MenuItem, Select, Typography, withStyles } from '@material-ui/core';
 import Header from './Header';
+import ColoredLine from './ColoredLine';
 
 const styles = () => ({
   additions: { // additions div
@@ -16,7 +17,13 @@ const styles = () => ({
     display: 'flex',
     flex: '100%'
   },
-  page: {
+  draggable:{ // style to drag songs around
+    cursor: 'move',
+  },
+  lineMargin: { // margin to make the horizontal line divider shorter
+    margin: '0px 20px 0px 20px'
+  },
+  page: { // main page theme
     alignitems: 'stretch',
     color: 'white',
     flexdirection: 'row',
@@ -34,24 +41,25 @@ const styles = () => ({
     color: 'white',
     width: '120px'
   },
-  songList: {
+  songList: { // song list
     margin: '0px 0px 0px 15px'
   },
   songs : { // song list div
-    flex: '25%'
+    flex: '33%'
   },
   selectDiv:{ // whole
-    flex: '75%'
+    flex: '67%'
   }
 });
 
 class Sidebar extends Component {
   constructor(props) {
     super(props);
+    //console.log(props)
     this.state = {
       compareIndex: 0,
-      additions: [],
-      removals: []
+      songs: props.songs,
+      items: ["🍰 Cake", "🍩 Donut", "🍎 Apple", "🍕 Pizza"],
     };
     this.handleSelectChange = this.handleSelectChange.bind(this);
   }
@@ -129,6 +137,38 @@ class Sidebar extends Component {
     });
   }
 
+  onDragStart = (event, index) => {
+    this.draggedItem = this.state.songs[this.props.selected][index];
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/html", event.target.parentNode);
+    event.dataTransfer.setDragImage(event.target.parentNode, 20, 20);
+  }
+
+  onDragOver = index => {
+    let songArray = this.state.songs;
+    let monthlySongs = songArray[this.props.selected];
+    const draggedOverItem = monthlySongs[index];
+
+    // if the item is dragged over itself, ignore
+    if (this.draggedItem === draggedOverItem) {
+      return;
+    }
+
+    // filter out the currently dragged item
+    let items = monthlySongs.filter(item => item !== this.draggedItem);
+    // add the dragged item after the dragged over item
+    items.splice(index, 0, this.draggedItem);
+    songArray[this.props.selected] = items;
+    this.setState({
+      songs: songArray
+    });
+  };
+
+  onDragEnd = () => {
+    this.draggedIndex = null;
+    console.log(this.state.songs[this.props.selected])
+  };
+
   /**
    * Helper function that copies the array provided and removes
    * the element at the selected index
@@ -137,18 +177,16 @@ class Sidebar extends Component {
   removeSelectedPlaylist(array) {
     let a = array.slice();
     a.splice(this.props.selected, 1);
-    console.log("sliced")
-    console.log(a)
-    console.log("selected: " + this.props.selected)
+    // console.log("sliced")
+    // console.log(a)
     return a;
   }
 
   render() {
-    const { classes, playlists, selected, songs} = this.props;
-    if (selected === -1 || !songs)
+    const { classes, playlists, selected } = this.props;
+    if (selected === -1 || !this.state.songs)
       return null;
     else {
-      //console.log(songs)
       // Options for the select component
       let options = this.getSelectOptions(this.removeSelectedPlaylist(playlists));
       // Index 0 is additions, index 1 is removals
@@ -158,14 +196,29 @@ class Sidebar extends Component {
           <Header playlist1={playlists[selected]} playlist2={this.removeSelectedPlaylist(playlists)[this.state.compareIndex]} />
           <div className={classes.body}>
             <div className={classes.songs}>
-              <List className={classes.songList}>
-                {songs[selected].map((value, index) => {
+              <div className={classes.lineMargin}>
+                <ColoredLine color="white" height="1px" />
+              </div>
+              <List className={classes.songList} >
+                {this.state.songs[selected].map((item, idx) => (
+                  <ListItem key={idx} onDragOver={() => this.onDragOver(idx)}>
+                    <div
+                      className={classes.draggable}
+                      draggable
+                      onDragStart={e => this.onDragStart(e, idx)}
+                      onDragEnd={this.onDragEnd}
+                    >
+                      <Typography>{item.name}</Typography>
+                    </div>
+                  </ListItem>
+                ))}
+                {/* {songs[selected].map((value, index) => {
                   return (
                     <ListItem key={index}>
-                      <Typography>{value.name}</Typography>
+                        <Typography>{value.name}</Typography>
                     </ListItem>
                   )
-                })}
+                })} */}
               </List>
             </div>
             <div className={classes.selectDiv}>
@@ -202,6 +255,23 @@ class Sidebar extends Component {
                   </div>
                 </div>
               </div>
+            </div>
+            <div>
+            <h3>List of items</h3>
+          <ul>
+            {this.state.items.map((item, idx) => (
+              <li key={item} onDragOver={() => this.onDragOver(idx)}>
+                <div
+                  className={classes.draggable}
+                  draggable
+                  onDragStart={e => this.onDragStart(e, idx)}
+                  onDragEnd={this.onDragEnd}
+                >
+                  <span className="content">{item}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
             </div>
           </div>
         </div> 

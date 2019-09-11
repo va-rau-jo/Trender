@@ -24,14 +24,20 @@ const styles = () => ({
 });
 
 class Sidebar extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
       selected: null
+
     }
     this.setSelected = this.setSelected.bind(this)
   }
 
+  /**
+   * Updates the state with the newly selected index and notifies
+   * the parent to update the summary
+   */
   setSelected = (index) => {  
     this.setState({
       selected: index

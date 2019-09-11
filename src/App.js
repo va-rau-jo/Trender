@@ -57,11 +57,6 @@ class App extends Component {
       let playlistItems = playlistData.items;
       if (playlistItems) {
         this.filterPlaylistsByMonth(playlistItems);
-        this.setState({
-          playlists: playlistItems
-        });
-        console.log(playlistItems[0])
-
         // Get track data for each playlist object
         let trackDataPromises = playlistItems.map(playlist => {
           // Fetches more trackData from playlist's details link
@@ -75,6 +70,7 @@ class App extends Component {
         // Only map relevant properties to songs array and save
         // song array in state
         Promise.all(trackDataPromises).then(trackDatas => {
+          //console.log(trackDatas);
           trackDatas.forEach((trackData, i) => {
             songs[i] = trackData.items
               .map(item => item.track)
@@ -84,10 +80,12 @@ class App extends Component {
                 duration: trackData.duration_ms / 1000,
                 explicit: trackData.explicit,
                 name: trackData.name,
-              }))
+              }));
           });
+          console.log("appjs set song state")
           this.setState({
-            songs: songs
+            playlists: playlistItems,
+            songs
           });
           //console.log(songs)
         });
@@ -106,6 +104,7 @@ class App extends Component {
   render() {
     const { accessToken, accessError, playlists } = this.state;
     const { classes } = this.props;
+    console.log("appjs render")
     //console.log(this.state)
     if ((this.state && !accessToken) || accessError) {
       window.location.replace('http://localhost:8888')
