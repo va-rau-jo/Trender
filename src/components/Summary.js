@@ -17,12 +17,6 @@ const styles = () => ({
     display: 'flex',
     flex: '100%'
   },
-  draggable:{ // style to drag songs around
-    cursor: 'move',
-  },
-  lineMargin: { // margin to make the horizontal line divider shorter
-    margin: '0px 20px 0px 20px'
-  },
   page: { // main page theme
     alignitems: 'stretch',
     color: 'white',
@@ -41,11 +35,35 @@ const styles = () => ({
     color: 'white',
     width: '120px'
   },
-  songList: { // song list
-    margin: '0px 0px 0px 15px'
-  },
-  songs : { // song list div
+  songListDiv : { // song list div
     flex: '33%'
+  },
+  songListItem: { // ListItem component
+    cursor: 'move',
+    display: 'flex'
+  },
+  songListItemDiff : { // The ranking component "1 /\"
+    backgroundColor: '#1F2533',
+    height: '24px',
+    marginRight: '20px',
+    width: '56px'
+  },
+  songListItemDiv: { // The draggable div component
+    display: 'flex',
+    width: '100%'
+  },
+  songListItemPic: { // The image containing the chevron
+    float: 'right',
+    height: '16px',
+    margin: '4px 2px 4px 0px',
+    width: '16px'
+  },
+  songListItemText: { // The number text of the change
+    color: '#D9D9D9',
+    fontWeight: 'bold',
+    float: 'left',
+    textAlign: 'center',
+    width: '36px'
   },
   selectDiv:{ // whole
     flex: '67%'
@@ -84,11 +102,10 @@ class Sidebar extends Component {
     let additions = [];
     let removals = [];
     if (selected !== -1) {
-      let curr = this.props.songs[selected].slice();
-      let other = this.removeSelectedPlaylist(this.props.songs)[this.state.compareIndex];
+      let curr = this.state.songs[selected].slice();
+      let other = this.removeSelectedPlaylist(this.state.songs)[this.state.compareIndex].slice();    
       curr.sort(this.compareByName);
       other.sort(this.compareByName);
-
       let iCurr = 0;
       let iOther = 0;
       for(let i = 0; i < Math.max(curr.length, other.length); i++) {
@@ -182,10 +199,8 @@ class Sidebar extends Component {
    * @param {Array to be spliced} array 
    */
   removeSelectedPlaylist(array) {
-    let a = array.slice();
+    let a = array.slice();  
     a.splice(this.props.selected, 1);
-    // console.log("sliced")
-    // console.log(a)
     return a;
   }
 
@@ -202,17 +217,21 @@ class Sidebar extends Component {
         <div className={classes.page}>
           <Header playlist1={playlists[selected]} playlist2={this.removeSelectedPlaylist(playlists)[this.state.compareIndex]} />
           <div className={classes.body}>
-            <div className={classes.songs}>
-              <div className={classes.lineMargin}>
-                <ColoredLine color="white" height="1px" />
+            <div className={classes.songListDiv}>
+              <div style={{margin: '0px 20px 0px 20px'}}>
+                <ColoredLine color="white" height="1px"/>
               </div>
-              <List className={classes.songList} >
-                {this.state.songs[selected].map((item, idx) => (
-                  <ListItem key={idx} onDragOver={() => this.onDragOver(idx)}>
-                    <div draggable
-                      className={classes.draggable}
-                      onDragStart={e => this.onDragStart(e, idx)}
-                      onDragEnd={this.onDragEnd}>
+              <List style={{margin: '0px 0px 0px 15px'}} >
+                {this.state.songs[selected].map((item, index) => (
+                  <ListItem key={index} className={classes.songListItem} 
+                    onDragOver={() => this.onDragOver(index)}
+                    onDragStart={e => this.onDragStart(e, index)}
+                    onDragEnd={this.onDragEnd}>
+                    <div draggable className={classes.songListItemDiv}>
+                      <div className={classes.songListItemDiff}>
+                        <Typography className={classes.songListItemText}>{index + 1}</Typography>
+                        <img draggable="false" className={classes.songListItemPic} alt='up' src='/images/rank_none.png' />
+                      </div>
                       <Typography>{item.name}</Typography>
                     </div>
                   </ListItem>
@@ -239,8 +258,8 @@ class Sidebar extends Component {
                   </div>
                 </div>
                 <div className={classes.removals}>
-                <Typography>Removals</Typography>
-                <div>
+                  <Typography>Removals</Typography>
+                  <div>
                     <List>
                       {changes[1].map((value, index) => {
                         return (

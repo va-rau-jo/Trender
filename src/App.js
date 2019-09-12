@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import queryString from 'query-string';
-import Toolbar from './components/Toolbar'
 import Sidebar from './components/Sidebar'
 import Summary from './components/Summary'
+import Toolbar from './components/Toolbar'
 import { Typography, withStyles } from '@material-ui/core';
 
 const base_url = "https://api.spotify.com/v1/";
@@ -82,7 +82,7 @@ class App extends Component {
                 name: trackData.name,
               }));
           });
-          console.log("appjs set song state")
+          //console.log("appjs set song state")
           this.setState({
             playlists: playlistItems,
             songs
@@ -104,7 +104,7 @@ class App extends Component {
   render() {
     const { accessToken, accessError, playlists } = this.state;
     const { classes } = this.props;
-    console.log("appjs render")
+    //console.log("appjs render")
     //console.log(this.state)
     if ((this.state && !accessToken) || accessError) {
       window.location.replace('http://localhost:8888')
