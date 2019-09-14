@@ -1,95 +1,91 @@
-import React, {Component} from 'react';
-import { List, ListItem, MenuItem, Select, Typography, withStyles } from '@material-ui/core';
-import Header from './Header';
-import ColoredLine from './ColoredLine';
+import React, { Component } from "react";
+import {
+  List,
+  ListItem,
+  MenuItem,
+  Typography,
+  withStyles
+} from "@material-ui/core";
+import Header from "./Header";
+import ColoredLine from "./ColoredLine";
+import ChangesComponent from "./ChangesComponent";
 
 const styles = () => ({
-  additions: { // additions div
-    flex: '50%'
-  },
-  additionListItem: { // song in additions div
-    color: '#27E8A7',
-  },
   body: {
-    display: 'flex'
+    display: "flex"
   },
-  changes:{ // additions and removals div
-    display: 'flex',
-    flex: '100%'
+  page: {
+    // main page theme
+    alignitems: "stretch",
+    color: "white",
+    flexdirection: "row",
+    textAlign: "center",
+    width: "100%"
   },
-  page: { // main page theme
-    alignitems: 'stretch',
-    color: 'white',
-    flexdirection: 'row',
-    textAlign: 'center',
-    width: '100%'
+  songListDiv: {
+    // song list div
+    flex: "33%"
   },
-  removalListItem: { // song in removals div
-    color: '#DF4576',
+  songListItem: {
+    // ListItem component
+    cursor: "move",
+    display: "flex"
   },
-  removals : { // removals div
-    flex: '50%'
+  songListItemDiff: {
+    // The ranking component "1 /\"
+    backgroundColor: "#1F2533",
+    height: "24px",
+    marginRight: "20px",
+    width: "56px"
   },
-  select: { // select component
-    border: '5px solid black',
-    color: 'white',
-    width: '120px'
+  songListItemDiv: {
+    // The draggable div component
+    display: "flex",
+    width: "100%"
   },
-  songListDiv : { // song list div
-    flex: '33%'
+  songListItemPic: {
+    // The image containing the chevron
+    float: "right",
+    height: "16px",
+    margin: "4px 2px 4px 0px",
+    width: "16px"
   },
-  songListItem: { // ListItem component
-    cursor: 'move',
-    display: 'flex'
+  songListItemText: {
+    // The number text of the change
+    color: "#D9D9D9",
+    fontWeight: "bold",
+    float: "left",
+    textAlign: "center",
+    width: "36px"
   },
-  songListItemDiff : { // The ranking component "1 /\"
-    backgroundColor: '#1F2533',
-    height: '24px',
-    marginRight: '20px',
-    width: '56px'
-  },
-  songListItemDiv: { // The draggable div component
-    display: 'flex',
-    width: '100%'
-  },
-  songListItemPic: { // The image containing the chevron
-    float: 'right',
-    height: '16px',
-    margin: '4px 2px 4px 0px',
-    width: '16px'
-  },
-  songListItemText: { // The number text of the change
-    color: '#D9D9D9',
-    fontWeight: 'bold',
-    float: 'left',
-    textAlign: 'center',
-    width: '36px'
-  },
-  selectDiv:{ // whole
-    flex: '67%'
+  selectDiv: {
+    // whole
+    flex: "67%"
   }
 });
 
-class Sidebar extends Component {
+class Summary extends Component {
   constructor(props) {
     super(props);
     //console.log(props)
     this.state = {
       compareIndex: 0,
-      songs: props.songs,
+      songs: props.songs
     };
     this.handleSelectChange = this.handleSelectChange.bind(this);
   }
 
   /**
    * Compares 2 objects by their name property
-   * @param {Object 1} a 
-   * @param {Object 2} b 
+   * @param {Object 1} a
+   * @param {Object 2} b
    */
   compareByName(a, b) {
-    return (a.name.toLowerCase() > b.name.toLowerCase()) 
-      ? 1 : (a.name.toLowerCase() < b.name.toLowerCase()) 
-      ? -1 : 0; 
+    return a.name.toLowerCase() > b.name.toLowerCase()
+      ? 1
+      : a.name.toLowerCase() < b.name.toLowerCase()
+      ? -1
+      : 0;
   }
 
   /**
@@ -103,19 +99,27 @@ class Sidebar extends Component {
     let removals = [];
     if (selected !== -1) {
       let curr = this.state.songs[selected].slice();
-      let other = this.removeSelectedPlaylist(this.state.songs)[this.state.compareIndex].slice();    
+      let other = this.removeSelectedPlaylist(this.state.songs)[
+        this.state.compareIndex
+      ].slice();
       curr.sort(this.compareByName);
       other.sort(this.compareByName);
       let iCurr = 0;
       let iOther = 0;
-      for(let i = 0; i < Math.max(curr.length, other.length); i++) {
-        if(curr[iCurr].name.toLowerCase() === other[iOther].name.toLowerCase()) {
+      for (let i = 0; i < Math.max(curr.length, other.length); i++) {
+        if (
+          curr[iCurr].name.toLowerCase() === other[iOther].name.toLowerCase()
+        ) {
           iCurr++;
           iOther++;
-        } else if(curr[iCurr].name.toLowerCase() < other[iOther].name.toLowerCase()) {
+        } else if (
+          curr[iCurr].name.toLowerCase() < other[iOther].name.toLowerCase()
+        ) {
           additions.push(curr[iCurr]);
           iCurr++;
-        } else if(curr[iCurr].name.toLowerCase() > other[iOther].name.toLowerCase()) {
+        } else if (
+          curr[iCurr].name.toLowerCase() > other[iOther].name.toLowerCase()
+        ) {
           removals.push(other[iOther]);
           iOther++;
         }
@@ -126,9 +130,9 @@ class Sidebar extends Component {
 
   /**
    * Returns the HTML that is passed into the Select component
-   * 
-   * @param {The array consisting of the valid 
-   * monthly playlists to compare to} options 
+   *
+   * @param {The array consisting of the valid
+   * monthly playlists to compare to} options
    */
   getSelectOptions(options) {
     let components = [];
@@ -145,9 +149,10 @@ class Sidebar extends Component {
 
   /**
    * Updates the state compareIndex variable with the selected value
-   * @param {Event with the new selected index} event 
+   * @param {Event with the new selected index} event
    */
   handleSelectChange(event) {
+    //console.log("handled")
     this.setState({
       compareIndex: event.target.value
     });
@@ -161,7 +166,7 @@ class Sidebar extends Component {
     event.dataTransfer.effectAllowed = "move";
     event.dataTransfer.setData("text/html", event.target.parentNode);
     event.dataTransfer.setDragImage(event.target.parentNode, 20, 20);
-  }
+  };
 
   /**
    * Event handler for when a song is in the process of being reordered
@@ -196,41 +201,57 @@ class Sidebar extends Component {
   /**
    * Helper function that copies the array provided and removes
    * the element at the selected index
-   * @param {Array to be spliced} array 
+   * @param {Array to be spliced} array
    */
   removeSelectedPlaylist(array) {
-    let a = array.slice();  
+    let a = array.slice();
     a.splice(this.props.selected, 1);
     return a;
   }
 
   render() {
     const { classes, playlists, selected } = this.props;
-    if (selected === -1 || !this.state.songs)
-      return null;
+    if (selected === -1 || !this.state.songs) return null;
     else {
       // Options for the select component
-      let options = this.getSelectOptions(this.removeSelectedPlaylist(playlists));
+      let options = this.getSelectOptions(
+        this.removeSelectedPlaylist(playlists)
+      );
       // Index 0 is additions, index 1 is removals
       let changes = this.getPlaylistChanges();
       return (
         <div className={classes.page}>
-          <Header playlist1={playlists[selected]} playlist2={this.removeSelectedPlaylist(playlists)[this.state.compareIndex]} />
+          <Header
+            playlist1={playlists[selected]}
+            playlist2={
+              this.removeSelectedPlaylist(playlists)[this.state.compareIndex]
+            }
+          />
           <div className={classes.body}>
             <div className={classes.songListDiv}>
-              <div style={{margin: '0px 20px 0px 20px'}}>
-                <ColoredLine color="white" height="1px"/>
+              <div style={{ margin: "0px 20px 0px 20px" }}>
+                <ColoredLine color="white" height="1px" />
               </div>
-              <List style={{margin: '0px 0px 0px 15px'}} >
+              <List style={{ margin: "0px 0px 0px 15px" }}>
                 {this.state.songs[selected].map((item, index) => (
-                  <ListItem key={index} className={classes.songListItem} 
+                  <ListItem
+                    key={index}
+                    className={classes.songListItem}
                     onDragOver={() => this.onDragOver(index)}
                     onDragStart={e => this.onDragStart(e, index)}
-                    onDragEnd={this.onDragEnd}>
+                    onDragEnd={this.onDragEnd}
+                  >
                     <div draggable className={classes.songListItemDiv}>
                       <div className={classes.songListItemDiff}>
-                        <Typography className={classes.songListItemText}>{index + 1}</Typography>
-                        <img draggable="false" className={classes.songListItemPic} alt='up' src='/images/rank_none.png' />
+                        <Typography className={classes.songListItemText}>
+                          {index + 1}
+                        </Typography>
+                        <img
+                          draggable="false"
+                          className={classes.songListItemPic}
+                          alt="up"
+                          src="/images/rank_none.png"
+                        />
                       </div>
                       <Typography>{item.name}</Typography>
                     </div>
@@ -239,45 +260,19 @@ class Sidebar extends Component {
               </List>
             </div>
             <div className={classes.selectDiv}>
-              <Select className={classes.select} onChange={this.handleSelectChange} value={this.state.compareIndex}>
-                {options}
-              </Select>
-              <div className={classes.changes}>            
-                <div className={classes.additions}>
-                  <Typography>Additions</Typography>
-                  <div>
-                    <List>
-                      {changes[0].map((value, index) => {
-                        return (
-                          <ListItem key={index} className={classes.additionListItem}>
-                            <Typography>{value.name}</Typography>
-                          </ListItem>
-                        )
-                      })}
-                    </List>
-                  </div>
-                </div>
-                <div className={classes.removals}>
-                  <Typography>Removals</Typography>
-                  <div>
-                    <List>
-                      {changes[1].map((value, index) => {
-                        return (
-                          <ListItem key={index} className={classes.removalListItem}>
-                            <Typography>{value.name}</Typography>
-                          </ListItem>
-                        )
-                      })}
-                    </List>
-                  </div>
-                </div>
-              </div>
+              <ChangesComponent
+                additions={changes[0]}
+                compareIndex={this.state.compareIndex}
+                handleSelectChange={this.handleSelectChange}
+                options={options}
+                removals={changes[1]}
+              />
             </div>
           </div>
-        </div> 
+        </div>
       );
     }
   }
 }
 
-export default withStyles(styles)(Sidebar);
+export default withStyles(styles)(Summary);
