@@ -132,18 +132,20 @@ class Summary extends Component {
       let other = copyAndRemoveItem(this.state.songs, cIndex)[cIndex].slice();
       curr.sort(this.compareByName);
       other.sort(this.compareByName);
+      console.log(curr.length + "  " + other.length);
       let iCurr = 0;
       let iOther = 0;
       for (let i = 0; i < Math.max(curr.length, other.length); i++) {
-        let song1 = curr[iCurr].name.toLowerCase();
-        let song2 = other[iOther].name.toLowerCase();
+        let song1 = iCurr < curr.length ? curr[iCurr].name.toLowerCase() : null;
+        let song2 =
+          iOther < other.length ? other[iOther].name.toLowerCase() : null;
         if (song1 === song2) {
           iCurr++;
           iOther++;
-        } else if (song1 < song2) {
+        } else if (!song2 || song1 < song2) {
           additions.push(curr[iCurr]);
           iCurr++;
-        } else if (song1 > song2) {
+        } else if (!song1 || song1 > song2) {
           removals.push(other[iOther]);
           iOther++;
         }
