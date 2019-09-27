@@ -2,14 +2,17 @@ import React, { Component } from "react";
 import queryString from "query-string";
 import firebase from "firebase";
 import { Typography, withStyles } from "@material-ui/core";
+import firebaseConfig from "./config";
 import Sidebar from "./components/Sidebar";
 import Summary from "./components/Summary";
 import Toolbar from "./components/Toolbar";
-import firebaseConfig from "./config";
+import FirebaseController from "./utils/FirebaseController";
+import { filterPlaylistsByMonth } from "./utils/helpers";
 
 const base_url = "https://api.spotify.com/v1/";
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const firebaseController = new FirebaseController(db);
 
 const styles = () => ({
   page: {
@@ -42,20 +45,6 @@ class App extends Component {
   }
 
   /**
-   * Given an array of playlists, it filters out any that do not
-   * contain a monthly playlist
-   * @param {Array of playlists} playlists
-   */
-  filterPlaylistsByMonth(playlists) {
-    let regex = /^January|February|March|April|May|June|July|August|September|October|November|December$/;
-    for (let i = playlists.length - 1; i >= 0; i--) {
-      if (!regex.test(playlists[i].name)) {
-        playlists.splice(i, 1);
-      }
-    }
-  }
-
-  /**
    * Get playlist data from Spotify API and call API again for each playlist
    * to get the song data
    */
@@ -71,7 +60,7 @@ class App extends Component {
       .then(playlistData => {
         let playlists = playlistData.items;
         if (playlists) {
-          this.filterPlaylistsByMonth(playlists);
+          filterPlaylistsByMonth(playlists);
           // Get track data for each playlist object
           let trackDataPromises = playlists.map(playlist => {
             // Fetches more trackData from playlist's details link
@@ -86,19 +75,6 @@ class App extends Component {
           let songs = this.getSongData(trackDataPromises);
           this.setState({ playlists, songs });
         }
-      });
-  }
-
-  /**
-   * Get rankings for playlist songs from firebase.
-   */
-  getRankingData() {
-    db.collection("rankings")
-      .get()
-      .then(querySnapshot => {
-        querySnapshot.forEach(doc => {
-          console.log(doc.data());
-        });
       });
   }
 
@@ -138,23 +114,27 @@ class App extends Component {
         return res.json();
       })
       .then(data => {
-        db.collection("users")
-          .where("userId", "==", data.id)
-          .get()
-          .then(querySnapshot => {
-            let docs = querySnapshot.docs;
-            if (docs.length > 0 && docs[0] != null) {
-              let userId = docs[0].data().userId;
-              this.setState({ userId });
-            } else {
-              db.collection("users").add({
-                userId: data.id,
-                name: data.display_name,
-                email: data.email
-              });
-            }
-            this.getRankingData();
-          });
+        if (!data.error) {
+          // add user if one doesn't exist yet, or set its state
+          let db = firebaseController.getDatabase();
+          db.collection("users")
+            .where("userId", "==", data.id)
+            .get()
+            .then(querySnapshot => {
+              let docs = querySnapshot.docs;
+              if (docs.length !== 1 || docs[0] === null) {
+                console.log("adding user");
+                firebaseController.addUser(
+                  data.id,
+                  data.display_name,
+                  data.email
+                );
+              } else {
+                // TODO: remove this branch
+                console.log("user already found");
+              }
+            });
+        }
       });
   }
 
@@ -163,8 +143,6 @@ class App extends Component {
    * @param {Index of selected playlist} index
    */
   updateSummary(index) {
-    // console.log("appjs" + index)
-    // console.log("appjs state: " + this.state.songs)
     this.setState({
       selected: index
     });
@@ -173,8 +151,6 @@ class App extends Component {
   render() {
     const { accessToken, accessError, playlists } = this.state;
     const { classes } = this.props;
-    //console.log("appjs render")
-    //console.log(this.state)
     if ((this.state && !accessToken) || accessError) {
       window.location.replace("http://localhost:8888");
       return null;
@@ -199,6 +175,7 @@ class App extends Component {
             </div>
             <div className={classes.summary}>
               <Summary
+                firebaseController={firebaseController}
                 playlists={this.state.playlists}
                 selected={this.state.selected}
                 songs={this.state.songs}

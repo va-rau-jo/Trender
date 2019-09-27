@@ -55,8 +55,7 @@ class Sidebar extends Component {
             src="/images/playlist.png"
           />
           <Typography className={classes.titleText} variant="h6">
-            {" "}
-            Monthly Playlists{" "}
+            Monthly Playlists
           </Typography>
         </div>
         <ColoredLine color="white" height="1px" />

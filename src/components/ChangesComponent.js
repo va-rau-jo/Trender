@@ -44,6 +44,7 @@ class ChangesComponent extends Component {
 
   render() {
     const { additions, classes, compareIndex, options, removals } = this.props;
+    console.log(compareIndex);
     return (
       <div>
         <Select
