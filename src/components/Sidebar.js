@@ -37,6 +37,7 @@ class Sidebar extends Component {
    * the parent to update the summary
    */
   setSelected = index => {
+    console.log("selected : " + index);
     this.setState({
       selected: index
     });

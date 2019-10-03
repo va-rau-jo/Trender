@@ -4,94 +4,12 @@ import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableRow from "@material-ui/core/TableRow";
-import { ReactComponent as Hamburger } from "../hamburger.svg";
-import Header from "./Header";
-import ColoredLine from "./ColoredLine";
-import ChangesComponent from "./ChangesComponent";
-import { copyAndRemoveItem } from "../utils/helpers";
-
-const styles = () => ({
-  body: {
-    display: "flex"
-  },
-  first: {
-    color: "red"
-  },
-  second: {
-    color: "blue"
-  },
-  third: {
-    color: "green"
-  },
-  hamburger: {
-    cursor: "pointer",
-    float: "left",
-    height: "16px",
-    margin: "4px 4px 4px 4px",
-    width: "16px"
-  },
-  invisible: {
-    display: "none"
-  },
-  page: {
-    // main page theme
-    alignitems: "stretch",
-    color: "white",
-    flexdirection: "row",
-    textAlign: "center",
-    width: "100%"
-  },
-  songListDiv: {
-    // song list div
-    flex: "33%"
-  },
-  songListItem: {
-    // ListItem component
-    cursor: "move",
-    display: "flex"
-  },
-  songListItemDiff: {
-    // The ranking component "1 /\"
-    backgroundColor: "#1F2533",
-    height: "24px",
-    marginRight: "20px",
-    width: "64px"
-  },
-  songListItemDiv: {
-    // The draggable div component
-    display: "flex",
-    width: "100%"
-  },
-  songListItemDivToggled: {
-    // The draggable div component
-    backgroundColor: "#1F2533",
-    display: "flex",
-    width: "100%"
-  },
-  songListItemPic: {
-    // The image containing the chevron
-    float: "right",
-    height: "16px",
-    margin: "4px 2px 4px 0px",
-    width: "16px"
-  },
-  selectDiv: {
-    // whole
-    flex: "67%"
-  },
-  table: {
-    margin: "0px auto",
-    width: "90%"
-  },
-  tableCell: {
-    color: "white",
-    userSelect: "none"
-  },
-  tableCellEdit: {
-    color: "white",
-    width: "24px"
-  }
-});
+import styles from "./styles";
+import { ReactComponent as Hamburger } from "../../hamburger.svg";
+import Header from "../Header";
+import ColoredLine from "../ColoredLine";
+import ChangesComponent from "../../ChangesComponent/ChangesComponent";
+import { copyAndRemoveItem } from "../../utils/helpers";
 
 class Summary extends Component {
   constructor(props) {
@@ -127,12 +45,13 @@ class Summary extends Component {
     let cIndex = this.state.compareIndex;
     let additions = [];
     let removals = [];
+    // console.log(this.state.songs);
     if (selected !== -1) {
       let curr = this.state.songs[selected].slice();
       let other = copyAndRemoveItem(this.state.songs, cIndex)[cIndex].slice();
+      // console.log(cIndex);
       curr.sort(this.compareByName);
       other.sort(this.compareByName);
-      console.log(curr.length + "  " + other.length);
       let iCurr = 0;
       let iOther = 0;
       for (let i = 0; i < Math.max(curr.length, other.length); i++) {
@@ -140,12 +59,15 @@ class Summary extends Component {
         let song2 =
           iOther < other.length ? other[iOther].name.toLowerCase() : null;
         if (song1 === song2) {
+          // console.log("same");
           iCurr++;
           iOther++;
         } else if (!song2 || song1 < song2) {
+          // console.log("new");
           additions.push(curr[iCurr]);
           iCurr++;
         } else if (!song1 || song1 > song2) {
+          // console.log("gone");
           removals.push(other[iOther]);
           iOther++;
         }
@@ -289,22 +211,13 @@ class Summary extends Component {
                           component="th"
                           scope="row"
                         >
-                          <div
-                            className={
-                              index === 0
-                                ? classes.first
-                                : index === 1
-                                ? classes.second
-                                : index === 2
-                                ? classes.third
-                                : "none"
-                            }
-                          >
-                            <Typography> {index + 1} </Typography>
-                          </div>
+                          <Typography> {index + 1} </Typography>
                         </TableCell>
                         <TableCell className={classes.tableCell} align="right">
                           {item.name}
+                        </TableCell>
+                        <TableCell className={classes.tableCell} align="right">
+                          {item.artists[0].name}
                         </TableCell>
                         <TableCell className={classes.tableCellEdit}>
                           <div
@@ -323,13 +236,15 @@ class Summary extends Component {
               </div>
             </div>
             <div className={classes.selectDiv}>
-              <ChangesComponent
-                additions={changes[0]}
-                compareIndex={this.state.compareIndex}
-                handleSelectChange={this.handleSelectChange}
-                options={options}
-                removals={changes[1]}
-              />
+              <div>
+                <ChangesComponent
+                  additions={changes[0]}
+                  compareIndex={this.state.compareIndex}
+                  handleSelectChange={this.handleSelectChange}
+                  options={options}
+                  removals={changes[1]}
+                />
+              </div>
             </div>
           </div>
         </div>

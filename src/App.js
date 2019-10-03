@@ -4,7 +4,7 @@ import firebase from "firebase";
 import { Typography, withStyles } from "@material-ui/core";
 import firebaseConfig from "./config";
 import Sidebar from "./components/Sidebar";
-import Summary from "./components/Summary";
+import Summary from "./components/Summary/Summary";
 import Toolbar from "./components/Toolbar";
 import FirebaseController from "./utils/FirebaseController";
 import { filterPlaylistsByMonth } from "./utils/helpers";
@@ -116,6 +116,7 @@ class App extends Component {
       .then(data => {
         if (!data.error) {
           // add user if one doesn't exist yet, or set its state
+          firebaseController.setCurrentUserId(data.id);
           let db = firebaseController.getDatabase();
           db.collection("users")
             .where("userId", "==", data.id)

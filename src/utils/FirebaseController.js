@@ -46,8 +46,7 @@ class FirebaseController extends Component {
     }
   }
 
-  // TODO: remove
-  // for debugging purposes
+  // TODO: remove for debugging purposes
   printDb() {
     console.log(this.database);
   }
@@ -62,12 +61,13 @@ class FirebaseController extends Component {
    */
   saveRankings(playlistName, newRankings) {
     let db = this.database;
+    let userId = this.currentUserId;
     let songs = [];
     newRankings.forEach(function(song) {
       songs.push(song.name);
     });
 
-    if (db) {
+    if (db && userId) {
       db.collection("rankings")
         .where("playlistName", "==", playlistName)
         .get()
@@ -78,16 +78,22 @@ class FirebaseController extends Component {
             console.log(docs[0]);
             docs[0].ref.set({
               playlistName,
-              songs
+              songs,
+              userId
             });
           } else {
             db.collection("rankings").add({
               playlistName,
-              songs
+              songs,
+              userId
             });
           }
         });
     }
+  }
+
+  setCurrentUserId(userId) {
+    this.currentUserId = userId;
   }
 }
 
