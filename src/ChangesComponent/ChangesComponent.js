@@ -35,8 +35,6 @@ class ChangesComponent extends Component {
   getPlaylistChanges(curr, other) {
     let additions = [];
     let removals = [];
-    // console.log(this.state.songs);
-    // console.log(cIndex);
     curr.sort(this.compareByName);
     other.sort(this.compareByName);
     let iCurr = 0;

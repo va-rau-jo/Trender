@@ -163,7 +163,7 @@ class Summary extends Component {
                   compareIndex={cIndex}
                   playlists={copyAndRemoveItem(playlists, selected)}
                   songList1={this.state.songs[selected].slice()}
-                  songList2={copyAndRemoveItem(this.state.songs, cIndex)[
+                  songList2={copyAndRemoveItem(this.state.songs, selected)[
                     cIndex
                   ].slice()}
                   handleSelectChange={this.handleSelectChange}
