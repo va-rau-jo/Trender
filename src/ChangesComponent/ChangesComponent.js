@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import {
   List,
   ListItem,
+  MenuItem,
   Select,
   Typography,
   withStyles
@@ -13,9 +14,83 @@ class ChangesComponent extends Component {
     this.props.handleSelectChange(event);
   };
 
+  /**
+   * Compares 2 objects by their name property
+   * @param {Object 1} a
+   * @param {Object 2} b
+   */
+  compareByName(a, b) {
+    return a.name.toLowerCase() > b.name.toLowerCase()
+      ? 1
+      : a.name.toLowerCase() < b.name.toLowerCase()
+      ? -1
+      : 0;
+  }
+
+  /**
+   * Gets the additions and removals between the current playlist and the
+   * one selected in the select component.
+   * Returns an array with the additions in index 0 and removals in index 1
+   */
+  getPlaylistChanges(curr, other) {
+    let additions = [];
+    let removals = [];
+    // console.log(this.state.songs);
+    // console.log(cIndex);
+    curr.sort(this.compareByName);
+    other.sort(this.compareByName);
+    let iCurr = 0;
+    let iOther = 0;
+    for (let i = 0; i < Math.max(curr.length, other.length); i++) {
+      let song1 = iCurr < curr.length ? curr[iCurr].name.toLowerCase() : null;
+      let song2 =
+        iOther < other.length ? other[iOther].name.toLowerCase() : null;
+      if (song1 === song2) {
+        // console.log("same");
+        iCurr++;
+        iOther++;
+      } else if (!song2 || song1 < song2) {
+        // console.log("new");
+        additions.push(curr[iCurr]);
+        iCurr++;
+      } else if (!song1 || song1 > song2) {
+        // console.log("gone");
+        removals.push(other[iOther]);
+        iOther++;
+      }
+    }
+    return { additions: additions, removals: removals };
+  }
+
+  /**
+   * Returns the HTML that is passed into the Select component
+   * by generating MenuItems with the playlist's name
+   * @param {The array consisting of the valid
+   * monthly playlists to compare to} options
+   */
+  getSelectOptions(options) {
+    let components = [];
+    for (let i = 0; i < options.length; i++) {
+      let menuItemComponent = (
+        <MenuItem key={i} value={i}>
+          {options[i].name}
+        </MenuItem>
+      );
+      components.push(menuItemComponent);
+    }
+    return components;
+  }
+
   render() {
-    const { additions, classes, compareIndex, options, removals } = this.props;
-    console.log(compareIndex);
+    const {
+      classes,
+      compareIndex,
+      playlists,
+      songList1,
+      songList2
+    } = this.props;
+    let options = this.getSelectOptions(playlists);
+    let changes = this.getPlaylistChanges(songList1, songList2);
     return (
       <div>
         <Select
@@ -30,7 +105,7 @@ class ChangesComponent extends Component {
             <Typography>Additions</Typography>
             <div>
               <List>
-                {additions.map((value, index) => {
+                {changes.additions.map((value, index) => {
                   return (
                     <ListItem key={index} className={classes.additionListItem}>
                       <Typography>{value.name}</Typography>
@@ -44,7 +119,7 @@ class ChangesComponent extends Component {
             <Typography>Removals</Typography>
             <div>
               <List>
-                {removals.map((value, index) => {
+                {changes.removals.map((value, index) => {
                   return (
                     <ListItem key={index} className={classes.removalListItem}>
                       <Typography>{value.name}</Typography>

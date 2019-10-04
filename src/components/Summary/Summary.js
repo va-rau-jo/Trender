@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, MenuItem, Typography, withStyles } from "@material-ui/core";
+import { Button, Typography, withStyles } from "@material-ui/core";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -20,79 +20,6 @@ class Summary extends Component {
     };
     this.firebaseController = this.props.firebaseController;
     this.handleSelectChange = this.handleSelectChange.bind(this);
-  }
-
-  /**
-   * Compares 2 objects by their name property
-   * @param {Object 1} a
-   * @param {Object 2} b
-   */
-  compareByName(a, b) {
-    return a.name.toLowerCase() > b.name.toLowerCase()
-      ? 1
-      : a.name.toLowerCase() < b.name.toLowerCase()
-      ? -1
-      : 0;
-  }
-
-  /**
-   * Gets the additions and removals between the current playlist and the
-   * one selected in the select component.
-   * Returns an array with the additions in index 0 and removals in index 1
-   */
-  getPlaylistChanges() {
-    let selected = this.props.selected;
-    let cIndex = this.state.compareIndex;
-    let additions = [];
-    let removals = [];
-    // console.log(this.state.songs);
-    if (selected !== -1) {
-      let curr = this.state.songs[selected].slice();
-      let other = copyAndRemoveItem(this.state.songs, cIndex)[cIndex].slice();
-      // console.log(cIndex);
-      curr.sort(this.compareByName);
-      other.sort(this.compareByName);
-      let iCurr = 0;
-      let iOther = 0;
-      for (let i = 0; i < Math.max(curr.length, other.length); i++) {
-        let song1 = iCurr < curr.length ? curr[iCurr].name.toLowerCase() : null;
-        let song2 =
-          iOther < other.length ? other[iOther].name.toLowerCase() : null;
-        if (song1 === song2) {
-          // console.log("same");
-          iCurr++;
-          iOther++;
-        } else if (!song2 || song1 < song2) {
-          // console.log("new");
-          additions.push(curr[iCurr]);
-          iCurr++;
-        } else if (!song1 || song1 > song2) {
-          // console.log("gone");
-          removals.push(other[iOther]);
-          iOther++;
-        }
-      }
-      return [additions, removals];
-    }
-  }
-
-  /**
-   * Returns the HTML that is passed into the Select component
-   * by generating MenuItems with the playlist's name
-   * @param {The array consisting of the valid
-   * monthly playlists to compare to} options
-   */
-  getSelectOptions(options) {
-    let components = [];
-    for (let i = 0; i < options.length; i++) {
-      let menuItemComponent = (
-        <MenuItem key={i} value={i}>
-          {options[i].name}
-        </MenuItem>
-      );
-      components.push(menuItemComponent);
-    }
-    return components;
   }
 
   /**
@@ -165,22 +92,17 @@ class Summary extends Component {
   render() {
     const { classes, playlists, selected } = this.props;
     let rankingEditsToggled = this.state.rankingEditsToggled;
+    let cIndex = this.state.compareIndex;
 
     if (selected === -1 || !this.state.songs) return null;
     else {
       // Options for the select component
-      let options = this.getSelectOptions(
-        copyAndRemoveItem(playlists, selected)
-      );
       // Index 0 is additions, index 1 is removals
-      let changes = this.getPlaylistChanges();
       return (
         <div className={classes.page}>
           <Header
             playlist1={playlists[selected]}
-            playlist2={
-              copyAndRemoveItem(playlists, selected)[this.state.compareIndex]
-            }
+            playlist2={copyAndRemoveItem(playlists, selected)[cIndex]}
           />
           <div className={classes.body}>
             <div className={classes.songListDiv}>
@@ -238,11 +160,13 @@ class Summary extends Component {
             <div className={classes.selectDiv}>
               <div>
                 <ChangesComponent
-                  additions={changes[0]}
-                  compareIndex={this.state.compareIndex}
+                  compareIndex={cIndex}
+                  playlists={copyAndRemoveItem(playlists, selected)}
+                  songList1={this.state.songs[selected].slice()}
+                  songList2={copyAndRemoveItem(this.state.songs, cIndex)[
+                    cIndex
+                  ].slice()}
                   handleSelectChange={this.handleSelectChange}
-                  options={options}
-                  removals={changes[1]}
                 />
               </div>
             </div>
