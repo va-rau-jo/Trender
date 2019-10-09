@@ -44,15 +44,12 @@ class ChangesComponent extends Component {
       let song2 =
         iOther < other.length ? other[iOther].name.toLowerCase() : null;
       if (song1 === song2) {
-        // console.log("same");
         iCurr++;
         iOther++;
       } else if (!song2 || song1 < song2) {
-        // console.log("new");
         additions.push(curr[iCurr]);
         iCurr++;
       } else if (!song1 || song1 > song2) {
-        // console.log("gone");
         removals.push(other[iOther]);
         iOther++;
       }

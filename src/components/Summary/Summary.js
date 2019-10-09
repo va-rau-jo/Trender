@@ -36,6 +36,7 @@ class Summary extends Component {
    * Event handler that starts when the user starts dragging a song
    */
   onDragStart = (event, index) => {
+    console.log(this.refs);
     let row = this.refs.tableRow;
     let parentNode = event.target.parentNode.parentNode;
     this.draggedItem = this.state.songs[this.props.selected][index];
@@ -96,8 +97,6 @@ class Summary extends Component {
 
     if (selected === -1 || !this.state.songs) return null;
     else {
-      // Options for the select component
-      // Index 0 is additions, index 1 is removals
       return (
         <div className={classes.page}>
           <Header
@@ -128,18 +127,24 @@ class Summary extends Component {
                         onDragStart={e => this.onDragStart(e, index)}
                         onDragEnd={this.onDragEnd}
                       >
-                        <TableCell
-                          className={classes.tableCell}
-                          component="th"
-                          scope="row"
-                        >
+                        <TableCell className={classes.tableCell}>
                           <Typography> {index + 1} </Typography>
                         </TableCell>
-                        <TableCell className={classes.tableCell} align="right">
-                          {item.name}
+                        <TableCell
+                          className={classes.tableCellTitle}
+                          align="right"
+                        >
+                          {item.name.length > 22
+                            ? item.name.substring(0, 20) + "..."
+                            : item.name}
                         </TableCell>
-                        <TableCell className={classes.tableCell} align="right">
-                          {item.artists[0].name}
+                        <TableCell
+                          className={classes.tableCellArtist}
+                          align="right"
+                        >
+                          {item.artists[0].name.length > 22
+                            ? item.artists[0].name.substring(0, 20) + "..."
+                            : item.artists[0].name}
                         </TableCell>
                         <TableCell className={classes.tableCellEdit}>
                           <div

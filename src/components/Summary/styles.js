@@ -22,7 +22,7 @@ const styles = () => ({
   },
   songListDiv: {
     // song list div
-    flex: "33%"
+    flex: "40%"
   },
   songListItem: {
     // ListItem component
@@ -55,7 +55,7 @@ const styles = () => ({
     width: "16px"
   },
   selectDiv: {
-    flex: "67%"
+    flex: "60%"
   },
   table: {
     margin: "0px auto",
@@ -65,6 +65,16 @@ const styles = () => ({
     color: "white",
     textAlign: "left",
     userSelect: "none"
+  },
+  tableCellTitle: {
+    color: "white",
+    textAlign: "left",
+    width: "50%"
+  },
+  tableCellArtist: {
+    color: "white",
+    textAlign: "left",
+    width: "40%"
   },
   tableCellEdit: {
     color: "white",

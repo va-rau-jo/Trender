@@ -19,7 +19,6 @@ export function filterPlaylistsByMonth(playlists) {
  * @param {Index to be removed} index
  */
 export function copyAndRemoveItem(array, index) {
-  console.log(index);
   let a = array.slice();
   a.splice(index, 1);
   return a;

@@ -9,6 +9,10 @@ import Toolbar from "./components/Toolbar";
 import FirebaseController from "./utils/FirebaseController";
 import { filterPlaylistsByMonth } from "./utils/helpers";
 
+// Set to true this redirects to localhost,
+// otherwise to the actual Spotify Trender server
+const DEBUG_MODE = false;
+
 const base_url = "https://api.spotify.com/v1/";
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -152,8 +156,12 @@ class App extends Component {
   render() {
     const { accessToken, accessError, playlists } = this.state;
     const { classes } = this.props;
+    let redirect = DEBUG_MODE
+      ? "http://localhost:8888"
+      : "https://spotify-trender-server.herokuapp.com";
+
     if ((this.state && !accessToken) || accessError) {
-      window.location.replace("http://localhost:8888");
+      window.location.replace(redirect);
       return null;
     } else if (!playlists) {
       return (
