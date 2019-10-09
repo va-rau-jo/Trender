@@ -156,7 +156,7 @@ class App extends Component {
     let redirect = process.env.BACKEND_URI || "https://localhost:8888";
 
     if ((this.state && !accessToken) || accessError) {
-      window.location.replace(redirect);
+      //window.location.replace(redirect);
       return null;
     } else if (!playlists) {
       return (
