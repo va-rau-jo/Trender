@@ -152,7 +152,8 @@ class App extends Component {
   render() {
     const { accessToken, accessError, playlists } = this.state;
     const { classes } = this.props;
-    let redirect = process.env.BACKEND_URI;
+    console.log(process.env.BACKEND_URI);
+    let redirect = process.env.BACKEND_URI || "https://localhost:8888";
 
     if ((this.state && !accessToken) || accessError) {
       window.location.replace(redirect);
