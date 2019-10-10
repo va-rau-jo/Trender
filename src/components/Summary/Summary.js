@@ -8,7 +8,7 @@ import styles from "./styles";
 import { ReactComponent as Hamburger } from "../../hamburger.svg";
 import Header from "../Header";
 import ColoredLine from "../ColoredLine";
-import ChangesComponent from "../../ChangesComponent/ChangesComponent";
+import ChangesComponent from "../ChangesComponent/ChangesComponent";
 import { copyAndRemoveItem } from "../../utils/helpers";
 
 class Summary extends Component {
