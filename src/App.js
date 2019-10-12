@@ -152,11 +152,11 @@ class App extends Component {
   render() {
     const { accessToken, accessError, playlists } = this.state;
     const { classes } = this.props;
-    console.log(process.env);
-    let redirect = process.env.BACKEND_URI || "https://localhost:8888";
-
+    let redirect = window.location.includes("localhost")
+      ? "https://localhost:8888"
+      : "https://spotify-trender-server.herokuapp.com";
     if ((this.state && !accessToken) || accessError) {
-      //window.location.replace(redirect);
+      window.location.replace(redirect);
       return null;
     } else if (!playlists) {
       return (
