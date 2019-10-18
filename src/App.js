@@ -153,7 +153,7 @@ class App extends Component {
     const { accessToken, accessError, playlists } = this.state;
     const { classes } = this.props;
     let redirect = window.location.href.includes("localhost")
-      ? "https://localhost:8888"
+      ? "http://localhost:8888/"
       : "https://spotify-trender-server.herokuapp.com";
     if ((this.state && !accessToken) || accessError) {
       window.location.replace(redirect);
