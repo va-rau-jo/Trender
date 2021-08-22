@@ -16,6 +16,7 @@ class Summary extends Component {
     super(props);
     this.state = {
       compareIndex: 0,
+      // Array with the song objects of each monthly playlist
       songs: props.songs
     };
     this.firebaseController = this.props.firebaseController;
@@ -24,8 +25,7 @@ class Summary extends Component {
 
   /**
    * Updates the state compareIndex variable with the selected value
-   * @param {Event with the new selected index} event
-   */
+  */
   handleSelectChange(event) {
     this.setState({
       compareIndex: event.target.value
@@ -36,7 +36,6 @@ class Summary extends Component {
    * Event handler that starts when the user starts dragging a song
    */
   onDragStart = (event, index) => {
-    console.log(this.refs);
     let row = this.refs.tableRow;
     let parentNode = event.target.parentNode.parentNode;
     this.draggedItem = this.state.songs[this.props.selected][index];
@@ -51,11 +50,11 @@ class Summary extends Component {
    */
   onDragOver = index => {
     let songArray = this.state.songs;
-    let monthlySongs = songArray[this.props.selected];
+    const monthlySongs = songArray[this.props.selected];
     const draggedOverItem = monthlySongs[index];
 
-    // if the item is dragged over itself, ignore
-    if (this.draggedItem === draggedOverItem) {
+    // if the dragged item isn't a song or it's dragging over itself, ignore
+    if (!this.draggedItem || this.draggedItem === draggedOverItem) {
       return;
     }
     // filter out the currently dragged item
@@ -91,27 +90,31 @@ class Summary extends Component {
   };
 
   render() {
-    const { classes, playlists, selected } = this.props;
+    const { classes, playlist, songs } = this.props;
     let rankingEditsToggled = this.state.rankingEditsToggled;
     let cIndex = this.state.compareIndex;
 
-    if (selected === -1 || !this.state.songs) return null;
-    else {
+    console.log(playlist);
+    console.log(songs);
+
+    if (!playlist) {
+      return null;
+    } else {
       return (
-        <div className={classes.page}>
-          <Header
-            playlist1={playlists[selected]}
-            playlist2={copyAndRemoveItem(playlists, selected)[cIndex]}
-          />
-          <div className={classes.body}>
+        // <div className={classes.page}>
+        //   <Header
+        //     playlist1={playlists[selected]}
+        //     playlist2={copyAndRemoveItem(playlists, selected)[cIndex]}
+        //   />
+        //   <div className={classes.body}>
             <div className={classes.songListDiv}>
-              <div style={{ margin: "0px 20px 0px 20px" }}>
+              <div style={{ margin: "0px 20px" }}>
                 <ColoredLine color="white" height="1px" />
                 <Button
                   variant="contained"
-                  onClick={() =>
-                    this.toggleRankingEdits(playlists[selected].name, selected)
-                  }
+                  // onClick={() =>
+                  //   this.toggleRankingEdits(playlists[selected].name, selected)
+                  // }
                 >
                   {rankingEditsToggled ? "Save" : "Edit"}
                 </Button>
@@ -119,7 +122,7 @@ class Summary extends Component {
               <div style={{ display: "flex" }}>
                 <Table className={classes.table}>
                   <TableBody>
-                    {this.state.songs[selected].map((item, index) => (
+                    {songs.map((item, index) => (
                       <TableRow
                         ref="tableRow"
                         key={index}
@@ -162,21 +165,21 @@ class Summary extends Component {
                 </Table>
               </div>
             </div>
-            <div className={classes.selectDiv}>
-              <div>
-                <ChangesComponent
-                  compareIndex={cIndex}
-                  playlists={copyAndRemoveItem(playlists, selected)}
-                  songList1={this.state.songs[selected].slice()}
-                  songList2={copyAndRemoveItem(this.state.songs, selected)[
-                    cIndex
-                  ].slice()}
-                  handleSelectChange={this.handleSelectChange}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        //     <div className={classes.selectDiv}>
+        //       <div>
+        //         <ChangesComponent
+        //           compareIndex={cIndex}
+        //           playlists={copyAndRemoveItem(playlists, selected)}
+        //           songList1={this.state.songs[selected].slice()}
+        //           songList2={copyAndRemoveItem(this.state.songs, selected)[
+        //             cIndex
+        //           ].slice()}
+        //           handleSelectChange={this.handleSelectChange}
+        //         />
+        //       </div>
+        //     </div>
+        //   </div>
+        // </div>
       );
     }
   }

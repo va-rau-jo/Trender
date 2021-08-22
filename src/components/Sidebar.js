@@ -14,10 +14,8 @@ const styles = () => ({
     margin: "0px 0px 0px 15px"
   },
   listItem: {
-    color: "white"
   },
   titleText: {
-    color: "white",
     margin: "15px 0px 0px 0px",
     textAlign: "center"
   }

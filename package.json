@@ -4,11 +4,13 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.4.0",
+    "@types/react": "^17.0.18",
     "firebase": "^6.6.0",
     "query-string": "^6.8.3",
     "react": "^16.9.0",
     "react-beautiful-dnd": "^11.0.5",
     "react-dom": "^16.9.0",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "3.1.1",
     "react-select": "^3.0.4"
   },

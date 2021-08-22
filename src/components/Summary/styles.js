@@ -62,22 +62,18 @@ const styles = () => ({
     width: "90%"
   },
   tableCell: {
-    color: "white",
     textAlign: "left",
     userSelect: "none"
   },
   tableCellTitle: {
-    color: "white",
     textAlign: "left",
     width: "50%"
   },
   tableCellArtist: {
-    color: "white",
     textAlign: "left",
     width: "40%"
   },
   tableCellEdit: {
-    color: "white",
     width: "24px"
   }
 });

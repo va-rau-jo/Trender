@@ -23,7 +23,6 @@ const styles = () => ({
   select: {
     // select component
     border: "5px solid black",
-    color: "white",
     width: "120px"
   }
 });

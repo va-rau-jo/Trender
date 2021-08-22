@@ -4,11 +4,9 @@ import ColoredLine from "./ColoredLine";
 
 const styles = () => ({
   background: {
-    background: "rgba(52, 52, 52, 0.0)",
     margin: "0px 0px 0px 0px"
   },
   title: {
-    color: "white",
     fontWeight: "bold",
     margin: "0px 0px 0px 20px"
   }
