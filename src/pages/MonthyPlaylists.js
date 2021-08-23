@@ -16,20 +16,22 @@ import Summary from "../components/Summary/Summary";
  * that the React components provide. The CSS will actually follow this!
  */
 const styles = () => ({
+  // The drawer object
   drawer: {
     height: '100%',
-    overflowY: 'auto',
-    position: 'fixed',
-    top: '0',
-    width: '160px',
-    zIndex: '1200',
+    overflowY: 'scroll',
+    width: '12%',
   },
+  // Max width of drawer container
   drawerContainer: {
     width: '160px',
   },
+  // Parent div to display the sidebar and summary
   flex: {
     display: 'flex',
+    height: '100%',
   },
+  // List item (month name) in the drawer.
   listItemMonth: {
     cursor: "pointer",
     textAlign: "center",
@@ -38,10 +40,15 @@ const styles = () => ({
       background: "#dedede"
     },
   },
+  // Summary component's area should expand to fit the remaining area.
   summary: {
-    flexGrow: 1,
+    margin: '0 auto',
+    textAlign: 'center',
+    width: '87%',
   },
+  // Label for each year in the drawer.
   yearLabel: {
+    fontWeight: "bold",
     marginLeft: "10px",
   },
 });
@@ -106,7 +113,6 @@ class MonthlyPlaylists extends Component {
    * @returns {Array} An array of song objects.
    */
   getSongsFromStateVar(yearIndex, monthIndex) {
-    console.log(this.state.playlists)
     return this.state.playlists[yearIndex][1][monthIndex][1];
   }
 
@@ -137,10 +143,10 @@ class MonthlyPlaylists extends Component {
     }
 
     const drawer = (
-      <div>
+      <div className={classes.drawer}>
         {/* Year list contains ["year", [[playlist1, songs1]... ] */}
         {this.state.playlists.map((yearList, i) => (
-          <div key={i}>
+          <div key={i} >
             {i !== 0 ? <Divider /> : null}
 
             <List>
@@ -161,13 +167,7 @@ class MonthlyPlaylists extends Component {
 
     return (
       <div className={classes.flex}>
-        <div className={classes.drawerContainer}>
-          <div className={classes.drawer}>
-            <Paper elevation={1} variant="outlined">
-              {drawer}
-            </Paper>
-          </div>
-        </div>
+        {drawer}
         <div className={classes.summary}>
           <Summary
             firebaseController={firebaseController}

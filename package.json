@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@material-ui/core": "^4.4.0",
+    "@material-ui/core": "^4.12.3",
     "@types/react": "^17.0.18",
     "firebase": "^6.6.0",
     "query-string": "^6.8.3",

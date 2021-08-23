@@ -10,7 +10,6 @@ export function filterPlaylistsByMonth(playlists) {
       playlists.splice(i, 1);
     }
   }
-  console.log(playlists);
 }
 
 /**

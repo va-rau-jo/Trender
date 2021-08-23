@@ -62,7 +62,6 @@ class App extends Component {
             Page Not Found
           </Route>
         </Switch>
-
       </Router>
     );
   }

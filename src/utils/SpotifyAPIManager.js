@@ -58,11 +58,12 @@ class SpotifyAPIManager {
         return res.json();
       }).then(tracks => {
         songs[i] = tracks.items.map(song => ({
-          // Add other fields here if necessary.
+          // TODO: Add other fields here if necessary.
           added_at: song.added_at,
           artists: song.track.artists,
           duration: song.track.duration_ms / 1000,
           explicit: song.track.explicit,
+          image: song.track.album.images[0],
           name: song.track.name,
         }));
       })
