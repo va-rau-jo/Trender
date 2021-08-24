@@ -3,7 +3,6 @@ import { filterPlaylistsByMonth } from "./helpers";
 const BASE_URL = "https://api.spotify.com/v1/";
 
 class SpotifyAPIManager {
-
   /**
    * Get playlist data from Spotify API and call API again for each playlist
    * to get the song data
@@ -60,9 +59,10 @@ class SpotifyAPIManager {
         songs[i] = tracks.items.map(song => ({
           // TODO: Add other fields here if necessary.
           added_at: song.added_at,
-          artists: song.track.artists,
+          artist: this.combineArtists(song.track.artists),
           duration: song.track.duration_ms / 1000,
-          explicit: song.track.explicit,
+          // Good for key in React mapping
+          id: song.track.id || this.generateRandomId(),
           image: song.track.album.images[0],
           name: song.track.name,
         }));
@@ -103,6 +103,37 @@ class SpotifyAPIManager {
             });
         }
       });
+  }
+
+  /**
+   * Helper function to combine multiple artists into 1 comma separated string.
+   * @param {Array} artists Array of artist objects
+   * @returns {string} A comma separated string of artist names.
+   */
+  static combineArtists(artists) {
+    if (artists.length === 1) {
+      return artists[0].name;
+    }
+
+    let joined = "";
+    artists.forEach((artist) => {
+      joined += artist.name + ", ";
+    });
+
+    // Cut out the last ", "
+    return joined.substring(0, joined.length - 2);
+  }
+
+  /**
+   * Imported songs don't have an id, so we need a dummy id so we can use it as
+   * a key. When fetching from the Spotify API, we just check if the value
+   * returned is valid since the id won't return anything/
+   * @returns {string} A 16 char string.
+   */
+  static generateRandomId() {
+    return Math.floor((1 + Math.random()) * 0x1000000000000)
+      .toString(16)
+      .substring(1);
   }
 
   static getAccessToken() {

@@ -1,5 +1,12 @@
 import React, { Component } from "react";
-import { Button, ImageList, ImageListItem, Typography, withStyles } from "@material-ui/core";
+import {
+  ImageList,
+  ImageListItem,
+  ImageListItemBar,
+  Typography,
+  withStyles,
+  withTheme
+} from "@material-ui/core";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -11,90 +18,74 @@ import { copyAndRemoveItem } from "../../utils/helpers";
 
 const styles = () => ({
   body: {
-    display: "flex"
+    display: 'flex'
+  },
+  ellipsisText: {
+    margin: '0 5px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   flexVert: {
     display: 'flex',
     flexDirection: 'column',
   },
   hamburger: {
-    cursor: "pointer",
-    float: "left",
-    height: "16px",
-    margin: "4px 4px 4px 4px",
-    width: "16px"
+    cursor: 'pointer',
+    float: 'left',
+    height: '16px',
+    margin: '4px 4px 4px 4px',
+    width: '16px'
+  },
+  // ImageList randomly sets inline style for padding, width, and height, so we
+  // need important to override it.
+  imageListItem: {
+    height: 'auto !important',
+    margin: '0 5px',
+    padding: '0 !important',
+    width: 'auto !important',
   },
   invisible: {
-    display: "none"
+    display: 'none',
   },
-  page: {
-    // main page theme
-    alignitems: "stretch",
-    color: "white",
-    flexdirection: "row",
-    textAlign: "center",
-    width: "100%"
+  songArtist: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   songList: {
-    flexWrap: "nowrap",
+    background: '#e5ecf7',
+    borderRadius: '10px',
+    flexWrap: 'nowrap',
+    // overrides ImageList inline style
+    margin: '5px 20px !important',
+    padding: '15px 10px 0px 10px',
     transform: 'translateZ(0)',
   },
-  songListDiv: {
-    // song list div
-    flex: "40%"
+  songListImage: {
+    borderRadius: '10px',
+    height: '200px',
+    width: '200px',
   },
-  songListItem: {
-    // ListItem component
-    cursor: "move",
-    display: "flex"
+  songListTitle: {
+    fontSize: '36px',
+    fontWeight: 'bold',
+    margin: '16px 0',
   },
-  songListItemDiff: {
-    // The ranking component "1 /\"
-    backgroundColor: "#1F2533",
-    height: "24px",
-    marginRight: "20px",
-    width: "64px"
+  songItemDescription: {
+    backgroundColor: '#000000CC',
+    bottom: '4px',
+    borderRadius: '0 0 10px 10px',
+    height: '65px',
+    position: 'absolute',
+    textAlign: 'center',
+    width: '100%',
   },
-  songListItemDiv: {
-    // The draggable div component
-    display: "flex",
-    width: "100%"
+  songTitle: {
+    color: 'white',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    marginTop: '5px',
   },
-  songListItemDivToggled: {
-    // The draggable div component
-    backgroundColor: "#1F2533",
-    display: "flex",
-    width: "100%"
-  },
-  songListItemPic: {
-    // The image containing the chevron
-    float: "right",
-    height: "16px",
-    margin: "4px 2px 4px 0px",
-    width: "16px"
-  },
-  selectDiv: {
-    flex: "60%"
-  },
-  table: {
-    margin: "0px auto",
-    width: "90%"
-  },
-  tableCell: {
-    textAlign: "left",
-    userSelect: "none"
-  },
-  tableCellTitle: {
-    textAlign: "left",
-    width: "50%"
-  },
-  tableCellArtist: {
-    textAlign: "left",
-    width: "40%"
-  },
-  tableCellEdit: {
-    width: "24px"
-  }
 });
 
 class Summary extends Component {
@@ -125,8 +116,8 @@ class Summary extends Component {
     let row = this.refs.tableRow;
     let parentNode = event.target.parentNode.parentNode;
     this.draggedItem = this.state.songs[this.props.selected][index];
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("text/html", parentNode);
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/html', parentNode);
     // TODO: figure out the correct offset for every screen size
     event.dataTransfer.setDragImage(parentNode, row.offsetWidth - 38, 0);
   };
@@ -177,120 +168,41 @@ class Summary extends Component {
 
   render() {
     const { classes, playlist, songs } = this.props;
-    let rankingEditsToggled = this.state.rankingEditsToggled;
-    let cIndex = this.state.compareIndex;
 
     console.log(songs);
-
     if (!playlist) {
       return null;
     } else {
       return (
         <div className={classes.flexVert}>
-
-          <Typography variant="h3">
-            Songs
+          <Typography className={classes.songListTitle} variant='h2'>
+            {playlist.name} Songs
           </Typography>
           <div>
             <ImageList className={classes.songList}>
               {songs.map((song) => (
-                <ImageListItem key={song.name} cols={1}>
+                <ImageListItem className={classes.imageListItem} key={song.id}>
                   {song.image ?
-                    <img src={song.image.url} alt={song.name} /> :
-                    <div> placeholder </div>}
+                    <img className={classes.songListImage}
+                      src={song.image.url} alt={song.name} /> :
+                    <img className={classes.songListImage}
+                      src="/images/sound_file.png" alt="No image"/>}
+                  <div className={classes.songItemDescription}
+                    title={song.name}
+                    subtitle={song.artist}>
+                    <Typography className={[classes.songTitle, classes.ellipsisText].join(' ')}
+                      variant='h6'>
+                      {song.name}
+                    </Typography>
+                    <Typography className={[classes.songArtist, classes.ellipsisText].join(' ')} variant='subtitle2'>
+                      {song.artist}
+                    </Typography>
+                  </div>
                 </ImageListItem>
               ))}
             </ImageList>
-            {/* {songs.map((song) => (
-              <div>
-                {song.name}
-              </div>
-            ))} */}
           </div>
         </div>
-
-
-
-
-        // <div className={classes.page}>
-        //   <Header
-        //     playlist1={playlists[selected]}
-        //     playlist2={copyAndRemoveItem(playlists, selected)[cIndex]}
-        //   />
-        //   <div className={classes.body}>
-            // <div className={classes.songListDiv}>
-            //   <div style={{ margin: "0px 20px" }}>
-            //     <ColoredLine color="white" height="1px" />
-            //     <Button
-            //       variant="contained"
-            //       // onClick={() =>
-            //       //   this.toggleRankingEdits(playlists[selected].name, selected)
-            //       // }
-            //     >
-            //       {rankingEditsToggled ? "Save" : "Edit"}
-            //     </Button>
-            //   </div>
-            //   <div style={{ display: "flex" }}>
-            //     <Table className={classes.table}>
-            //       <TableBody>
-            //         {songs.map((item, index) => (
-            //           <TableRow
-            //             ref="tableRow"
-            //             key={index}
-            //             onDragOver={() => this.onDragOver(index)}
-            //             onDragStart={e => this.onDragStart(e, index)}
-            //             onDragEnd={this.onDragEnd}
-            //           >
-            //             <TableCell className={classes.tableCell}>
-            //               <Typography> {index + 1} </Typography>
-            //             </TableCell>
-            //             <TableCell
-            //               className={classes.tableCellTitle}
-            //               align="right"
-            //             >
-            //               {item.name.length > 22
-            //                 ? item.name.substring(0, 20) + "..."
-            //                 : item.name}
-            //             </TableCell>
-            //             <TableCell
-            //               className={classes.tableCellArtist}
-            //               align="right"
-            //             >
-            //               {item.artists[0].name.length > 22
-            //                 ? item.artists[0].name.substring(0, 20) + "..."
-            //                 : item.artists[0].name}
-            //             </TableCell>
-            //             <TableCell className={classes.tableCellEdit}>
-            //               <div
-            //                 draggable
-            //                 className={
-            //                   !rankingEditsToggled ? classes.invisible : ""
-            //                 }
-            //               >
-            //                 <Hamburger className={classes.hamburger} />
-            //               </div>
-            //             </TableCell>
-            //           </TableRow>
-            //         ))}
-            //       </TableBody>
-            //     </Table>
-            //   </div>
-            // </div>
-        //     <div className={classes.selectDiv}>
-        //       <div>
-        //         <ChangesComponent
-        //           compareIndex={cIndex}
-        //           playlists={copyAndRemoveItem(playlists, selected)}
-        //           songList1={this.state.songs[selected].slice()}
-        //           songList2={copyAndRemoveItem(this.state.songs, selected)[
-        //             cIndex
-        //           ].slice()}
-        //           handleSelectChange={this.handleSelectChange}
-        //         />
-        //       </div>
-        //     </div>
-        //   </div>
-        // </div>
       );
     }
   }

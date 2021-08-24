@@ -44,7 +44,10 @@ body {
 
 /* custom scrollbar */
 ::-webkit-scrollbar {
-  width: 20px;
+  /* Horizontal scrollbars have a height of 22px */
+  height: 22px;
+  /* Vertical scrollbars have a width of 22px */
+  width: 22px;
 }
 
 ::-webkit-scrollbar-track {
@@ -52,7 +55,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #d6dee1;
+  background-color: #a0a2a3;
   border-radius: 20px;
   border: 6px solid transparent;
   background-clip: content-box;
