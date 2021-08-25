@@ -1,11 +1,12 @@
-import firebase from "firebase";
-import firebaseConfig from "./config";
-import FirebaseController from "./utils/FirebaseController";
-import queryString from "query-string";
+import firebase from 'firebase';
+import firebaseConfig from './config';
+import FirebaseController from './utils/FirebaseController';
+import queryString from 'query-string';
 import Home from './pages/Home';
 import LoadingIndicator from './components/LoadingIndicator';
-import MonthlyPlaylists from "./pages/MonthyPlaylists";
-import React, { Component } from "react";
+import MonthlyPlaylists from './pages/MonthyPlaylists';
+import Combiner from './pages/Combiner';
+import React, { Component } from 'react';
 import SpotifyAPIManager from './utils/SpotifyAPIManager';
 import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 
@@ -24,15 +25,14 @@ class App extends Component {
     };
 
     if (accessToken) {
-      console.log("accesstoken: " + accessToken)
       SpotifyAPIManager.setAccessToken(accessToken);
     }
   }
 
   render() {
-    const redirect = window.location.href.includes("localhost")
-      ? "http://localhost:8888/"
-      : "https://spotify-trender-server.herokuapp.com";
+    const redirect = window.location.href.includes('localhost')
+      ? 'http://localhost:8888/'
+      : 'https://spotify-trender-server.herokuapp.com';
 
     if (this.state && !this.state.accessToken) {
       window.location.replace(redirect);
@@ -48,15 +48,19 @@ class App extends Component {
         <Switch> any time you have multiple routes, but you want only one of
           them to render at a time */}
         <Switch>
-          <Route exact path="/">
+          <Route exact path='/'>
             <Home
               accessToken={this.state.accessToken}
               firebaseController={firebaseController} />
           </Route>
-          <Route path="/monthly">
+          <Route path='/monthly'>
             <MonthlyPlaylists
               accessToken={this.state.accessToken}
               firebaseController={firebaseController} />
+          </Route>
+          <Route path='/combiner'>
+            <Combiner
+              accessToken={this.state.accessToken} />
           </Route>
           <Route>
             Page Not Found

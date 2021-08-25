@@ -2,24 +2,11 @@ import React, { Component } from "react";
 import {
   ImageList,
   ImageListItem,
-  ImageListItemBar,
   Typography,
   withStyles,
-  withTheme
 } from "@material-ui/core";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import { ReactComponent as Hamburger } from "../../hamburger.svg";
-import Header from "../Header";
-import ColoredLine from "../ColoredLine";
-import ChangesComponent from "../ChangesComponent/ChangesComponent";
-import { copyAndRemoveItem } from "../../utils/helpers";
 
 const styles = () => ({
-  body: {
-    display: 'flex'
-  },
   ellipsisText: {
     margin: '0 5px',
     overflow: 'hidden',
@@ -34,7 +21,7 @@ const styles = () => ({
     cursor: 'pointer',
     float: 'left',
     height: '16px',
-    margin: '4px 4px 4px 4px',
+    margin: '4px',
     width: '16px'
   },
   // ImageList randomly sets inline style for padding, width, and height, so we
@@ -45,15 +32,25 @@ const styles = () => ({
     padding: '0 !important',
     width: 'auto !important',
   },
-  invisible: {
-    display: 'none',
+  newLabel: {
+    backgroundColor: 'red',
+    borderRadius: '10px',
+    position: 'absolute',
+    right: '4px',
+    textAlign: 'center',
+    top: '5px',
+    width: '25%',
+  },
+  newLabelText: {
+    color: 'white',
+    userSelect: 'none',
   },
   songArtist: {
     color: 'white',
     fontWeight: 'bold',
   },
   songList: {
-    background: '#e5ecf7',
+    background: 'white', //'#e5ecf7',
     borderRadius: '10px',
     flexWrap: 'nowrap',
     // overrides ImageList inline style
@@ -166,13 +163,35 @@ class Summary extends Component {
     });
   };
 
-  render() {
-    const { classes, playlist, songs } = this.props;
+  isSongNew(song, songList) {
+    if (!songList) {
+      return false;
+    }
 
-    console.log(songs);
+    for (let i = 0; i < songList.length; i++) {
+      if (song.name === songList[i].name &&
+        song.artist === songList[i].artist) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  render() {
+    const { classes, compareSongs, playlist, songs } = this.props;
+
     if (!playlist) {
       return null;
     } else {
+      const removals = [];
+      if (compareSongs) {
+        compareSongs.forEach((song) => {
+          if (this.isSongNew(song, songs)) {
+            removals.push(song);
+          }
+        });
+      }
+
       return (
         <div className={classes.flexVert}>
           <Typography className={classes.songListTitle} variant='h2'>
@@ -180,16 +199,21 @@ class Summary extends Component {
           </Typography>
           <div>
             <ImageList className={classes.songList}>
-              {songs.map((song) => (
+              {songs.slice(0).reverse().map((song) => (
                 <ImageListItem className={classes.imageListItem} key={song.id}>
                   {song.image ?
                     <img className={classes.songListImage}
                       src={song.image.url} alt={song.name} /> :
                     <img className={classes.songListImage}
-                      src="/images/sound_file.png" alt="No image"/>}
-                  <div className={classes.songItemDescription}
-                    title={song.name}
-                    subtitle={song.artist}>
+                      src="/images/sound_file.png" alt="No image" />}
+                  {this.isSongNew(song, compareSongs) ?
+                    <div className={classes.newLabel}>
+                      <Typography className={classes.newLabelText}
+                        variant='subtitle2'>
+                          NEW
+                      </Typography>
+                    </div> : null}
+                  <div className={classes.songItemDescription}>
                     <Typography className={[classes.songTitle, classes.ellipsisText].join(' ')}
                       variant='h6'>
                       {song.name}
@@ -202,6 +226,37 @@ class Summary extends Component {
               ))}
             </ImageList>
           </div>
+
+          {compareSongs ?
+            <>
+              <Typography className={classes.songListTitle} variant='h2'>
+                Removals
+              </Typography>
+              <div>
+                <ImageList className={classes.songList}>
+                  {removals.map((song) => (
+                    <ImageListItem className={classes.imageListItem} key={song.id}>
+                      {song.image ?
+                        <img className={classes.songListImage}
+                          src={song.image.url} alt={song.name} /> :
+                        <img className={classes.songListImage}
+                          src="/images/sound_file.png" alt="No image"/>}
+                      <div className={classes.songItemDescription}
+                        title={song.name}
+                        subtitle={song.artist}>
+                        <Typography className={[classes.songTitle, classes.ellipsisText].join(' ')}
+                          variant='h6'>
+                          {song.name}
+                        </Typography>
+                        <Typography className={[classes.songArtist, classes.ellipsisText].join(' ')} variant='subtitle2'>
+                          {song.artist}
+                        </Typography>
+                      </div>
+                    </ImageListItem>
+                  ))}
+                </ImageList>
+              </div>
+            </> : null}
         </div>
       );
     }

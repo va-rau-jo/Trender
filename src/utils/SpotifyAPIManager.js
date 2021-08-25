@@ -1,41 +1,48 @@
-import { filterPlaylistsByMonth } from "./helpers";
+import { filterPlaylistsByMonth } from './helpers';
 
-const BASE_URL = "https://api.spotify.com/v1/";
+const BASE_URL = 'https://api.spotify.com/v1/';
 
 class SpotifyAPIManager {
   /**
-   * Get playlist data from Spotify API and call API again for each playlist
-   * to get the song data
+   * Get playlist data from Spotify API for playlists with month names and call
+   * API again for each playlist to get the song data.
    *
    * @returns {Promise} A promise that when resolved, contains a map with
-   * "playlist" holding the playlists array and "songs" holding arrays of songs
+   * 'playlist' holding the playlists array and 'songs' holding arrays of songs
    * for each corresponding playlist.
    */
-  static getPlaylistData = () => {
-    const url = BASE_URL + "me/playlists?" + new URLSearchParams({ limit: 50 });
-    return new Promise((resolve, reject) => {
-      fetch(url, {
-        headers: { Authorization: "Bearer " + this.accessToken }
-      })
-        .then(res => {
-          return res.json();
-        })
-        .then(playlistData => {
-          const playlists = playlistData.items;
-          if (playlists) {
-            filterPlaylistsByMonth(playlists);
-
-            this.getSongData(playlists).then(songs => {
-              resolve({
-                "playlists": playlists,
-                "songs": songs
-              });
-            });
-          }
-        })
-        .catch(() => {
-          reject("Error fetching playlist data");
+  static getMonthlyPlaylistsData = () => {
+    const url = BASE_URL + 'me/playlists';
+    return new Promise(async (resolve, _) => {
+      const playlists = await this.repeatedlyFetch(url, 50);
+      filterPlaylistsByMonth(playlists);
+      this.getSongData(playlists).then(songs => {
+        resolve({
+          'playlists': playlists,
+          'songs': songs
         });
+      });
+    });
+  }
+
+  /**
+   * Get playlist data from Spotify API and call API again for each playlist to
+   * get the song data.
+   *
+   * @returns {Promise} A promise that when resolved, contains a map with
+   * 'playlist' holding the playlists array and 'songs' holding arrays of songs
+   * for each corresponding playlist.
+   */
+  static getPlaylistData () {
+    const url = BASE_URL + 'me/playlists';
+    return new Promise(async (resolve, _) => {
+      const playlists = await this.repeatedlyFetch(url, 50);
+      this.getSongData(playlists).then(songs => {
+        resolve({
+          'playlists': playlists,
+          'songs': songs
+        });
+      });
     });
   }
 
@@ -52,19 +59,19 @@ class SpotifyAPIManager {
     await Promise.all(playlists.map(async (playlist, i) => {
       // Fetches more trackData from playlist's details link
       await fetch(playlist.tracks.href, {
-        headers: { Authorization: "Bearer " + this.accessToken }
+        headers: { Authorization: 'Bearer ' + this.accessToken }
       }).then(res => {
         return res.json();
       }).then(tracks => {
         songs[i] = tracks.items.map(song => ({
           // TODO: Add other fields here if necessary.
           added_at: song.added_at,
-          artist: this.combineArtists(song.track.artists),
-          duration: song.track.duration_ms / 1000,
+          artist: song.track ? this.combineArtists(song.track.artists) : '',
+          duration: song.track ? song.track.duration_ms / 1000: 0,
           // Good for key in React mapping
-          id: song.track.id || this.generateRandomId(),
-          image: song.track.album.images[0],
-          name: song.track.name,
+          id: (song.track && song.track.id) || this.generateRandomId(),
+          image: song.track ? song.track.album.images[0] : null,
+          name: song.track ? song.track.name : '',
         }));
       })
     }));
@@ -76,8 +83,8 @@ class SpotifyAPIManager {
    * on Firebase, adding an entry if it does not already exist
    */
   static getUserData = (firebaseController) => {
-    fetch(BASE_URL + "me", {
-      headers: { Authorization: "Bearer " + this.accessToken }
+    fetch(BASE_URL + 'me', {
+      headers: { Authorization: 'Bearer ' + this.accessToken }
     })
       .then(res => {
         return res.json();
@@ -87,13 +94,13 @@ class SpotifyAPIManager {
           // add user if one doesn't exist yet, or set its state
           firebaseController.setCurrentUserId(data.id);
           let db = firebaseController.getDatabase();
-          db.collection("users")
-            .where("userId", "==", data.id)
+          db.collection('users')
+            .where('userId', '==', data.id)
             .get()
             .then(querySnapshot => {
               let docs = querySnapshot.docs;
               if (docs.length !== 1 || docs[0] === null) {
-                console.log("adding user");
+                console.log('adding user');
                 firebaseController.addUser(
                   data.id,
                   data.display_name,
@@ -106,6 +113,37 @@ class SpotifyAPIManager {
   }
 
   /**
+   * Method to fetch all the items from an API endpoint (since Spotify limits
+   * the items fetched per request). Repeats until the number of items returned
+   * is less than the limit.
+   * @param {string} baseUrl The base url before adding limit and offset.
+   * @param {number} limit The limit of items per request.
+   * @returns {Array} An array of items.
+   */
+  static async repeatedlyFetch(baseUrl, limit) {
+    let items = [];
+    let fetched = limit;
+    let offset = 0;
+
+    // Fetch until we get less than the max limit (reached the end)
+    while (fetched === limit) {
+      const url = baseUrl + '?' + new URLSearchParams({ limit, offset });
+      await fetch(url, {
+        headers: { Authorization: 'Bearer ' + this.accessToken }
+      }).then(res => {
+        return res.json();
+      }).then(json => {
+        fetched = json.items.length;
+        offset += json.items.length;
+        if (json.items.length > 0) {
+          items = items.concat(json.items);
+        }
+      });
+    }
+    return items;
+  }
+
+  /**
    * Helper function to combine multiple artists into 1 comma separated string.
    * @param {Array} artists Array of artist objects
    * @returns {string} A comma separated string of artist names.
@@ -115,12 +153,12 @@ class SpotifyAPIManager {
       return artists[0].name;
     }
 
-    let joined = "";
+    let joined = '';
     artists.forEach((artist) => {
-      joined += artist.name + ", ";
+      joined += artist.name + ', ';
     });
 
-    // Cut out the last ", "
+    // Cut out the last ', '
     return joined.substring(0, joined.length - 2);
   }
 
