@@ -50,7 +50,7 @@ const styles = () => ({
     fontWeight: 'bold',
   },
   songList: {
-    background: 'white', //'#e5ecf7',
+    background: 'white',
     borderRadius: '10px',
     flexWrap: 'nowrap',
     // overrides ImageList inline style
@@ -205,7 +205,7 @@ class Summary extends Component {
                     <img className={classes.songListImage}
                       src={song.image.url} alt={song.name} /> :
                     <img className={classes.songListImage}
-                      src="/images/sound_file.png" alt="No image" />}
+                      src="/images/sound_file.png" alt="N/A" />}
                   {this.isSongNew(song, compareSongs) ?
                     <div className={classes.newLabel}>
                       <Typography className={classes.newLabelText}

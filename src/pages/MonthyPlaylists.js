@@ -52,7 +52,6 @@ const styles = () => ({
   },
   // Summary component's area should expand to fit the remaining area.
   summary: {
-    backgroundColor: '#F7F6FD',
     margin: '0 auto',
     textAlign: 'center',
     width: '87%',
