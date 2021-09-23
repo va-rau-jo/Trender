@@ -1,7 +1,16 @@
 import React, { Component } from 'react';
-import { Button, Checkbox, FormControlLabel, ListSubheader, TextField, Typography, withStyles } from '@material-ui/core';
-import ImageList from '@material-ui/core/ImageList';
-import ImageListItem from '@material-ui/core/ImageListItem';
+import {
+  Button,
+  Checkbox,
+  FormControlLabel,
+  ImageList,
+  ImageListItem,
+  ListSubheader,
+  TextField,
+  Typography,
+  withStyles
+} from '@material-ui/core';
+
 import LoadingIndicator from '../components/LoadingIndicator';
 import SpotifyAPIManager from '../utils/SpotifyAPIManager';
 
@@ -24,6 +33,14 @@ const styles = () => ({
   compareBtn: {
     height: '20px',
     width: '20px',
+  },
+  createdPlaylistMessage: {
+    color: 'green',
+    fontWeight: 'bold',
+    left: '15px',
+    position: 'absolute',
+    right: '15px',
+    top: '102%'
   },
   // Max width of drawer container
   drawerContainer: {
@@ -69,14 +86,16 @@ const styles = () => ({
     textAlign: 'center',
     width: '100%',
   },
-  // List item (month name) in the drawer.
-  listItemMonth: {
-    cursor: 'pointer',
-    textAlign: 'center',
-    transition: 'background-color 150ms',
-    '&:hover': {
-      background: '#dedede'
-    },
+  listItemIndexDiv: {
+    position: 'absolute',
+    right: '5px',
+    top: '5px',
+  },
+  listItemIndex: {
+    backgroundColor: '#000000CC',
+    borderRadius: '50%',
+    color: 'white',
+    padding: '0 8px',
   },
   listItemText: {
     color: 'white',
@@ -88,6 +107,7 @@ const styles = () => ({
     flexShrink: '0',
     height: 'fit-content',
     margin: 'auto',
+    position: 'relative',
     textAlign: 'center',
     width: '350px',
   },
@@ -153,13 +173,15 @@ const HiddenCheckbox = withStyles({
   checked: {},
 })((props) => <Checkbox color="default" {...props} />);
 
+const CREATED_PLAYLIST_MESSAGE_TIMEOUT = 5000;
+
 class Combiner extends Component {
   constructor(props) {
     super(props);
 
     console.log("accesstoken: " + SpotifyAPIManager.getAccessToken())
     if (SpotifyAPIManager.getAccessToken()) {
-      SpotifyAPIManager.getPlaylistData().then(data => {
+      SpotifyAPIManager.getPlaylistData(false, true).then(data => {
         this.setState({
           playlists: data['playlists'],
           shouldMakeCollaborative: false,
@@ -172,6 +194,8 @@ class Combiner extends Component {
           // On initialization, will filter to show all playlists.
           this.filterPlaylists();
         });
+      }).catch(error => {
+        this.setState({ error });
       });
     }
   }
@@ -181,6 +205,7 @@ class Combiner extends Component {
    * it.
    */
   createPlaylist = () => {
+    // Values set by the user in the options tab
     const name = document.getElementById('playlistNameInput').value;
     const desc = document.getElementById('playlistDescriptionInput').value;
     const isPublic = this.state.shouldMakePublic;
@@ -188,19 +213,29 @@ class Combiner extends Component {
     const removeDups = this.state.shouldRemoveDuplicates;
 
     SpotifyAPIManager.createPlaylist(name, desc, isPublic, collab).then(res => {
-      const uriSet = new Set();
+      const uris = []
       this.state.selectedPlaylists.forEach(playlistId => {
         this.state.playlists.forEach((playlist, i) => {
-          if (playlist.id === playlistId) {
+          if (playlist.id === playlistId) { // only match selected playlists
             this.state.songs[i].forEach(song => {
-              uriSet.add('spotify:track:' + song.id);
+              if (!song.isLocalFile) {
+                const uri = 'spotify:track:' + song.id;
+                if (uris.indexOf(uri) === -1 || !removeDups) {
+                  uris.push(uri);
+                }
+              }
             })
           }
         })
       });
-      SpotifyAPIManager.addSongsToPlaylist(res.id, Array.from(uriSet))
+      if (uris.length > 0) {
+        SpotifyAPIManager.addSongsToPlaylist(res.id, uris).then(() => {
+          this.notifyCreatedPlaylist(name, uris.length);
+        })
+      } else {
+        this.notifyCreatedPlaylist(name, 0);
+      }
     });
-
   }
 
   /**
@@ -211,24 +246,34 @@ class Combiner extends Component {
     const filterText = input ? input.value.toLowerCase() : '';
 
     this.setState({
-      visiblePlaylists: this.state.playlists.map((playlist) => {
-        if (playlist.name.toLowerCase().includes(filterText)) {
-          return playlist.id;
-        }
-      })
+      visiblePlaylists: this.state.playlists
+        .filter(playlist => playlist.name.toLowerCase().includes(filterText))
+        .map(playlist => playlist.id)
     });
+  }
+
+  /**
+   * Displays a message that a playlist was created.
+   * @param {string} playlistName The name of the playlist.
+   * @param {number} songsAdded The number of songs added (also displayed).
+   */
+  notifyCreatedPlaylist = (playlistName, songsAdded) => {
+    this.setState({ createdPlaylistData: [playlistName, songsAdded] });
+
+    setTimeout(() => {
+      this.setState({ createdPlaylistData: null });
+    }, CREATED_PLAYLIST_MESSAGE_TIMEOUT);
   }
 
   /**
    * Select all playlists that fit the filter specifications.
    */
   selectAllPlaylists = () => {
+    console.log(this.state);
     this.setState({
-      selectedPlaylists: this.state.playlists.map((playlist) => {
-        if (this.state.visiblePlaylists.indexOf(playlist.id) > -1) {
-          return playlist.id;
-        }
-      })
+      selectedPlaylists: this.state.playlists
+        .filter(playlist => this.state.visiblePlaylists.includes(playlist.id))
+        .map(playlist => playlist.id)
     });
   }
 
@@ -246,6 +291,9 @@ class Combiner extends Component {
     }
   }
 
+  /**
+   * Toggles whether to make the new playlist public or not.
+   */
   toggleMakePublic = () => {
     const prevPublic = this.state.shouldMakePublic;
 
@@ -294,10 +342,12 @@ class Combiner extends Component {
     const { accessToken, classes } = this.props;
 
     // Go back to Home screen to fetch the Spotify access token.
-    if (this.state && !accessToken) {
-      window.location.replace('/');
-    } else if (!this.state) {
+    if (!this.state) {
       return <LoadingIndicator />;
+    } else if (!accessToken) {
+      window.location.replace('/');
+    } else if (this.state.error) {
+      return (<div> retry ? </div>);
     }
 
     const { selectedPlaylists, visiblePlaylists } = this.state;
@@ -312,13 +362,13 @@ class Combiner extends Component {
             <div className={classes.filterContainer}>
               <div className={classes.filterInputContainer}>
                 <TextField id="filterInput" label="Filter" variant="outlined" />
-                <Button className={classes.filterButton} variant="contained"
-                  color="primary" onClick={this.filterPlaylists}> Filter
+                <Button className={classes.filterButton} variant="contained" color="primary"
+                  onClick={this.filterPlaylists}> Filter
                 </Button>
               </div>
               <div>
-                <Button className={classes.selectAllBtn} variant="contained"
-                  color="secondary" onClick={this.selectAllPlaylists}>
+                <Button className={classes.selectAllBtn} variant="contained" color="secondary"
+                  onClick={this.selectAllPlaylists}>
                   Select All </Button>
                 <Button variant="contained" color="secondary"
                   onClick={this.unselectAllPlaylists}> Unselect All </Button>
@@ -335,24 +385,26 @@ class Combiner extends Component {
                 const selected = selectedPlaylists.indexOf(playlist.id) > -1;
                 if (visible) {
                   return (
-                    <ImageListItem cols={2} key={playlist.id}
-                      onClick={() => { this.togglePlaylist(playlist) }}
-                      className={classes.playlistListItem + ' ' +
-                        (selected ? classes.selectedListItem : '')}>
-                      <img className={classes.playlistListImage}
-                        src={playlist.images[0] ? playlist.images[0].url : "/images/sound_file.png"}
-                        alt="Playlist" />
+                    <ImageListItem cols={2} key={playlist.id} onClick={() => { this.togglePlaylist(playlist) }}
+                      className={classes.playlistListItem + ' ' + (selected ? classes.selectedListItem : '')}>
+                      <img className={classes.playlistListImage} alt="Playlist"
+                        src={playlist.images[0] ? playlist.images[0].url : "/images/sound_file.png"} />
+                      {selected ?
+                        <div className={classes.listItemIndexDiv}>
+                          <Typography className={classes.listItemIndex} variant='h6'>
+                            {(selectedPlaylists.indexOf(playlist.id) + 1)}
+                          </Typography>
+                        </div> : null}
+
                       <div className={classes.listItemDescription}>
                         <Typography className={classes.listItemText} variant='h6'>
                           {playlist.name}
                         </Typography>
-                        <Typography className={classes.listItemText}
-                          variant='subtitle1'>
+                        <Typography className={classes.listItemText} variant='subtitle1'>
                           {playlist.tracks.total} Songs
                         </Typography>
-                        <HiddenCheckbox id={playlist.id + 'checkbox'}
-                          className={classes.listCheckbox}
-                          checked={selected} />
+                        <HiddenCheckbox id={playlist.id + 'checkbox'} checked={selected}
+                          className={classes.listCheckbox} />
                       </div>
                     </ImageListItem>
                   );
@@ -395,6 +447,14 @@ class Combiner extends Component {
             </div>
             <Button variant="contained" color="primary"
               onClick={this.createPlaylist}> Create </Button>
+
+            {this.state.createdPlaylistData ?
+              <Typography className={classes.createdPlaylistMessage}
+                variant='body1'>
+                Created '{this.state.createdPlaylistData[0]}' with {' '}
+                {this.state.createdPlaylistData[1]} {' '}
+                song{this.state.createdPlaylistData[1] !== 1 ? 's' : ''}.
+              </Typography> : null}
           </div>
         </div>
       </div>

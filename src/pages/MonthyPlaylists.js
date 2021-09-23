@@ -69,8 +69,11 @@ class MonthlyPlaylists extends Component {
 
     if (SpotifyAPIManager.getAccessToken()) {
       SpotifyAPIManager.getUserData(props.firebaseController);
-      SpotifyAPIManager.getMonthlyPlaylistsData().then(data => {
+      SpotifyAPIManager.getPlaylistData(true, true).then(data => {
         this.groupPlaylistsByYear(data['playlists'], data['songs']);
+      }).catch(error => {
+        console.log(error);
+        this.setState({ error });
       });
     }
   }
@@ -85,6 +88,8 @@ class MonthlyPlaylists extends Component {
    * array is in the form ['year', [playlist1, songs1], [playlist2, songs2]...]
    */
   groupPlaylistsByYear(playlists, songs) {
+    console.log(playlists);
+    console.log(songs);
     let years = [];
     let currentYear = null;
     playlists.forEach((playlist, i) => {
@@ -178,63 +183,66 @@ class MonthlyPlaylists extends Component {
     const { accessToken, classes, firebaseController } = this.props;
 
     // Go back to Home screen to fetch the Spotify access token.
-    if (this.state && !accessToken) {
-      window.location.replace('/');
-    } else if (!this.state) {
-      return <LoadingIndicator />;
-    }
+    if (this.state) {
+      if (!accessToken) {
+        window.location.replace('/');
+      } else if (this.state.error) {
+        // TODO: have a better error when fetches fail.
+        return (<div> retry ? </div>);
+      } else if (this.state.playlists) {
+        const { playlists, selectedPlaylist } = this.state;
 
-    const { playlists, selectedPlaylist } = this.state;
+        const drawer = (
+          <div className={classes.drawer}>
+            {/* Year list contains ['year', [[playlist1, songs1]... ] */}
+            {playlists.map((yearList, i) => (
+              <div key={i} >
+                {i !== 0 ? <Divider /> : null}
 
-    const drawer = (
-      <div className={classes.drawer}>
-        {/* Year list contains ['year', [[playlist1, songs1]... ] */}
-        {playlists.map((yearList, i) => (
-          <div key={i} >
-            {i !== 0 ? <Divider /> : null}
+                <List>
+                  <Typography variant='h6' className={classes.yearLabel}>
+                    {yearList[0]}
+                  </Typography>
+                  {yearList[1].map((playlistGroup, j) => (
+                    <ListItem onClick={() => {
+                      // Selected playlist cannot be selected twice.
+                      if (this.getPlaylistFromStateVar(i, j) !== selectedPlaylist) {
+                        this.updateMonth(i, j);
+                      }
+                    }}
+                      key={j}
+                      className={classes.listItemMonth +
+                        (this.getPlaylistFromStateVar(i, j) === selectedPlaylist ?
+                          ' ' + classes.selectedItem : '')}>
 
-            <List>
-              <Typography variant='h6' className={classes.yearLabel}>
-                {yearList[0]}
-              </Typography>
-              {yearList[1].map((playlistGroup, j) => (
-                <ListItem onClick={() => {
-                    // Selected playlist cannot be selected twice.
-                    if (this.getPlaylistFromStateVar(i, j) !== selectedPlaylist) {
-                      this.updateMonth(i, j);
-                    }
-                }}
-                  key={j}
-                  className={classes.listItemMonth +
-                    (this.getPlaylistFromStateVar(i, j) === selectedPlaylist ?
-                      ' ' + classes.selectedItem : '')}>
-
-                  <ListItemText primary={playlistGroup[0].name} />
-                  {this.compareIsDiff(i, j) ?
-                    <img className={classes.compareBtn}
-                      src='/images/compare.png' alt='compare'
-                      onClick={(e) => {this.updateCompareMonth(i, j, e)}}/> : null}
-                </ListItem>
-              ))}
-            </List>
+                      <ListItemText primary={playlistGroup[0].name} />
+                      {this.compareIsDiff(i, j) ?
+                        <img className={classes.compareBtn} src='/images/compare.png' alt='compare'
+                          onClick={(e) => { this.updateCompareMonth(i, j, e) }} /> : null}
+                    </ListItem>
+                  ))}
+                </List>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-    );
+        );
 
-    return (
-      <div className={classes.flex}>
-        {drawer}
-        <div className={classes.summary}>
-          <Summary
-            firebaseController={firebaseController}
-            comparePlaylist={this.state.comparePlaylist}
-            compareSongs={this.state.compareSongs}
-            playlist={this.state.selectedPlaylist}
-            songs={this.state.selectedSongs} />
-        </div>
-      </div>
-    );
+        return (
+          <div className={classes.flex}>
+            {drawer}
+            <div className={classes.summary}>
+              <Summary
+                firebaseController={firebaseController}
+                comparePlaylist={this.state.comparePlaylist}
+                compareSongs={this.state.compareSongs}
+                playlist={this.state.selectedPlaylist}
+                songs={this.state.selectedSongs} />
+            </div>
+          </div>
+        );
+      }
+    }
+    return <LoadingIndicator />;
   }
 }
 

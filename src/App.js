@@ -2,10 +2,12 @@ import firebase from 'firebase';
 import firebaseConfig from './config';
 import FirebaseController from './utils/FirebaseController';
 import queryString from 'query-string';
+
+import Combiner from './pages/Combiner';
+import Deleter from './pages/Deleter';
 import Home from './pages/Home';
 import LoadingIndicator from './components/LoadingIndicator';
 import MonthlyPlaylists from './pages/MonthyPlaylists';
-import Combiner from './pages/Combiner';
 import React, { Component } from 'react';
 import SpotifyAPIManager from './utils/SpotifyAPIManager';
 import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
@@ -62,7 +64,12 @@ class App extends Component {
             <Combiner
               accessToken={this.state.accessToken} />
           </Route>
+          <Route path='/deleter'>
+            <Deleter
+              accessToken={this.state.accessToken} />
+          </Route>
           <Route>
+            {/* TODO: make page not found page better */}
             Page Not Found
           </Route>
         </Switch>
