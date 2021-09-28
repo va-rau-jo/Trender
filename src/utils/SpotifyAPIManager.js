@@ -137,7 +137,6 @@ class SpotifyAPIManager {
         if (filterByMonth) {
           filterPlaylistsByMonth(playlists);
         }
-        console.log(playlists);
 
         if (fetchSongs) {
           this.getSongData(playlists).then(songs => {

@@ -136,6 +136,8 @@ class Deleter extends Component {
       } else if (this.state.playlists) {
         return (
           <div className={classes.body}>
+
+            {/* <Header title='Delete Playlists' /> */}
             <div className={classes.flex}>
               <div className={classes.listContainer}>
                 <ImageList className={classes.playlistList}>

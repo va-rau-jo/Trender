@@ -6,6 +6,8 @@ import {
   ImageList,
   ImageListItem,
   ListSubheader,
+  Tab,
+  TabList,
   TextField,
   Typography,
   withStyles
@@ -13,6 +15,7 @@ import {
 
 import LoadingIndicator from '../components/LoadingIndicator';
 import SpotifyAPIManager from '../utils/SpotifyAPIManager';
+import Header from '../components/Header';
 
 /**
  * This is preferred over using an external css file for styling because React
@@ -155,11 +158,6 @@ const styles = () => ({
   textInputDiv: {
     marginBottom: '8px',
   },
-  // Label for each year in the drawer.
-  title: {
-    paddingTop: '20px',
-    textAlign: 'center',
-  },
 });
 
 // Custom checkbox to be invisible when unchecked but a nice color when checked.
@@ -191,6 +189,7 @@ class Combiner extends Component {
           selectedPlaylists: [],
           visiblePlaylists: [],
         }, () => {
+          console.log(this.state.playlists);
           // On initialization, will filter to show all playlists.
           this.filterPlaylists();
         });
@@ -354,9 +353,7 @@ class Combiner extends Component {
 
     return (
       <div className={classes.body}>
-        <Typography className={classes.title} variant='h3'>
-          Combine Your Playlists
-        </Typography>
+        <Header title='Combine Your Playlists' />
         <div className={classes.flex}>
           <div className={classes.listContainer}>
             <div className={classes.filterContainer}>
@@ -412,50 +409,63 @@ class Combiner extends Component {
               })}
             </ImageList>
           </div>
-          <div className={classes.optionsDiv}>
-            <div className={classes.checkboxDiv}>
-              <FormControlLabel className={classes.removeDuplicates}
-                control={
-                  <Checkbox color="primary"
-                    checked={this.state.shouldRemoveDuplicates}
-                    onChange={this.toggleRemoveDuplicates} />}
-                label="Remove Duplicates"
-              />
-              <FormControlLabel className={classes.removeDuplicates}
-                control={
-                  <Checkbox color="primary"
-                    checked={this.state.shouldMakePublic}
-                    onChange={this.toggleMakePublic} />}
-                label="Make Public"
-              />
-              <FormControlLabel className={classes.removeDuplicates}
-                control={
-                  <Checkbox color="primary"
-                    checked={this.state.shouldMakeCollaborative}
-                    onChange={this.toggleMakeCollaborative} />}
-                label="Make Collaborative"
-              />
-            </div>
-            <div className={classes.textInputDiv}>
-              <TextField required className={classes.nameInput}
-                id="playlistNameInput" label="Playlist Name" variant="outlined"
-                defaultValue="New Playlist" />
-            </div>
-            <div className={classes.textInputDiv}>
-              <TextField multiline label="Description" rows={4}
-                id='playlistDescriptionInput' variant='outlined' />
-            </div>
-            <Button variant="contained" color="primary"
-              onClick={this.createPlaylist}> Create </Button>
+          <div>
+            <TabList onChange={handleChange} aria-label="lab API tabs example">
+              <Tab label="Item One" value="1" />
+              <Tab label="Item Two" value="2" />
+              <Tab label="Item Three" value="3" />
+            </TabList>
+            <TabPanel value="1">
+              <div className={classes.optionsDiv}>
+                <div className={classes.checkboxDiv}>
+                  <FormControlLabel className={classes.removeDuplicates}
+                    control={
+                      <Checkbox color="primary"
+                        checked={this.state.shouldRemoveDuplicates}
+                        onChange={this.toggleRemoveDuplicates} />}
+                    label="Remove Duplicates"
+                  />
+                  <FormControlLabel className={classes.removeDuplicates}
+                    control={
+                      <Checkbox color="primary"
+                        checked={this.state.shouldMakePublic}
+                        onChange={this.toggleMakePublic} />}
+                    label="Make Public"
+                  />
+                  <FormControlLabel className={classes.removeDuplicates}
+                    control={
+                      <Checkbox color="primary"
+                        checked={this.state.shouldMakeCollaborative}
+                        onChange={this.toggleMakeCollaborative} />}
+                    label="Make Collaborative"
+                  />
+                </div>
+                <div className={classes.textInputDiv}>
+                  <TextField required className={classes.nameInput}
+                    id="playlistNameInput" label="Playlist Name" variant="outlined"
+                    defaultValue="New Playlist" />
+                </div>
+                <div className={classes.textInputDiv}>
+                  <TextField multiline label="Description" rows={4}
+                    id='playlistDescriptionInput' variant='outlined' />
+                </div>
+                <Button variant="contained" color="primary"
+                  onClick={this.createPlaylist}> Create </Button>
 
-            {this.state.createdPlaylistData ?
-              <Typography className={classes.createdPlaylistMessage}
-                variant='body1'>
-                Created '{this.state.createdPlaylistData[0]}' with {' '}
-                {this.state.createdPlaylistData[1]} {' '}
-                song{this.state.createdPlaylistData[1] !== 1 ? 's' : ''}.
-              </Typography> : null}
+                {this.state.createdPlaylistData ?
+                  <Typography className={classes.createdPlaylistMessage}
+                    variant='body1'>
+                    Created '{this.state.createdPlaylistData[0]}' with {' '}
+                    {this.state.createdPlaylistData[1]} {' '}
+                    song{this.state.createdPlaylistData[1] !== 1 ? 's' : ''}.
+                  </Typography> : null}
+              </div>
+            </TabPanel>
+            <TabPanel value="2" >
+
+            </TabPanel>
           </div>
+         
         </div>
       </div>
     );
