@@ -231,7 +231,7 @@ class SpotifyAPIManager {
    */
   static repeatedlyFetch(baseUrl, limit) {
     const sleepTimer = () => // Timer to sleep before making another request.
-      new Promise(res => setTimeout(res, Math.random() * 500 + 1000))
+      new Promise(res => setTimeout(res, Math.random() * 500 + 2000))
 
     let items = [];
     let nextUrl = baseUrl + '?' + new URLSearchParams({ limit, offset: 0 });
@@ -253,8 +253,9 @@ class SpotifyAPIManager {
             return res.json();
           }
         }).then(json => {
+          nextUrl = null;
           if (json && !json.error) {
-            nextUrl = json.next;
+            // nextUrl = json.next;
             if (json.items.length > 0) {
               items = items.concat(json.items);
             }

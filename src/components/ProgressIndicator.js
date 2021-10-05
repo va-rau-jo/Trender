@@ -22,6 +22,9 @@ const styles = () => ({
 class ProgressIndicator extends Component {
   render() {
     let { classes, progress, total } = this.props;
+    // if null or undefined, set progress to 0
+    progress = (progress !== null && progress !== undefined) ? progress : 0;
+    total = (total !== null && total !== undefined) ? total : 1;
     const percentage =
       'translateX(' + ((1.0 * progress / total * 100) - 100) + '%';
 

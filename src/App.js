@@ -3,7 +3,7 @@ import firebaseConfig from './config';
 import FirebaseController from './utils/FirebaseController';
 import queryString from 'query-string';
 
-import Combiner from './pages/Combiner';
+import Manager from './pages/Manager';
 import Deleter from './pages/Deleter';
 import Home from './pages/Home';
 import LoadingIndicator from './components/LoadingIndicator';
@@ -60,8 +60,8 @@ class App extends Component {
               accessToken={this.state.accessToken}
               firebaseController={firebaseController} />
           </Route>
-          <Route path='/combiner'>
-            <Combiner
+          <Route path='/manager'>
+            <Manager
               accessToken={this.state.accessToken} />
           </Route>
           <Route path='/deleter'>

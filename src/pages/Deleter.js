@@ -12,6 +12,8 @@ import LoadingIndicator from '../components/LoadingIndicator';
 import SpotifyAPIManager from '../utils/SpotifyAPIManager';
 import ProgressIndicator from '../components/ProgressIndicator';
 
+
+
 /**
  * This is preferred over using an external css file for styling because React
  * components that are imported have their own classes that override CSS classes
@@ -81,36 +83,6 @@ const styles = () => ({
 class Deleter extends Component {
   constructor(props) {
     super(props);
-
-    console.log("accesstoken: " + SpotifyAPIManager.getAccessToken())
-    if (SpotifyAPIManager.getAccessToken()) {
-      SpotifyAPIManager.getPlaylistData(false, true).then(data => {
-        this.setState({ playlists: data['playlists'] }, () => {
-          this.clearLoadingInterval();
-        });
-      }).catch(error => {
-        this.setState({ error });
-      });
-    }
-  }
-
-  componentDidMount = () => {
-    this.setState({
-      loadingInterval: setInterval(() => {
-        this.setState({
-          loadingProgress: SpotifyAPIManager.getLoadingProgress(),
-          loadingTotal: SpotifyAPIManager.getLoadingTotal()
-        });
-      }, 1000)
-    });
-  }
-
-  clearLoadingInterval = () => {
-    clearInterval(this.state.loadingInterval);
-    this.setState({
-      loadingProgress: null,
-      loadingTotal: null,
-    });
   }
 
   deletePlaylists = () => {
@@ -125,62 +97,9 @@ class Deleter extends Component {
   render() {
     const { accessToken, classes } = this.props;
 
-    // Go back to Home screen to fetch the Spotify access token.
-    if (this.state) {
-      if (!accessToken) {
-        window.location.replace('/');
-      } else if (this.state.error) {
-        return (<div> retry ? </div>);
-      } else if (this.state.loadingProgress) {
-        return <ProgressIndicator progress={this.state.loadingProgress} total={this.state.loadingTotal} />;
-      } else if (this.state.playlists) {
-        return (
-          <div className={classes.body}>
+    return (<>
 
-            {/* <Header title='Delete Playlists' /> */}
-            <div className={classes.flex}>
-              <div className={classes.listContainer}>
-                <ImageList className={classes.playlistList}>
-                  <ImageListItem key="Subheader" cols={2} style={{ height: 'auto' }}>
-                    <ListSubheader className={classes.subheader} component="div">
-                      Playlists
-                    </ListSubheader>
-                  </ImageListItem>
-                  {this.state.playlists.map((playlist) => {
-                    return (
-                      <ImageListItem cols={2} key={playlist.id} className={classes.playlistListItem}>
-                        <img className={classes.playlistListImage} alt="Playlist"
-                          src={playlist.images[0] ? playlist.images[0].url : "/images/sound_file.png"} />
-                        <div className={classes.listItemDescription}>
-                          <Typography className={classes.listItemText} variant='h6'>
-                            {playlist.name}
-                          </Typography>
-                          <Typography className={classes.listItemText} variant='subtitle1'>
-                            {playlist.tracks.total} Songs
-                          </Typography>
-                        </div>
-                      </ImageListItem>
-                    );
-                  })}
-                </ImageList>
-              </div>
-              <div className={classes.inputDiv}>
-                <div className={classes.textField}>
-                  <TextField required className={classes.nameInput} id="playlistNameInput"
-                    label="Playlist Name" variant="outlined" />
-                </div>
-                <div classes={classes.buttonDiv}>
-                  <Button variant="contained" color="primary" onClick={this.deletePlaylists}>
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      }
-    }
-    return <LoadingIndicator />;
+    </>);
   }
 }
 

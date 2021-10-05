@@ -65,3 +65,22 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background-color: #a8bbbf;
 }
+
+/* React tab system formatting */
+.react-tabs__tab {
+  border: 1px solid transparent;
+  bottom: -1px;
+  cursor: pointer;
+  display: flex;
+  flex-grow: 1;
+  justify-content: center;
+  list-style: none;
+  padding: 6px 12px;
+  position: relative;
+}
+
+.react-tabs__tab--selected {
+  background: #fff;
+  border-radius: 5px 5px 0 0;
+  color: black;
+}
