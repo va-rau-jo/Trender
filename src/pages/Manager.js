@@ -130,8 +130,8 @@ class Manager extends Component {
           shouldMakePublic: false,
           shouldRemoveDuplicates: true,
           songs: data['songs'],
-          selectedPlaylists: [],
-          visiblePlaylists: [],
+          selectedIndices: [],
+          visibleIndices: [],
         }, () => {
           // On initialization, will filter to show all playlists.
           this.clearLoadingInterval();
@@ -174,19 +174,17 @@ class Manager extends Component {
     const collab = this.state.shouldMakeCollaborative;
     const removeDups = this.state.shouldRemoveDuplicates;
 
+    console.log(this.state.songs);
+    console.log(this.state.playlists);
     SpotifyAPIManager.createPlaylist(name, desc, isPublic, collab).then(res => {
       const uris = []
-      this.state.selectedPlaylists.forEach(playlistId => {
-        this.state.playlists.forEach((playlist, i) => {
-          if (playlist.id === playlistId) { // only match selected playlists
-            this.state.songs[i].forEach(song => {
-              if (!song.isLocalFile) {
-                const uri = 'spotify:track:' + song.id;
-                if (uris.indexOf(uri) === -1 || !removeDups) {
-                  uris.push(uri);
-                }
-              }
-            })
+      this.state.selectedIndices.forEach(i => {
+        this.state.songs[i].forEach(song => {
+          if (!song.isLocalFile) {
+            const uri = 'spotify:track:' + song.id;
+            if (uris.indexOf(uri) === -1 || !removeDups) {
+              uris.push(uri);
+            }
           }
         })
       });
@@ -201,6 +199,40 @@ class Manager extends Component {
   }
 
   /**
+   * Creates a playlist with the given settings and adds the selected songs to
+   * it.
+   */
+  deletePlaylists = () => {
+    console.log("DELETING")
+    console.log(this.state.selectedIndices);
+
+    // SpotifyAPIManager.createPlaylist(name, desc, isPublic, collab).then(res => {
+    //   const uris = []
+    //   this.state.selectedIndices.forEach(playlistId => {
+    //     this.state.playlists.forEach((playlist, i) => {
+    //       if (playlist.id === playlistId) { // only match selected playlists
+    //         this.state.songs[i].forEach(song => {
+    //           if (!song.isLocalFile) {
+    //             const uri = 'spotify:track:' + song.id;
+    //             if (uris.indexOf(uri) === -1 || !removeDups) {
+    //               uris.push(uri);
+    //             }
+    //           }
+    //         })
+    //       }
+    //     })
+    //   });
+      // if (uris.length > 0) {
+      //   SpotifyAPIManager.addSongsToPlaylist(res.id, uris).then(() => {
+      //     this.notifyCreatedPlaylist(name, uris.length);
+      //   })
+      // } else {
+      //   this.notifyCreatedPlaylist(name, 0);
+      // }
+    // });
+  }
+
+  /**
    * Filters the visible playlists by the search term in the filter input.
    */
   filterPlaylists = () => {
@@ -208,9 +240,10 @@ class Manager extends Component {
     const filterText = input ? input.value.toLowerCase() : '';
 
     this.setState({
-      visiblePlaylists: this.state.playlists
-        .filter(playlist => playlist.name.toLowerCase().includes(filterText))
-        .map(playlist => playlist.id)
+      visibleIndices: this.state.playlists
+        .map((playlist, i) => [playlist, i])
+        .filter(list => list[0].name.toLowerCase().includes(filterText))
+        .map(list => list[1])
     });
   }
 
@@ -233,9 +266,7 @@ class Manager extends Component {
   selectAllPlaylists = () => {
     console.log(this.state);
     this.setState({
-      selectedPlaylists: this.state.playlists
-        .filter(playlist => this.state.visiblePlaylists.includes(playlist.id))
-        .map(playlist => playlist.id)
+      selectedIndices: this.state.visibleIndices
     });
   }
 
@@ -273,17 +304,18 @@ class Manager extends Component {
 
   /**
    * Toggles the given playlist to either be selected or unselected.
-   * @param {JSON} playlist The playlist object
+   * @param {number} index The index of the playlist object
    */
-  togglePlaylist = (playlist) => {
-    const selected = this.state.selectedPlaylists.slice(0);
-    const index = selected.indexOf(playlist.id);
-    if (index > -1) {
-      selected.splice(index, 1);
-    } else {
-      selected.push(playlist.id);
+  togglePlaylist = (index) => {
+    // Copy selected list in state to modify
+    const copy = this.state.selectedIndices.slice(0);
+    const indexInSelected = this.state.selectedIndices.indexOf(index);
+    if (indexInSelected > -1) { // if found, remove
+      copy.splice(indexInSelected, 1);
+    } else { // otherwise push to list
+      copy.push(index);
     }
-    this.setState({ selectedPlaylists: selected });
+    this.setState({ selectedIndices: copy });
   }
 
   /**
@@ -297,7 +329,7 @@ class Manager extends Component {
    * Unselect all playlists.
    */
   unselectAllPlaylists = () => {
-    this.setState({ selectedPlaylists: [] });
+    this.setState({ selectedIndices: [] });
   }
 
   render() {
@@ -314,14 +346,15 @@ class Manager extends Component {
       return (<div> retry ? </div>);
     }
 
-    const { playlists, selectedPlaylists, visiblePlaylists } = this.state;
+    const { playlists, selectedIndices, visibleIndices } = this.state;
 
     const createOptionsTab = this.renderCreateOptionsTab();
+    const deleteOptionsTab = this.renderDeleteOptionsTab();
 
     return (
       <>
         <Header title='Combine Your Playlists' />
-        <Tabs  className={classes.flexVertical} defaultIndex={0} onSelect={index => console.log(index)}>
+        <Tabs className={classes.flexVertical} defaultIndex={0}>
           <div className={classes.filterHeader}>
             <div className={classes.filterContainer}>
               <div className={classes.filterInputContainer}>
@@ -350,9 +383,9 @@ class Manager extends Component {
           <div className={classes.flexHorizontal}>
             <div className={classes.listContainer}>
               <PlaylistList
-                playlists={playlists}
-                selectedPlaylists={selectedPlaylists}
-                visiblePlaylists={visiblePlaylists}
+                playlists={this.state.playlists}
+                selectedIndices={selectedIndices}
+                visibleIndices={visibleIndices}
                 togglePlaylist={this.togglePlaylist} />
             </div>
             <div className={classes.optionsTab}>
@@ -363,7 +396,7 @@ class Manager extends Component {
               </TabPanel>
               <TabPanel>
                 <div className={classes.tabPanel}>
-                  test 2
+                  {deleteOptionsTab}
                 </div>
               </TabPanel>
             </div>
@@ -418,6 +451,44 @@ class Manager extends Component {
         </div>
         <Button variant='contained' color='primary'
           onClick={this.createPlaylist}> Create </Button>
+
+        {this.state.createdPlaylistData ?
+          <Typography className={classes.createdPlaylistMessage}
+            variant='body1'>
+            Created '{this.state.createdPlaylistData[0]}' with {' '}
+            {this.state.createdPlaylistData[1]} {' '}
+            song{this.state.createdPlaylistData[1] !== 1 ? 's' : ''}.
+          </Typography> : null}
+      </>
+    );
+  }
+
+  renderDeleteOptionsTab() {
+    const { classes } = this.props;
+
+    return (
+      <>
+        <div>
+          <Typography className={classes.optionsMessage} variant='body1'>
+            Delete all the playlists you have selected.
+          </Typography>
+        </div>
+        <div className={classes.checkboxDiv}>
+         <Typography variant='body1'>
+            Playlists you're deleting
+          </Typography>
+          <ul>
+            {this.state.selectedIndices.map(i => {
+              let playlist = this.state.playlists[i];
+              console.log(playlist);
+              return (
+                <li key={i}> {playlist.name} </li>
+              );
+            })}
+          </ul>
+        </div>
+        <Button variant='contained' color='primary'
+          onClick={this.deletePlaylists}> Delete </Button>
 
         {this.state.createdPlaylistData ?
           <Typography className={classes.createdPlaylistMessage}

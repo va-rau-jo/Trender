@@ -43,7 +43,7 @@ const styles = () => ({
     // borderRadius: '10px',
     justifyContent: 'space-evenly',
     // overrides ImageList inline style
-    margin: '0px 20px !important',
+    marginRight: '20px !important',
     // padding: '20px',
     transform: 'translateZ(0)',
   },
@@ -58,6 +58,7 @@ const styles = () => ({
     height: '250px !important',
     margin: '5px',
     padding: '0px !important',
+    userSelect: 'none',
     width: '250px !important',
   },
   selectedListItem: {
@@ -82,7 +83,7 @@ const HiddenCheckbox = withStyles({
 class PlaylistList extends Component {
   render() {
 
-    const { classes, playlists, selectedPlaylists, togglePlaylist, visiblePlaylists } = this.props;
+    const { classes, playlists, selectedIndices, togglePlaylist, visibleIndices } = this.props;
 
     return (
       <ImageList className={classes.playlistList}>
@@ -91,35 +92,33 @@ class PlaylistList extends Component {
                 Playlists
             </ListSubheader>
         </ImageListItem>
-        {playlists.map((playlist) => {
-            const visible = visiblePlaylists.indexOf(playlist.id) > -1;
-            const selected = selectedPlaylists.indexOf(playlist.id) > -1;
-            if (visible) {
-                return (
-                  <ImageListItem cols={2} key={playlist.id} onClick={() => { togglePlaylist(playlist) }}
-                      className={classes.playlistListItem + ' ' + (selected ? classes.selectedListItem : '')}>
-                      <img className={classes.playlistListImage} alt="Playlist"
-                      src={playlist.images[0] ? playlist.images[0].url : "/images/sound_file.png"} />
-                      {selected ?
-                      <div className={classes.listItemIndexDiv}>
-                          <Typography className={classes.listItemIndex} variant='h6'>
-                          {(selectedPlaylists.indexOf(playlist.id) + 1)}
-                          </Typography>
-                      </div> : null}
+        {visibleIndices.map(i => {
+          const playlist = playlists[i];
+          const selected = selectedIndices.includes(i);
+          return (
+            <ImageListItem cols={2} key={i} onClick={() => { togglePlaylist(i) }}
+                className={classes.playlistListItem + ' ' + (selected ? classes.selectedListItem : '')}>
+                <img className={classes.playlistListImage} alt="Playlist"
+                src={playlist.images[0] ? playlist.images[0].url : "/images/sound_file.png"} />
+                {selected ?
+                <div className={classes.listItemIndexDiv}>
+                    <Typography className={classes.listItemIndex} variant='h6'>
+                    {(selectedIndices.indexOf(i) + 1)}
+                    </Typography>
+                </div> : null}
 
-                      <div className={classes.listItemDescription}>
-                          <Typography className={classes.listItemText} variant='h6'>
-                              {playlist.name}
-                          </Typography>
-                          <Typography className={classes.listItemText} variant='subtitle1'>
-                              {playlist.tracks.total} Songs
-                          </Typography>
-                          <HiddenCheckbox id={playlist.id + 'checkbox'} checked={selected}
-                              className={classes.listCheckbox} />
-                      </div>
-                  </ImageListItem>
-                );
-            }
+                <div className={classes.listItemDescription}>
+                    <Typography className={classes.listItemText} variant='h6'>
+                        {playlist.name}
+                    </Typography>
+                    <Typography className={classes.listItemText} variant='subtitle1'>
+                        {playlist.tracks.total} Songs
+                    </Typography>
+                    <HiddenCheckbox id={playlist.id + 'checkbox'} checked={selected}
+                        className={classes.listCheckbox} />
+                </div>
+            </ImageListItem>
+          );
         })}
       </ImageList>
     );
