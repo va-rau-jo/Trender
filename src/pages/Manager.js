@@ -138,6 +138,7 @@ class Manager extends Component {
           this.filterPlaylists();
         });
       }).catch(error => {
+        console.log(error);
         this.setState({ error });
       });
     }
@@ -353,7 +354,7 @@ class Manager extends Component {
 
     return (
       <>
-        <Header title='Combine Your Playlists' />
+        <Header title='Manage Your Playlists' />
         <Tabs className={classes.flexVertical} defaultIndex={0}>
           <div className={classes.filterHeader}>
             <div className={classes.filterContainer}>
