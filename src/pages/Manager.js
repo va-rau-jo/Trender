@@ -40,6 +40,50 @@ const styles = () => ({
     fontWeight: 'bold',
     marginTop: '32px',
   },
+  createTabPanel: {
+    paddingTop: '24px',
+  },
+  deletePlaylistBody: {
+    margin: '32px 8px',
+  },
+  deletePlaylistsBtnDiv: {
+    marginTop: '16px',
+  },
+  deletePlaylistsItem: {
+    alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'center',
+    padding: '8px',
+  },
+  deletePlaylistsItemTitle: {
+    display: 'inline',
+    fontWeight: 'bold',
+    overflowX: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+  deletePlaylistsItemSongs: {
+    display: 'inline',
+    fontSize: '12px',
+    marginLeft: '8px',
+    whiteSpace: 'nowrap',
+  },
+  deletePlaylistsList: {
+    backgroundColor: '#d1edf9',
+    borderRadius: '10px',
+    listStyle: 'none',
+    margin: '0 32px 8px 32px',
+    maxHeight: '60vh',
+    overflowY: 'scroll',
+    paddingLeft: '20px',
+  },
+  deletePlaylistTitle: {
+    margin: '32px 0 16px 0',
+  },
+  deleteTabPanel: {
+    display: 'flex',
+    flexDirection: 'column',
+    paddingTop: '24px',
+  },
   filterButton: {
     marginLeft: '4px',
   },
@@ -107,15 +151,15 @@ const styles = () => ({
     marginBottom: '0',
     width: '350px',
   },
-  tabPanel: {
-    paddingTop: '24px',
-  },
   textInputDiv: {
-    marginBottom: '8px',
+    marginBottom: '16px',
   },
+  textField: {
+    width: '80%',
+  }
 });
 
-const CREATED_PLAYLIST_MESSAGE_TIMEOUT = 1000000; //5000;
+const MESSAGE_TIMEOUT = 5000;
 
 class Manager extends Component {
   constructor(props) {
@@ -130,7 +174,9 @@ class Manager extends Component {
           shouldMakePublic: false,
           shouldRemoveDuplicates: true,
           songs: data['songs'],
+          // Indices of the playlists that have been selected.
           selectedIndices: [],
+          // Indices of the playlists that are currently visible (through filtering).
           visibleIndices: [],
         }, () => {
           // On initialization, will filter to show all playlists.
@@ -207,30 +253,31 @@ class Manager extends Component {
     console.log("DELETING")
     console.log(this.state.selectedIndices);
 
-    // SpotifyAPIManager.createPlaylist(name, desc, isPublic, collab).then(res => {
-    //   const uris = []
-    //   this.state.selectedIndices.forEach(playlistId => {
-    //     this.state.playlists.forEach((playlist, i) => {
-    //       if (playlist.id === playlistId) { // only match selected playlists
-    //         this.state.songs[i].forEach(song => {
-    //           if (!song.isLocalFile) {
-    //             const uri = 'spotify:track:' + song.id;
-    //             if (uris.indexOf(uri) === -1 || !removeDups) {
-    //               uris.push(uri);
-    //             }
-    //           }
-    //         })
-    //       }
-    //     })
-    //   });
-      // if (uris.length > 0) {
-      //   SpotifyAPIManager.addSongsToPlaylist(res.id, uris).then(() => {
-      //     this.notifyCreatedPlaylist(name, uris.length);
-      //   })
-      // } else {
-      //   this.notifyCreatedPlaylist(name, 0);
-      // }
-    // });
+    let copy = this.state.playlists.slice();
+    copy = copy.splice(0, 1);
+    console.log(copy);
+    copy = copy.splice(0, 1);
+    console.log(copy);
+
+    if (this.state.selectedIndices.length > 0) {
+      const ids = this.state.selectedIndices.map(i => this.state.playlists[i].id);
+      SpotifyAPIManager.deletePlaylists(ids).then(() => {
+        // let copy = this.state.playlists.copy();
+        // this.state.selectedIndices.forEach(i => {
+        //   copy = copy.slice(i, 1);
+        this.notifyDeletedPlaylists(ids.length);
+      });
+    }
+  }
+
+  /**
+   * onKeyDown event handler for the filter input, so "enter" triggers filtering.
+   * @param {Event} event
+   */
+  filterInputOnKeyDown = (event) => {
+    if (event.key === "Enter") {
+      this.filterPlaylists();
+    }
   }
 
   /**
@@ -258,7 +305,15 @@ class Manager extends Component {
 
     setTimeout(() => {
       this.setState({ createdPlaylistData: null });
-    }, CREATED_PLAYLIST_MESSAGE_TIMEOUT);
+    }, MESSAGE_TIMEOUT);
+  }
+
+  notifyDeletedPlaylists = (playlistsRemoved) => {
+    this.setState({ deletedPlaylistsCount: playlistsRemoved });
+
+    setTimeout(() => {
+      this.setState({ deletedPlaylistsCount: null });
+    }, MESSAGE_TIMEOUT);
   }
 
   /**
@@ -278,9 +333,16 @@ class Manager extends Component {
    * playlist-modify-private and playlist-modify-public scopes.
    */
   toggleMakeCollaborative = () => {
-    if (!this.state.shouldMakePublic) {
+    const prevCollab = this.state.shouldMakeCollaborative;
+
+    if (!prevCollab) {
       this.setState({
-        shouldMakeCollaborative: !this.state.shouldMakeCollaborative
+        shouldMakeCollaborative: !prevCollab,
+        shouldMakePublic: false,
+      });
+    } else {
+      this.setState({
+        shouldMakeCollaborative: !prevCollab
       });
     }
   }
@@ -294,11 +356,11 @@ class Manager extends Component {
     if (!prevPublic) {
       this.setState({
         shouldMakeCollaborative: false,
-        shouldMakePublic: !this.state.shouldMakePublic
+        shouldMakePublic: !prevPublic
       });
     } else {
       this.setState({
-        shouldMakePublic: !this.state.shouldMakePublic
+        shouldMakePublic: !prevPublic
       });
     }
   }
@@ -341,10 +403,10 @@ class Manager extends Component {
       return <LoadingIndicator />;
     } else if (!accessToken) {
       window.location.replace('/');
-    } else if (this.state.loadingProgress || !this.state.playlists) {
-      return <ProgressIndicator progress={this.state.loadingProgress} total={this.state.loadingTotal} />;
     } else if (this.state.error) {
       return (<div> retry ? </div>);
+    } else if (this.state.loadingProgress || !this.state.playlists) {
+      return <ProgressIndicator progress={this.state.loadingProgress} total={this.state.loadingTotal} />;
     }
 
     const { playlists, selectedIndices, visibleIndices } = this.state;
@@ -359,7 +421,8 @@ class Manager extends Component {
           <div className={classes.filterHeader}>
             <div className={classes.filterContainer}>
               <div className={classes.filterInputContainer}>
-                <TextField id='filterInput' label='Filter' variant='outlined' />
+                <TextField id='filterInput' label='Filter' variant='outlined'
+                  onKeyDown={this.filterInputOnKeyDown} />
                 <Button className={classes.filterButton} variant='contained' color='primary'
                   onClick={this.filterPlaylists}> Filter
                 </Button>
@@ -373,30 +436,26 @@ class Manager extends Component {
               </div>
             </div>
             <TabList className={classes.tabList}>
-              <Tab>
-                <Typography variant='h6'> Create </Typography>
-              </Tab>
-              <Tab>
-                <Typography variant='h6'> Delete </Typography>
-              </Tab>
+              <Tab> <Typography variant='h6'> Create </Typography> </Tab>
+              <Tab> <Typography variant='h6'> Delete </Typography> </Tab>
             </TabList>
           </div>
           <div className={classes.flexHorizontal}>
             <div className={classes.listContainer}>
               <PlaylistList
-                playlists={this.state.playlists}
+                playlists={playlists}
                 selectedIndices={selectedIndices}
                 visibleIndices={visibleIndices}
                 togglePlaylist={this.togglePlaylist} />
             </div>
             <div className={classes.optionsTab}>
               <TabPanel>
-                <div className={classes.tabPanel}>
+                <div className={classes.createTabPanel}>
                   {createOptionsTab}
                 </div>
               </TabPanel>
               <TabPanel>
-                <div className={classes.tabPanel}>
+                <div className={classes.deleteTabPanel}>
                   {deleteOptionsTab}
                 </div>
               </TabPanel>
@@ -409,6 +468,7 @@ class Manager extends Component {
 
   renderCreateOptionsTab() {
     const { classes } = this.props;
+    const { createdPlaylistData } = this.state;
 
     return (
       <>
@@ -442,23 +502,22 @@ class Manager extends Component {
           />
         </div>
         <div className={classes.textInputDiv}>
-          <TextField required className={classes.nameInput}
+          <TextField required className={classes.textField}
             id='playlistNameInput' label='Playlist Name' variant='outlined'
             defaultValue='New Playlist' />
         </div>
         <div className={classes.textInputDiv}>
-          <TextField multiline label='Description' rows={4}
+          <TextField multiline label='Description' rows={4} className={classes.textField}
             id='playlistDescriptionInput' variant='outlined' />
         </div>
         <Button variant='contained' color='primary'
           onClick={this.createPlaylist}> Create </Button>
 
-        {this.state.createdPlaylistData ?
+        {createdPlaylistData ?
           <Typography className={classes.createdPlaylistMessage}
             variant='body1'>
-            Created '{this.state.createdPlaylistData[0]}' with {' '}
-            {this.state.createdPlaylistData[1]} {' '}
-            song{this.state.createdPlaylistData[1] !== 1 ? 's' : ''}.
+            Created '{createdPlaylistData[0]}' with {' '} {createdPlaylistData[1]}
+            {' '} song{createdPlaylistData[1] !== 1 ? 's' : ''}.
           </Typography> : null}
       </>
     );
@@ -466,6 +525,9 @@ class Manager extends Component {
 
   renderDeleteOptionsTab() {
     const { classes } = this.props;
+    const { deletedPlaylistsCount, selectedIndices } = this.state;
+
+    const anyPlaylistsSelected = selectedIndices.length > 0;
 
     return (
       <>
@@ -474,29 +536,38 @@ class Manager extends Component {
             Delete all the playlists you have selected.
           </Typography>
         </div>
-        <div className={classes.checkboxDiv}>
-         <Typography variant='body1'>
-            Playlists you're deleting
-          </Typography>
-          <ul>
+        <Typography className={classes.deletePlaylistTitle} variant='h5'>
+          Playlists you're deleting
+        </Typography>
+        {anyPlaylistsSelected ?
+          <ul className={classes.deletePlaylistsList}>
             {this.state.selectedIndices.map(i => {
               let playlist = this.state.playlists[i];
-              console.log(playlist);
               return (
-                <li key={i}> {playlist.name} </li>
+                <li key={i} className={classes.deletePlaylistsItem}>
+                  <Typography className={classes.deletePlaylistsItemTitle} variant='body1'>
+                    {playlist.name}
+                  </Typography>
+                  <Typography className={classes.deletePlaylistsItemSongs} variant='body1'>
+                    ({playlist.tracks.total} songs)
+                  </Typography>
+                </li>
               );
             })}
-          </ul>
+          </ul> :
+          <Typography className={classes.optionsMessage} variant='body1'>
+            No playlists selected.
+          </Typography>
+        }
+        <div className={classes.deletePlaylistsBtnDiv}>
+          <Button variant='contained' color='primary' disabled={!anyPlaylistsSelected}
+            onClick={this.deletePlaylists}> Delete </Button>
         </div>
-        <Button variant='contained' color='primary'
-          onClick={this.deletePlaylists}> Delete </Button>
-
-        {this.state.createdPlaylistData ?
+        {deletedPlaylistsCount ?
           <Typography className={classes.createdPlaylistMessage}
             variant='body1'>
-            Created '{this.state.createdPlaylistData[0]}' with {' '}
-            {this.state.createdPlaylistData[1]} {' '}
-            song{this.state.createdPlaylistData[1] !== 1 ? 's' : ''}.
+            Deleted {deletedPlaylistsCount} playlist
+            {deletedPlaylistsCount !== 1 ? 's' : ''}.
           </Typography> : null}
       </>
     );

@@ -70,23 +70,22 @@ class SpotifyAPIManager {
     });
   }
 
-  static deletePlaylists (playlists, playlistName) {
+  static deletePlaylists(playlistIds) {
     const url = BASE_URL + 'playlists/';
 
-    console.log(playlists);
-    const filtered =
-      playlists.filter(playlist => playlist.name === playlistName);
-    console.log(filtered);
+    console.log(playlistIds);
 
-    return new Promise(async (resolve, _) => {
-      await Promise.all(filtered.map(async (playlist) => {
-        // Fetches more trackData from playlist's details link
-        await fetch(url + playlist.id + '/followers', {
+    return new Promise(async (resolve, reject) => {
+      await Promise.all(playlistIds.map(async (id) => {
+        await fetch(url + id + '/followers', {
           headers: { Authorization: 'Bearer ' + this.accessToken },
           method: 'DELETE'
         })
-          .then(res => { return res.json(); })
-          .then(json => { console.log(json); });
+          .then(res => {
+            if (!res.ok) {
+              reject(res.error);
+            }
+          });
       }));
       resolve('pogu');
     });
@@ -140,8 +139,6 @@ class SpotifyAPIManager {
 
         if (fetchSongs) {
           this.getSongData(playlists).then(songs => {
-            console.log("RESOVLED");
-            console.log(songs);
             resolve({
               'playlists': playlists,
               'songs': songs
@@ -176,7 +173,7 @@ class SpotifyAPIManager {
       new Promise(res => setTimeout(res, sleepTimeout))
 
     return new Promise(async (resolve, reject) => {
-      for (let i = 0; i < playlists.length; i++) {
+      for (let i = 0; i < 10; i++) {
         this.loadingProgress++;
         const limit = SONGS_PER_ADD_REQUEST;
 
