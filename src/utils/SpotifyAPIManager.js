@@ -145,7 +145,7 @@ class SpotifyAPIManager {
     let songs = new Array(playlists.length).fill([]);
     this.loadingTotal = playlists.length;
     this.loadingProgress = 0;
-    // Current request count. Hitting MAX_REQUESTS_PER_BATCH sleeps and resets requestCount
+    // Current request count. Hitting MAX_REQUESTS_PER_BATCH sleeps and resets requestCount.
     let requestCount = 0;
     const limit = SONGS_PER_ADD_REQUEST;
 
