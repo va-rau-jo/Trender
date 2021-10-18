@@ -93,15 +93,20 @@ class MonthlyPlaylists extends Component {
     let years = [];
     let currentYear = null;
     playlists.forEach((playlist, i) => {
-      const added = songs[i][Math.floor(songs[i].length / 2)].added_at;
-      const year = new Date(added).getFullYear();
-      // Add the first playlist to its own list or add a later year's playlist
-      // to a new list.
-      if (years.length === 0 || year !== currentYear) {
-        years.push([year, [[playlist, songs[i]]]]);
-        currentYear = year;
+      if (songs[i].length > 0 ) {
+        const added = songs[i][Math.floor(songs[i].length / 2)].added_at;
+        const year = new Date(added).getFullYear();
+        // Add the first playlist to its own list or add a later year's playlist
+        // to a new list.
+        if (years.length === 0 || year !== currentYear) {
+          years.push([year, [[playlist, songs[i]]]]);
+          currentYear = year;
+        } else {
+          years[years.length - 1][1].push([playlist, songs[i]]);
+        }
       } else {
-        years[years.length - 1][1].push([playlist, songs[i]]);
+        console.log(playlist);
+        console.log(i);
       }
     });
 

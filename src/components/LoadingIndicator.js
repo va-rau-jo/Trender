@@ -12,11 +12,11 @@ const styles = () => ({
 
 class LoadingIndicator extends Component {
   render() {
-    const { classes } = this.props;
+    const { classes, scale } = this.props;
 
     return (
       <div className={classes.center}>
-        <CircularProgress size={100} />
+        <CircularProgress size={scale} />
       </div>
     );
   }

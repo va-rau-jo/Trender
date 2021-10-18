@@ -9,12 +9,16 @@ const PLAYLISTS_PER_REQUEST = 50;
 // The number of songs to send per add request to the Spotify API. Max is 100.
 const SONGS_PER_ADD_REQUEST = 100;
 
-// Status code for too many requests sent to the Spotify API
-const TOO_MANY_REQUESTS_ERROR = 429;
+// Arbitrary number of fetches per batch and batches per second. Low enough so the
+// Spotify API doesn't give us a 429 error.
+const MAX_REQUESTS_PER_BATCH = 10;
+const REQUEST_SLEEP_TIMEOUT = 1000;
+// Timer to sleep before making another request.
+const SLEEP_TIMER = () => new Promise(res => setTimeout(res, REQUEST_SLEEP_TIMEOUT))
 
 class SpotifyAPIManager {
   /**
-   * Given a playlist id and a list of songs of the form ["spotify:track:___"],
+   * Given a playlist id and a list of songs of the form ['spotify:track:___'],
    * make POST requests to add those songs to the playlist. Spotify API
    * restricts the number of songs added per request to 100. Ensures that the
    * songs are added in the correct order.
@@ -73,48 +77,26 @@ class SpotifyAPIManager {
   static deletePlaylists(playlistIds) {
     const url = BASE_URL + 'playlists/';
 
-    console.log(playlistIds);
-
-    return new Promise(async (resolve, reject) => {
-      await Promise.all(playlistIds.map(async (id) => {
-        await fetch(url + id + '/followers', {
-          headers: { Authorization: 'Bearer ' + this.accessToken },
-          method: 'DELETE'
-        })
-          .then(res => {
-            if (!res.ok) {
-              reject(res.error);
-            }
-          });
-      }));
-      resolve('pogu');
-    });
-
-    // playlists.forEach(playlist => {
-    //   if (playlist.name === playlistName) {
-    //     fetch(url + playlist.id + '/followers', {
+    // return new Promise(async (resolve, reject) => {
+    //   await Promise.all(playlistIds.map(async (id) => {
+    //     await fetch(url + id + '/followers', {
     //       headers: { Authorization: 'Bearer ' + this.accessToken },
     //       method: 'DELETE'
     //     })
-    //       .then(res => { return res.json(); })
-    //       .then(json => { console.log(json); });
-    //     }
-    // })
-
-    // return new Promise(async (resolve, _) => {
-    //   await fetch(url, {
-    //     body: JSON.stringify({
-    //       'collaborative': collaborative,
-    //       'description': description,
-    //       'name': name,
-    //       'public': isPublic,
-    //     }),
-    //     headers: { Authorization: 'Bearer ' + this.accessToken },
-    //     method: 'POST'
-    //   })
-    //     .then(res => { return res.json(); })
-    //     .then(json => { resolve(json); });
+    //       .then(res => {
+    //         if (!res.ok) {
+    //           reject(res.error);
+    //         }
+    //       });
+    //   }));
+    //   resolve('pogu');
     // });
+
+    return new Promise(async (resolve, reject) => {
+      this.repeatedlyFetch(url, PLAYLISTS_PER_REQUEST, 'DELETE').then(playlists => {
+        resolve({ 'playlists': playlists });
+      }).catch(reject);
+    });
   }
 
   /**
@@ -132,13 +114,15 @@ class SpotifyAPIManager {
   static getPlaylistData (filterByMonth, fetchSongs) {
     const url = BASE_URL + 'me/playlists';
     return new Promise(async (resolve, reject) => {
-      this.repeatedlyFetch(url, PLAYLISTS_PER_REQUEST).then(playlists => {
+      this.repeatedlyFetch(url, PLAYLISTS_PER_REQUEST, 'GET').then(playlists => {
         if (filterByMonth) {
           filterPlaylistsByMonth(playlists);
         }
 
         if (fetchSongs) {
           this.getSongData(playlists).then(songs => {
+            console.log("RESOLVING");
+            console.log(songs);
             resolve({
               'playlists': playlists,
               'songs': songs
@@ -161,47 +145,61 @@ class SpotifyAPIManager {
     let songs = new Array(playlists.length).fill([]);
     this.loadingTotal = playlists.length;
     this.loadingProgress = 0;
-
-    // Arbitrary number of fetches per batch and batches per second. Low enough so the
-    // Spotify API doesn't give us a 429 error.
-    const maxRequests = 10;
-    const sleepTimeout = 1000;
-    // Current request count. Hitting maxRequests sleeps and resets requestCount
+    // Current request count. Hitting MAX_REQUESTS_PER_BATCH sleeps and resets requestCount
     let requestCount = 0;
-    // Timer to sleep before making another request.
-    const sleepTimer = () =>
-      new Promise(res => setTimeout(res, sleepTimeout))
+    const limit = SONGS_PER_ADD_REQUEST;
 
     return new Promise(async (resolve, reject) => {
-      for (let i = 0; i < 10; i++) {
-        this.loadingProgress++;
-        const limit = SONGS_PER_ADD_REQUEST;
-
-        for (let j = 0; j < playlists[i].tracks.total; j += limit) {
-          if (requestCount === maxRequests) { // wait to cool down the Spotify API
+      for (let i = 0; i < playlists.length; i++) {
+        // console.log(i);
+        for (let j = 0; j < playlists[i].tracks.total;) {
+          if (requestCount === MAX_REQUESTS_PER_BATCH) { // wait to cool down the Spotify API
             requestCount = 0;
-            await sleepTimer();
+            await SLEEP_TIMER();
           } else {
-            requestCount++;
             let url = playlists[i].tracks.href + '?' + new URLSearchParams({ limit, offset: j });
-            this.fetchSongs(url)
-              .then(tracks => {
-                songs[i] = songs[i].concat(tracks.map(song => ({
-                  // TODO: Add other fields here if necessary.
-                  added_at: song.added_at,
-                  artist: song.track ? this.combineArtists(song.track.artists) : '',
-                  duration: song.track ? song.track.duration_ms / 1000 : 0,
-                  // Good for key in React mapping
-                  id: song.track && song.track.id || this.generateRandomId(),
-                  image: song.track ? song.track.album.images[0] : null,
-                  isLocalFile: song.is_local,
-                  name: song.track ? song.track.name : '',
-                })));
-              }).catch(reject);
+            j += limit;
+            requestCount++;
+            this.fetchSongs(url).then(tracks => {
+              songs[i] = songs[i].concat(tracks.map(song => ({
+                // TODO: Add other fields here if necessary.
+                added_at: song.added_at,
+                artist: song.track ? this.combineArtists(song.track.artists) : '',
+                duration: song.track ? song.track.duration_ms / 1000 : 0,
+                // Good for key in React mapping
+                id: song.track && song.track.id || this.generateRandomId(),
+                image: song.track ? song.track.album.images[0] : null,
+                isLocalFile: song.is_local,
+                name: song.track ? song.track.name : '',
+              })));
+              this.loadingProgress++;
+              if (this.loadingProgress === playlists.length) {
+                resolve(songs);
+              }
+            }).catch(reject);
           }
         }
       }
-      resolve(songs);
+    });
+  }
+
+  static fetchSongs(url) {
+    // Fetch until we get less than the max limit (reached the end)
+    return new Promise(async (resolve, reject) => {
+      await fetch(url, {
+        headers: { Authorization: 'Bearer ' + this.accessToken }
+      }).then(async res => {
+        if (!res.ok) {
+          // Some other error (API key, API down, etc.) (don't try again)
+          reject(res.status);
+        } else {
+          return res.json();
+        }
+      }).then(json => {
+        if (json && !json.error && json.items.length > 0) {
+          resolve(json.items);
+        }
+      });
     });
   }
 
@@ -241,26 +239,6 @@ class SpotifyAPIManager {
       });
   }
 
-  static fetchSongs(url) {
-    // Fetch until we get less than the max limit (reached the end)
-    return new Promise(async (resolve, reject) => {
-      await fetch(url, {
-        headers: { Authorization: 'Bearer ' + this.accessToken }
-      }).then(async res => {
-        if (!res.ok) {
-          // Some other error (API key, API down, etc.) (don't try again)
-          reject(res.status);
-        } else {
-          return res.json();
-        }
-      }).then(json => {
-        if (json && !json.error && json.items.length > 0) {
-          resolve(json.items);
-        }
-      });
-    });
-  }
-
   /**
    * Method to fetch all the items from an API endpoint (since Spotify limits
    * the items fetched per request). Repeats until the number of items returned
@@ -269,7 +247,7 @@ class SpotifyAPIManager {
    * @param {number} limit The limit of items per request.
    * @returns {Promise} A promise resolving to an array of items.
    */
-  static repeatedlyFetch(baseUrl, limit) {
+  static repeatedlyFetch(baseUrl, limit, method) {
     let items = [];
     let nextUrl = baseUrl + '?' + new URLSearchParams({ limit, offset: 0 });
 
@@ -277,7 +255,8 @@ class SpotifyAPIManager {
     return new Promise(async (resolve, reject) => {
       while (nextUrl !== null) {
         await fetch(nextUrl, {
-          headers: { Authorization: 'Bearer ' + this.accessToken }
+          headers: { Authorization: 'Bearer ' + this.accessToken },
+          method: method,
         }).then(async res => {
           if (!res.ok) {
             // Some other error (API key, API down, etc.) (don't try again)
@@ -333,7 +312,7 @@ class SpotifyAPIManager {
 
   /**
    * Helper function to divide the input array into slices that are each
-   * "maxLength" long. This is needed because the Spotify API only accepts up to
+   * 'maxLength' long. This is needed because the Spotify API only accepts up to
    * 100 songs per add attempt, so we have to split it up.
    * @param {Array} array The array to divide
    * @param {number} maxLength The max size of each new smaller array.

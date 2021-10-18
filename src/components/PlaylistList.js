@@ -71,20 +71,18 @@ const styles = () => ({
 
 // Custom checkbox to be invisible when unchecked but a nice color when checked.
 const HiddenCheckbox = withStyles({
-    root: {
-      color: '#00000000', // invisible
-      '&$checked': {
-        color: '#ff2d52',
-      },
+  root: {
+    color: '#00000000', // invisible
+    '&$checked': {
+      color: '#ff2d52',
     },
-    checked: {},
-  })((props) => <Checkbox color="default" {...props} />);
+  },
+  checked: {},
+})((props) => <Checkbox color="default" {...props} />);
 
 class PlaylistList extends Component {
   render() {
-
     const { classes, playlists, selectedIndices, togglePlaylist, visibleIndices } = this.props;
-
     return (
       <ImageList className={classes.playlistList}>
         <ImageListItem key="Subheader" cols={2} style={{ height: 'auto' }}>

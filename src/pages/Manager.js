@@ -38,7 +38,6 @@ const styles = () => ({
   createdPlaylistMessage: {
     color: 'green',
     fontWeight: 'bold',
-    marginTop: '32px',
   },
   createTabPanel: {
     paddingTop: '24px',
@@ -48,6 +47,9 @@ const styles = () => ({
   },
   deletePlaylistsBtnDiv: {
     marginTop: '16px',
+  },
+  deletePlaylistsFooterDiv: {
+    marginTop: '32px',
   },
   deletePlaylistsItem: {
     alignItems: 'center',
@@ -221,8 +223,6 @@ class Manager extends Component {
     const collab = this.state.shouldMakeCollaborative;
     const removeDups = this.state.shouldRemoveDuplicates;
 
-    console.log(this.state.songs);
-    console.log(this.state.playlists);
     SpotifyAPIManager.createPlaylist(name, desc, isPublic, collab).then(res => {
       const uris = []
       this.state.selectedIndices.forEach(i => {
@@ -246,27 +246,30 @@ class Manager extends Component {
   }
 
   /**
-   * Creates a playlist with the given settings and adds the selected songs to
-   * it.
+   * Deletes the selected playlists. After successful deletion, the playlists
+   * are removed from the state playlists array and the selected and visible
+   * playlists are reset.
    */
   deletePlaylists = () => {
-    console.log("DELETING")
-    console.log(this.state.selectedIndices);
-
-    let copy = this.state.playlists.slice();
-    copy = copy.splice(0, 1);
-    console.log(copy);
-    copy = copy.splice(0, 1);
-    console.log(copy);
-
     if (this.state.selectedIndices.length > 0) {
+      this.setState({deletedPlaylistsLoading: true});
       const ids = this.state.selectedIndices.map(i => this.state.playlists[i].id);
-      SpotifyAPIManager.deletePlaylists(ids).then(() => {
-        // let copy = this.state.playlists.copy();
-        // this.state.selectedIndices.forEach(i => {
-        //   copy = copy.slice(i, 1);
-        this.notifyDeletedPlaylists(ids.length);
-      });
+        SpotifyAPIManager.deletePlaylists(ids).then(() => {
+          let copy = this.state.playlists.slice();
+          // Remove deleted playlists from state playlist array
+          this.state.selectedIndices.forEach(i => { copy.splice(i, 1); });
+          // Set playlists to new copy and reset selected and visible playlists
+          this.setState({
+            playlists: copy,
+            selectedIndices: [],
+            visibleIndices: [],
+          });
+          // Filter after setting visibleIndices to empty so we don't try to render
+          // the already deleted playlists
+          this.filterPlaylists();
+          this.setState({deletedPlaylistsLoading: false});
+          this.notifyDeletedPlaylists(ids.length);
+        });
     }
   }
 
@@ -525,7 +528,7 @@ class Manager extends Component {
 
   renderDeleteOptionsTab() {
     const { classes } = this.props;
-    const { deletedPlaylistsCount, selectedIndices } = this.state;
+    const { deletedPlaylistsCount, deletedPlaylistsLoading, selectedIndices } = this.state;
 
     const anyPlaylistsSelected = selectedIndices.length > 0;
 
@@ -563,12 +566,18 @@ class Manager extends Component {
           <Button variant='contained' color='primary' disabled={!anyPlaylistsSelected}
             onClick={this.deletePlaylists}> Delete </Button>
         </div>
-        {deletedPlaylistsCount ?
-          <Typography className={classes.createdPlaylistMessage}
-            variant='body1'>
-            Deleted {deletedPlaylistsCount} playlist
-            {deletedPlaylistsCount !== 1 ? 's' : ''}.
-          </Typography> : null}
+        <div className={classes.deletePlaylistsFooterDiv}>
+          {deletedPlaylistsLoading 
+            ?  <LoadingIndicator scale={40} />
+            :  deletedPlaylistsCount
+                 ?
+                  <Typography className={classes.createdPlaylistMessage}
+                    variant='body1'>
+                    Deleted {deletedPlaylistsCount} playlist
+                    {deletedPlaylistsCount !== 1 ? 's' : ''}.
+                  </Typography>
+                : null}
+        </div>
       </>
     );
   }
