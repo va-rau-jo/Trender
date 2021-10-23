@@ -85,13 +85,21 @@ class Deleter extends Component {
     super(props);
   }
 
-  deletePlaylists = () => {
-    const input = document.getElementById('playlistNameInput');
-    const text = input ? input.value : '';
-    SpotifyAPIManager.deletePlaylists(this.state.playlists, text)
-      .then(res => {
-        console.log(res);
-      });
+  static deletePlaylists(playlistIds) {
+    return new Promise(async (resolve, reject) => {
+      await Promise.all(playlistIds.map(async (id) => {
+        await fetch(url + id + '/followers', {
+          headers: { Authorization: 'Bearer ' + this.accessToken },
+          method: 'DELETE'
+        })
+          .then(res => {
+            if (!res.ok) {
+              reject(res.error);
+            }
+          });
+      }));
+      resolve(true);
+    });
   }
 
   render() {
