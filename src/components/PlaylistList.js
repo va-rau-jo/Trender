@@ -37,18 +37,20 @@ const styles = () => ({
   },
   listItemText: {
     color: 'white',
+    margin: '0 5px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   playlistList: {
     background: 'white',
-    // borderRadius: '10px',
     justifyContent: 'space-evenly',
-    // overrides ImageList inline style
     marginRight: '20px !important',
-    // padding: '20px',
     transform: 'translateZ(0)',
   },
   playlistListImage: {
     borderRadius: '10px',
+    width: '100%',
   },
   // Overriding default inline style for ListItem
   playlistListItem: {

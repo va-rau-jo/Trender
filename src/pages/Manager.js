@@ -567,7 +567,7 @@ class Manager extends Component {
             onClick={this.deletePlaylists}> Delete </Button>
         </div>
         <div className={classes.deletePlaylistsFooterDiv}>
-          {deletedPlaylistsLoading 
+          {deletedPlaylistsLoading
             ?  <LoadingIndicator scale={40} />
             :  deletedPlaylistsCount
                  ?

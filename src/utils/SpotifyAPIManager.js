@@ -121,8 +121,6 @@ class SpotifyAPIManager {
 
         if (fetchSongs) {
           this.getSongData(playlists).then(songs => {
-            console.log("RESOLVING");
-            console.log(songs);
             resolve({
               'playlists': playlists,
               'songs': songs
@@ -151,7 +149,6 @@ class SpotifyAPIManager {
 
     return new Promise(async (resolve, reject) => {
       for (let i = 0; i < playlists.length; i++) {
-        // console.log(i);
         for (let j = 0; j < playlists[i].tracks.total;) {
           if (requestCount === MAX_REQUESTS_PER_BATCH) { // wait to cool down the Spotify API
             requestCount = 0;

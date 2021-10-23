@@ -4,7 +4,9 @@ import Divider from '@material-ui/core/Divider';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+
 import LoadingIndicator from '../components/LoadingIndicator';
+import ProgressIndicator from '../components/ProgressIndicator';
 import SpotifyAPIManager from '../utils/SpotifyAPIManager';
 import Summary from '../components/Summary/Summary';
 
@@ -71,11 +73,31 @@ class MonthlyPlaylists extends Component {
       SpotifyAPIManager.getUserData(props.firebaseController);
       SpotifyAPIManager.getPlaylistData(true, true).then(data => {
         this.groupPlaylistsByYear(data['playlists'], data['songs']);
+        this.clearLoadingInterval();
       }).catch(error => {
         console.log(error);
         this.setState({ error });
       });
     }
+  }
+
+  componentDidMount = () => {
+    this.setState({
+      loadingInterval: setInterval(() => {
+        this.setState({
+          loadingProgress: SpotifyAPIManager.getLoadingProgress(),
+          loadingTotal: SpotifyAPIManager.getLoadingTotal()
+        });
+      }, 1000)
+    });
+  }
+
+  clearLoadingInterval = () => {
+    clearInterval(this.state.loadingInterval);
+    this.setState({
+      loadingProgress: null,
+      loadingTotal: null,
+    });
   }
 
   compareIsDiff(i, j) {
@@ -88,8 +110,6 @@ class MonthlyPlaylists extends Component {
    * array is in the form ['year', [playlist1, songs1], [playlist2, songs2]...]
    */
   groupPlaylistsByYear(playlists, songs) {
-    console.log(playlists);
-    console.log(songs);
     let years = [];
     let currentYear = null;
     playlists.forEach((playlist, i) => {
@@ -104,9 +124,6 @@ class MonthlyPlaylists extends Component {
         } else {
           years[years.length - 1][1].push([playlist, songs[i]]);
         }
-      } else {
-        console.log(playlist);
-        console.log(i);
       }
     });
 
@@ -194,6 +211,8 @@ class MonthlyPlaylists extends Component {
       } else if (this.state.error) {
         // TODO: have a better error when fetches fail.
         return (<div> retry ? </div>);
+      } else if (this.state.loadingProgress || !this.state.playlists) {
+        return <ProgressIndicator progress={this.state.loadingProgress} total={this.state.loadingTotal} />;
       } else if (this.state.playlists) {
         const { playlists, selectedPlaylist } = this.state;
 
