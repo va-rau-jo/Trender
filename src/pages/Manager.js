@@ -12,7 +12,6 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
 import LoadingIndicator from '../components/LoadingIndicator';
 import SpotifyAPIManager from '../utils/SpotifyAPIManager';
-import Header from '../components/Header';
 import ProgressIndicator from '../components/ProgressIndicator';
 import PlaylistList from '../components/PlaylistList';
 
@@ -167,7 +166,6 @@ class Manager extends Component {
   constructor(props) {
     super(props);
 
-    console.log('accesstoken: ' + SpotifyAPIManager.getAccessToken())
     if (SpotifyAPIManager.getAccessToken()) {
       SpotifyAPIManager.getPlaylistData(false, true).then(data => {
         this.setState({
@@ -419,7 +417,6 @@ class Manager extends Component {
 
     return (
       <>
-        <Header title='Manage Your Playlists' />
         <Tabs className={classes.flexVertical} defaultIndex={0}>
           <div className={classes.filterHeader}>
             <div className={classes.filterContainer}>

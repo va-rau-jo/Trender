@@ -4,7 +4,6 @@ import FirebaseController from './utils/FirebaseController';
 import queryString from 'query-string';
 
 import Manager from './pages/Manager';
-import Deleter from './pages/Deleter';
 import Home from './pages/Home';
 import LoadingIndicator from './components/LoadingIndicator';
 import MonthlyPlaylists from './pages/MonthyPlaylists';
@@ -62,10 +61,6 @@ class App extends Component {
           </Route>
           <Route path='/manager'>
             <Manager
-              accessToken={this.state.accessToken} />
-          </Route>
-          <Route path='/deleter'>
-            <Deleter
               accessToken={this.state.accessToken} />
           </Route>
           <Route>

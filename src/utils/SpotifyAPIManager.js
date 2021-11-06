@@ -75,27 +75,61 @@ class SpotifyAPIManager {
   }
 
   static deletePlaylists(playlistIds) {
-    const url = BASE_URL + 'playlists/';
-
-    // return new Promise(async (resolve, reject) => {
-    //   await Promise.all(playlistIds.map(async (id) => {
-    //     await fetch(url + id + '/followers', {
-    //       headers: { Authorization: 'Bearer ' + this.accessToken },
-    //       method: 'DELETE'
-    //     })
-    //       .then(res => {
-    //         if (!res.ok) {
-    //           reject(res.error);
-    //         }
-    //       });
-    //   }));
-    //   resolve('pogu');
-    // });
+    // Current request count. Hitting MAX_REQUESTS_PER_BATCH sleeps and resets requestCount.
+    let requestCount = 0;
+    let baseUrl = BASE_URL + "playlists/";
 
     return new Promise(async (resolve, reject) => {
-      this.repeatedlyFetch(url, PLAYLISTS_PER_REQUEST, 'DELETE').then(playlists => {
-        resolve({ 'playlists': playlists });
-      }).catch(reject);
+      for (let i = 0; i < playlistIds.length;) {
+        if (requestCount === MAX_REQUESTS_PER_BATCH) { // wait to cool down the Spotify API
+          requestCount = 0;
+          await SLEEP_TIMER();
+        } else {
+          await fetch(baseUrl + playlistIds[i] + "/followers", {
+            headers: { Authorization: 'Bearer ' + this.accessToken },
+            method: 'DELETE'
+          }).then(async res => {
+            if (!res.ok) {
+              // Some other error (API key, API down, etc.) (don't try again)
+              reject(res.status);
+            } else {
+              i++;
+              if (i === playlistIds.length) {
+                console.log("RESOLVED");
+                resolve();
+              }
+            }
+          });
+        }
+      }
+    });
+  }
+
+  /**
+   * Helper method for the getSongData method to make the fetch request
+   * that gets the track data for a given playlist. URL includes offset so we
+   * can get all songs.
+   * @param {string} url The URL to access the Spotify API with
+   * @returns {Promise} A promise that is resolved when the Spotify API responds
+   * with the song data. Rejects on any API error.
+   */
+  static fetchSongs(url) {
+    // Fetch until we get less than the max limit (reached the end)
+    return new Promise(async (resolve, reject) => {
+      await fetch(url, {
+        headers: { Authorization: 'Bearer ' + this.accessToken }
+      }).then(async res => {
+        if (!res.ok) {
+          // Some other error (API key, API down, etc.) (don't try again)
+          reject(res.status);
+        } else {
+          return res.json();
+        }
+      }).then(json => {
+        if (json && !json.error && json.items.length > 0) {
+          resolve(json.items);
+        }
+      });
     });
   }
 
@@ -177,26 +211,6 @@ class SpotifyAPIManager {
           }
         }
       }
-    });
-  }
-
-  static fetchSongs(url) {
-    // Fetch until we get less than the max limit (reached the end)
-    return new Promise(async (resolve, reject) => {
-      await fetch(url, {
-        headers: { Authorization: 'Bearer ' + this.accessToken }
-      }).then(async res => {
-        if (!res.ok) {
-          // Some other error (API key, API down, etc.) (don't try again)
-          reject(res.status);
-        } else {
-          return res.json();
-        }
-      }).then(json => {
-        if (json && !json.error && json.items.length > 0) {
-          resolve(json.items);
-        }
-      });
     });
   }
 

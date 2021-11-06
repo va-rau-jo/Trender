@@ -27,7 +27,9 @@ html {
 }
 
 body {
-  background-color: #F7F6FD;
+  background-color: #F2F2F2;
+  background-image: url('/images/logo_gray.png');
+  background-repeat: repeat;
   height: 100%;
   margin: 0;
 }

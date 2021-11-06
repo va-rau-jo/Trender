@@ -50,6 +50,7 @@ const styles = () => ({
   },
   playlistListImage: {
     borderRadius: '10px',
+    height: '100%',
     width: '100%',
   },
   // Overriding default inline style for ListItem
