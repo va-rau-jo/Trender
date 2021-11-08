@@ -198,7 +198,7 @@ class SpotifyAPIManager {
                 artist: song.track ? this.combineArtists(song.track.artists) : '',
                 duration: song.track ? song.track.duration_ms / 1000 : 0,
                 // Good for key in React mapping
-                id: song.track && song.track.id || this.generateRandomId(),
+                id: (song.track && song.track.id) || (this.generateRandomId()),
                 image: song.track ? song.track.album.images[0] : null,
                 isLocalFile: song.is_local,
                 name: song.track ? song.track.name : '',
@@ -265,10 +265,10 @@ class SpotifyAPIManager {
     // Fetch until we get less than the max limit (reached the end)
     return new Promise(async (resolve, reject) => {
       while (nextUrl !== null) {
-        await fetch(nextUrl, {
+        const json = await fetch(nextUrl, {
           headers: { Authorization: 'Bearer ' + this.accessToken },
           method: method,
-        }).then(async res => {
+        }).then(async (res, nextUrl) => {
           if (!res.ok) {
             // Some other error (API key, API down, etc.) (don't try again)
             nextUrl = null;
@@ -276,14 +276,14 @@ class SpotifyAPIManager {
           } else {
             return res.json();
           }
-        }).then(json => {
-          if (json && !json.error) {
-            nextUrl = json.next;
-            if (json.items.length > 0) {
-              items = items.concat(json.items);
-            }
-          }
         });
+        
+        if (json && !json.error) {
+          nextUrl = json.next;
+          if (json.items.length > 0) {
+            items = items.concat(json.items);
+          }
+        }
       }
       resolve(items);
     });

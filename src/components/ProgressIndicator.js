@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { LinearProgress, Typography, withStyles } from "@material-ui/core";
+import { Typography, withStyles } from "@material-ui/core";
 
 const styles = () => ({
   center: {
@@ -7,10 +7,12 @@ const styles = () => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    height: '100%',
-  }, linearInternal: {
+    height: '85%',
+  },
+  linearInternal: {
     backgroundColor: '#3f51b5',
-  }, linearRoot: {
+  },
+  linearRoot: {
     backgroundColor: 'rgb(182, 188, 226)',
     height: '4px',
     marginTop: '16px',

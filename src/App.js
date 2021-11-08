@@ -1,15 +1,17 @@
-import firebase from 'firebase';
-import firebaseConfig from './config';
-import FirebaseController from './utils/FirebaseController';
-import queryString from 'query-string';
 
+import firebase from 'firebase/app';
+import firebaseConfig from './config';
+import 'firebase/firestore';
+import queryString from 'query-string';
+import React, { Component } from 'react';
+import { Route, BrowserRouter, Switch } from 'react-router-dom';
+
+import FirebaseController from './utils/FirebaseController';
 import Manager from './pages/Manager';
 import Home from './pages/Home';
 import LoadingIndicator from './components/LoadingIndicator';
 import MonthlyPlaylists from './pages/MonthyPlaylists';
-import React, { Component } from 'react';
 import SpotifyAPIManager from './utils/SpotifyAPIManager';
-import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 
 import './App.css';
 
@@ -43,32 +45,29 @@ class App extends Component {
     }
 
     return (
-      <Router>
-        {/* A <Switch> looks through all its children <Route> elements and
-        renders the first one whose path matches the current URL. Use a
-        <Switch> any time you have multiple routes, but you want only one of
-          them to render at a time */}
-        <Switch>
-          <Route exact path='/'>
-            <Home
-              accessToken={this.state.accessToken}
-              firebaseController={firebaseController} />
-          </Route>
-          <Route path='/monthly'>
-            <MonthlyPlaylists
-              accessToken={this.state.accessToken}
-              firebaseController={firebaseController} />
-          </Route>
-          <Route path='/manager'>
-            <Manager
-              accessToken={this.state.accessToken} />
-          </Route>
-          <Route>
-            {/* TODO: make page not found page better */}
-            Page Not Found
-          </Route>
-        </Switch>
-      </Router>
+      <>
+        <BrowserRouter>
+          {/* A <Switch> looks through all its children <Route> elements and
+          renders the first one whose path matches the current URL. Use a
+          <Switch> any time you have multiple routes, but you want only one of
+            them to render at a time */}
+          <Switch>
+            <Route exact path='/'>
+              <Home />
+            </Route>
+            <Route path='/monthly'>
+              <MonthlyPlaylists firebaseController={firebaseController} />
+            </Route>
+            <Route path='/manager'>
+              <Manager />
+            </Route>
+            <Route>
+              {/* TODO: make page not found page better */}
+              Page Not Found
+            </Route>
+          </Switch>
+        </BrowserRouter>
+      </>
     );
   }
 }

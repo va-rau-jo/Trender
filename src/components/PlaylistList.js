@@ -43,9 +43,8 @@ const styles = () => ({
     whiteSpace: 'nowrap',
   },
   playlistList: {
-    background: 'white',
     justifyContent: 'space-evenly',
-    marginRight: '20px !important',
+    margin: '0 !important',
     transform: 'translateZ(0)',
   },
   playlistListImage: {

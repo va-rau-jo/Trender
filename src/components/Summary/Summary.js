@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import {
   ImageList,
   ImageListItem,
+  Paper,
   Typography,
   withStyles,
 } from "@material-ui/core";
@@ -55,13 +56,16 @@ const styles = () => ({
     flexWrap: 'nowrap',
     // overrides ImageList inline style
     margin: '5px 20px !important',
-    padding: '15px 10px 0px 10px',
+    paddingTop: '15px',
     transform: 'translateZ(0)',
   },
   songListImage: {
     borderRadius: '10px',
     height: '200px',
     width: '200px',
+  },
+  songListPaper: {
+    margin: '0 15px'
   },
   songListTitle: {
     fontSize: '36px',
@@ -197,7 +201,7 @@ class Summary extends Component {
           <Typography className={classes.songListTitle} variant='h2'>
             {playlist.name} Songs
           </Typography>
-          <div>
+          <Paper elevation={3} className={classes.songListPaper}>
             <ImageList className={classes.songList}>
               {songs.slice(0).reverse().map((song) => (
                 <ImageListItem className={classes.imageListItem} key={song.id}>
@@ -225,22 +229,20 @@ class Summary extends Component {
                 </ImageListItem>
               ))}
             </ImageList>
-          </div>
+          </Paper>
 
           {compareSongs ?
             <>
               <Typography className={classes.songListTitle} variant='h2'>
                 Removals
               </Typography>
-              <div>
+              <Paper elevation={3} className={classes.songListPaper}>
                 <ImageList className={classes.songList}>
                   {removals.map((song) => (
                     <ImageListItem className={classes.imageListItem} key={song.id}>
                       {song.image ?
-                        <img className={classes.songListImage}
-                          src={song.image.url} alt={song.name} /> :
-                        <img className={classes.songListImage}
-                          src="/images/sound_file.png" alt="No image"/>}
+                        <img className={classes.songListImage} src={song.image.url} alt={song.name} /> :
+                        <img className={classes.songListImage} src="/images/sound_file.png" alt="Missing file"/>}
                       <div className={classes.songItemDescription}
                         title={song.name}
                         subtitle={song.artist}>
@@ -255,7 +257,7 @@ class Summary extends Component {
                     </ImageListItem>
                   ))}
                 </ImageList>
-              </div>
+              </Paper>
             </> : null}
         </div>
       );

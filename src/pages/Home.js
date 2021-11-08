@@ -5,7 +5,6 @@ import {
   Typography,  withStyles } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 
-import Header from '../components/Header';
 const styles = () => ({
   descriptionBullet: {
     color: '#555555',
@@ -17,13 +16,13 @@ const styles = () => ({
   flex: {
     display: 'flex',
     flexDirection: 'column',
-    height: '100%',
+    height: '85%',
     justifyContent: 'flex-start',
   },
   innerFlex: {
     display: 'flex',
     justifyContent: 'space-evenly',
-    marginTop: '40vh',
+    marginTop: '30vh',
     width: '100%',
   },
   pageButton: {
@@ -32,7 +31,6 @@ const styles = () => ({
   },
   pageContainer: {
     borderRadius: '10px',
-    // height: '35%',
     padding: '24px 8px 8px 8px',
     textAlign: 'center',
     width: '40%',
@@ -51,17 +49,19 @@ class Home extends Component {
 
     return (
       <div className={classes.flex}>
-        <Header />
         <div className={classes.innerFlex}>
           <Paper elevation={3} className={classes.pageContainer}>
             <Link to='/monthly' className={classes.pageLink}>
-              <Button variant='contained' color='primary' className={classes.pageButton}
-                onClick={this.unselectAllPlaylists}> Monthly Playlists
+              <Button variant='contained' color='primary' className={classes.pageButton}>
+                Monthly Playlists
               </Button>
             </Link>
             <div>
               <Typography variant="body1" className={classes.descriptionText}>
-                Handy tool if you create a new monthly playlist each month
+                View trends between your monthly playlists
+              </Typography>
+              <Typography variant="body1" className={classes.descriptionBullet}>
+                - See the differences between each month
               </Typography>
               <Typography variant="body1" className={classes.descriptionBullet}>
                 - Track the songs that are added and removed each month
@@ -69,9 +69,9 @@ class Home extends Component {
             </div>
           </Paper>
           <Paper elevation={3} className={classes.pageContainer}>
-            <Link to='/Manager' className={classes.pageLink}>
-              <Button variant='contained' color='primary' className={classes.pageButton}
-                onClick={this.unselectAllPlaylists}> Manager
+            <Link to='/manager' className={classes.pageLink}>
+              <Button variant='contained' color='primary' className={classes.pageButton}>
+                Manager
               </Button>
             </Link>
             <div>

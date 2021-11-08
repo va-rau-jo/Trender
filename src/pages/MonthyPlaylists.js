@@ -24,6 +24,7 @@ const styles = () => ({
   },
   // The drawer object
   drawer: {
+    backgroundColor: 'white',
     height: '100%',
     overflowY: 'scroll',
     width: '12%',
@@ -35,7 +36,7 @@ const styles = () => ({
   // Parent div to display the sidebar and summary
   flex: {
     display: 'flex',
-    height: '100%',
+    height: '85%',
   },
   // List item (month name) in the drawer.
   listItemMonth: {
@@ -150,7 +151,7 @@ class MonthlyPlaylists extends Component {
    *
    * @param {number} yearIndex The index of the outer array, [0] returns the playlists
    * from the latest year.
-   * @param {number} monthIndex The index of the inner array, [0] returns the
+   * @param {number} monthIndex The index of the inner array, [0] returns the100
    * playlist from the latest month.
    * @returns {Array} An array of song objects.
    */
@@ -202,7 +203,8 @@ class MonthlyPlaylists extends Component {
   }
 
   render() {
-    const { accessToken, classes, firebaseController } = this.props;
+    const { classes, firebaseController } = this.props;
+    const accessToken = SpotifyAPIManager.getAccessToken();
 
     // Go back to Home screen to fetch the Spotify access token.
     if (this.state) {

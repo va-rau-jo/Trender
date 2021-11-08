@@ -3,6 +3,7 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
+  Paper,
   TextField,
   Typography,
   withStyles
@@ -93,7 +94,8 @@ const styles = () => ({
     display: 'flex',
     flexGrow: '1',
     justifyContent: 'space-evenly',
-    margin: '16px 0 4px 0',
+    margin: '16px 20px 8px 0',
+    padding: '10px 0',
   },
   filterHeader: {
     display: 'flex',
@@ -105,12 +107,12 @@ const styles = () => ({
   },
   flexHorizontal: {
     display: 'flex',
-    height: '90%',
+    height: '85%',
   },
   flexVertical: {
     display: 'flex',
     flexDirection: 'column',
-    height: '90%',
+    height: '85%',
     margin: '0px 20px',
     position: 'relative',
   },
@@ -119,6 +121,7 @@ const styles = () => ({
     display: 'flex',
     flexDirection: 'column',
     flexGrow: '1',
+    marginRight: '20px',
     textAlign: 'center',
   },
   nameInput: {
@@ -150,6 +153,7 @@ const styles = () => ({
   tabList: {
     display: 'flex',
     marginBottom: '0',
+    padding: 0,
     width: '350px',
   },
   textInputDiv: {
@@ -397,7 +401,8 @@ class Manager extends Component {
   }
 
   render() {
-    const { accessToken, classes } = this.props;
+    const { classes } = this.props;
+    const accessToken = SpotifyAPIManager.getAccessToken();
 
     // Go back to Home screen to fetch the Spotify access token.
     if (!this.state) {
@@ -419,7 +424,7 @@ class Manager extends Component {
       <>
         <Tabs className={classes.flexVertical} defaultIndex={0}>
           <div className={classes.filterHeader}>
-            <div className={classes.filterContainer}>
+            <Paper elevation={1} className={classes.filterContainer}>
               <div className={classes.filterInputContainer}>
                 <TextField id='filterInput' label='Filter' variant='outlined'
                   onKeyDown={this.filterInputOnKeyDown} />
@@ -434,20 +439,20 @@ class Manager extends Component {
                 <Button variant='contained' color='secondary'
                   onClick={this.unselectAllPlaylists}> Unselect All </Button>
               </div>
-            </div>
+            </Paper>
             <TabList className={classes.tabList}>
               <Tab> <Typography variant='h6'> Create </Typography> </Tab>
               <Tab> <Typography variant='h6'> Delete </Typography> </Tab>
             </TabList>
           </div>
           <div className={classes.flexHorizontal}>
-            <div className={classes.listContainer}>
+            <Paper elevation={3} className={classes.listContainer}>
               <PlaylistList
                 playlists={playlists}
                 selectedIndices={selectedIndices}
                 visibleIndices={visibleIndices}
                 togglePlaylist={this.togglePlaylist} />
-            </div>
+            </Paper>
             <div className={classes.optionsTab}>
               <TabPanel>
                 <div className={classes.createTabPanel}>
