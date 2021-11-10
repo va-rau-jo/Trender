@@ -107,7 +107,7 @@ const styles = () => ({
   },
   flexHorizontal: {
     display: 'flex',
-    height: '85%',
+    height: '94%',
   },
   flexVertical: {
     display: 'flex',
@@ -152,7 +152,7 @@ const styles = () => ({
   },
   tabList: {
     display: 'flex',
-    marginBottom: '0',
+    marginBottom: '-1px',
     padding: 0,
     width: '350px',
   },
@@ -171,7 +171,8 @@ class Manager extends Component {
     super(props);
 
     if (SpotifyAPIManager.getAccessToken()) {
-      SpotifyAPIManager.getPlaylistData(false, true).then(data => {
+      // TODO: should be false, true
+      SpotifyAPIManager.getPlaylistData(false, false).then(data => {
         this.setState({
           playlists: data['playlists'],
           shouldMakeCollaborative: false,
@@ -441,7 +442,11 @@ class Manager extends Component {
               </div>
             </Paper>
             <TabList className={classes.tabList}>
-              <Tab> <Typography variant='h6'> Create </Typography> </Tab>
+              <Tab>
+                  <Typography variant='h6'>
+                    Create
+                  </Typography>
+              </Tab>
               <Tab> <Typography variant='h6'> Delete </Typography> </Tab>
             </TabList>
           </div>
@@ -453,7 +458,7 @@ class Manager extends Component {
                 visibleIndices={visibleIndices}
                 togglePlaylist={this.togglePlaylist} />
             </Paper>
-            <div className={classes.optionsTab}>
+            <Paper elevation={3} className={classes.optionsTab}>
               <TabPanel>
                 <div className={classes.createTabPanel}>
                   {createOptionsTab}
@@ -464,7 +469,7 @@ class Manager extends Component {
                   {deleteOptionsTab}
                 </div>
               </TabPanel>
-            </div>
+            </Paper>
           </div>
         </Tabs>
       </>

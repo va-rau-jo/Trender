@@ -19,7 +19,8 @@ const styles = () => ({
     backgroundColor: '#000000CC',
     borderRadius: '0 0 10px 10px',
     bottom: '0',
-    height: '65px',
+    color: 'white',
+    height: '30%',
     position: 'absolute',
     textAlign: 'center',
     width: '100%',
@@ -35,9 +36,16 @@ const styles = () => ({
     color: 'white',
     padding: '0 8px',
   },
-  listItemText: {
-    color: 'white',
+  listItemSubtitle: {
+    // fontSize: '14px',
     margin: '0 5px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  listItemText: {
+    // fontSize: '18px',
+    margin: '2px 5px 0 5px',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -50,6 +58,9 @@ const styles = () => ({
   playlistListImage: {
     borderRadius: '10px',
     height: '100%',
+    left: '0',
+    position: 'absolute',
+    top: '0',
     width: '100%',
   },
   // Overriding default inline style for ListItem
@@ -57,11 +68,14 @@ const styles = () => ({
     border: '4px solid white',
     borderRadius: '16px',
     cursor: 'pointer',
-    height: '250px !important',
     margin: '5px',
-    padding: '0px !important',
+    // Height set to 0 and padding-bottom set to width to keep
+    // the list items square
+    height: '0 !important',
+    padding: '0 0 20% 0 !important',
+    position: 'relative',
     userSelect: 'none',
-    width: '250px !important',
+    width: '20% !important',
   },
   selectedListItem: {
     border: '4px solid #ff2d52',
@@ -96,28 +110,32 @@ class PlaylistList extends Component {
           const playlist = playlists[i];
           const selected = selectedIndices.includes(i);
           return (
-            <ImageListItem cols={2} key={i} onClick={() => { togglePlaylist(i) }}
-                className={classes.playlistListItem + ' ' + (selected ? classes.selectedListItem : '')}>
-                <img className={classes.playlistListImage} alt="Playlist"
+            <div cols={2} key={i} onClick={() => { togglePlaylist(i) }}
+              className={classes.playlistListItem + ' ' + (selected ? classes.selectedListItem : '')}
+              sx={{height: 0}} >
+
+              <img className={classes.playlistListImage} alt="Playlist"
                 src={playlist.images[0] ? playlist.images[0].url : "/images/sound_file.png"} />
-                {selected ?
+
+              {selected ?
                 <div className={classes.listItemIndexDiv}>
                     <Typography className={classes.listItemIndex} variant='h6'>
                     {(selectedIndices.indexOf(i) + 1)}
                     </Typography>
-                </div> : null}
-
-                <div className={classes.listItemDescription}>
-                    <Typography className={classes.listItemText} variant='h6'>
-                        {playlist.name}
-                    </Typography>
-                    <Typography className={classes.listItemText} variant='subtitle1'>
-                        {playlist.tracks.total} Songs
-                    </Typography>
-                    <HiddenCheckbox id={playlist.id + 'checkbox'} checked={selected}
-                        className={classes.listCheckbox} />
                 </div>
-            </ImageListItem>
+                : null}
+
+              <div className={classes.listItemDescription}>
+                <Typography className={classes.listItemText} variant='body1'>
+                    {playlist.name}
+                </Typography>
+                <Typography className={classes.listItemSubtitle} variant='body2'>
+                    {playlist.tracks.total} Songs
+                </Typography>
+                {/* <HiddenCheckbox id={playlist.id + 'checkbox'} checked={selected}
+                    className={classes.listCheckbox} /> */}
+              </div>
+            </div>
           );
         })}
       </ImageList>

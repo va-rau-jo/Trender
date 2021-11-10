@@ -27,7 +27,7 @@ const styles = () => ({
     backgroundColor: 'white',
     height: '100%',
     overflowY: 'scroll',
-    width: '12%',
+    width: '16%',
   },
   // Max width of drawer container
   drawerContainer: {
@@ -36,7 +36,7 @@ const styles = () => ({
   // Parent div to display the sidebar and summary
   flex: {
     display: 'flex',
-    height: '85%',
+    height: '94%',
   },
   // List item (month name) in the drawer.
   listItemMonth: {
@@ -57,7 +57,7 @@ const styles = () => ({
   summary: {
     margin: '0 auto',
     textAlign: 'center',
-    width: '87%',
+    width: '84%',
   },
   // Label for each year in the drawer.
   yearLabel: {

@@ -16,14 +16,12 @@ const styles = () => ({
   flex: {
     display: 'flex',
     flexDirection: 'column',
-    height: '85%',
-    justifyContent: 'flex-start',
+    height: '94%',
+    justifyContent: 'center',
   },
   innerFlex: {
     display: 'flex',
     justifyContent: 'space-evenly',
-    marginTop: '30vh',
-    width: '100%',
   },
   pageButton: {
     fontSize: '24px',

@@ -1,16 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+
 import * as serviceWorker from './serviceWorker';
-
-
 import App from './App';
-import Header from './components/Header';
 
 ReactDOM.render(
   <>
-    <Header />
     <App />
-  </>, 
+  </>,
   document.getElementById("root")
 );
 

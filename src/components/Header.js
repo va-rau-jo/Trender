@@ -4,12 +4,12 @@
  */
 import React, { Component } from 'react';
 import { Typography, withStyles } from '@material-ui/core';
-import { TabList } from 'react-tabs';
 
 const styles = () => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
+    height: '50px',
   },
   header: {
     margin: 'auto',
@@ -20,41 +20,37 @@ const styles = () => ({
     height: '100%',
   },
   logoLink: {
+    marginLeft: '8px',
     textDecoration: 'none',
   },
-  selected: {
-    background: 'blue',
-  },
-  tab: {
-    color: 'white',
-    cursor: 'pointer',
-    display: 'flex',
-    flexGrow: '1',
-    justifyContent: 'center',
-    listStyle: 'none',
-    padding: '6px 12px',
-    textDecoration: 'none !important',
-    userSelect: 'none',
-    '&:hover': {
-      backgroundColor: '#222222',
-    }
-  },
+  // tab: {
+  //   color: 'white',
+  //   cursor: 'pointer',
+  //   display: 'flex',
+  //   flexGrow: '1',
+  //   justifyContent: 'center',
+  //   listStyle: 'none',
+  //   padding: '6px 12px',
+  //   textDecoration: 'none !important',
+  //   userSelect: 'none',
+  //   '&:hover': {
+  //     backgroundColor: '#222222',
+  //   }
+  // },
   tabs: {
     backgroundColor: '#434343',
     color: 'white',
-  },
-  tabList: {
-    display: 'flex',
-    margin: '0 0 0 16px',
-    padding: '0',
+    height: '-webkit-fill-available'
   },
   title: {
     color: 'white',
     margin: '0 8px',
+    padding: '4px 0',
     textAlign: 'center',
   }
 });
 
+/** Height set to 6% */
 class Header extends Component {
   render() {
     const { classes } = this.props;
@@ -62,28 +58,14 @@ class Header extends Component {
     return (
       <div className={classes.container}>
         <div className={classes.tabs}>
-          <TabList className={classes.tabList}>
-            <a href='/' className={classes.logoLink}>
-              <div className={classes.logo}>
-                <img height={24} src='./images/logo.png' alt='Trender logo' />
-                <Typography className={classes.title} variant='h6'>
-                  Trender
-                </Typography> 
-              </div>
-            </a>
-            {/* <Link to='/monthly' className={classes.tab}>
-              <Button> 
-                <Typography variant='h6'>
-                  Monthly Playlists
-                </Typography>
-              </Button>
-            </Link>
-            <Tab className={classes.tab}>
-              <Typography variant='h6'>
-                Manager
+          <a href='/' className={classes.logoLink}>
+            <div className={classes.logo}>
+              <img height={36} src='./images/logo.png' alt='Trender logo' />
+              <Typography className={classes.title} variant='h4'>
+                Trender
               </Typography>
-            </Tab> */}
-          </TabList>
+            </div>
+          </a>
         </div>
       </div>
     );

@@ -7,9 +7,10 @@ import React, { Component } from 'react';
 import { Route, BrowserRouter, Switch } from 'react-router-dom';
 
 import FirebaseController from './utils/FirebaseController';
-import Manager from './pages/Manager';
+import Header from './components/Header';
 import Home from './pages/Home';
 import LoadingIndicator from './components/LoadingIndicator';
+import Manager from './pages/Manager';
 import MonthlyPlaylists from './pages/MonthyPlaylists';
 import SpotifyAPIManager from './utils/SpotifyAPIManager';
 
@@ -46,6 +47,7 @@ class App extends Component {
 
     return (
       <>
+        <Header />
         <BrowserRouter>
           {/* A <Switch> looks through all its children <Route> elements and
           renders the first one whose path matches the current URL. Use a
