@@ -8,10 +8,10 @@ import { Link } from 'react-router-dom';
 const styles = () => ({
   descriptionBullet: {
     color: '#555555',
-    fontSize: '15px',
+    fontSize: '1.5vh',
   },
   descriptionText: {
-    fontSize: '18px',
+    fontSize: '2vh',
   },
   flex: {
     display: 'flex',
@@ -24,14 +24,18 @@ const styles = () => ({
     justifyContent: 'space-evenly',
   },
   pageButton: {
-    fontSize: '24px',
-    marginBottom: '16px',
+    borderRadius: '1vw',
+    fontSize: '3vh',
+    height: '7vh',
+    marginBottom: '1vh',
+    minWidth: '0',
+    padding: '2vh 2vw',
   },
   pageContainer: {
-    borderRadius: '10px',
-    padding: '24px 8px 8px 8px',
+    borderRadius: '1vw',
+    padding: '2vh 1vw',
     textAlign: 'center',
-    width: '40%',
+    width: '40vw',
   },
   pageLink: {
     textDecoration: 'none',
