@@ -7,17 +7,20 @@ const styles = () => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    height: '85%',
+    height: '95vh',
   },
   linearInternal: {
     backgroundColor: '#3f51b5',
   },
   linearRoot: {
     backgroundColor: 'rgb(182, 188, 226)',
-    height: '4px',
-    marginTop: '16px',
+    height: '0.4vh',
+    marginTop: '2vh',
     overflow: 'hidden',
     width: '65%',
+  },
+  text: {
+    fontSize: '5vh',
   }
 });
 
@@ -32,7 +35,7 @@ class ProgressIndicator extends Component {
 
     return (
       <div className={classes.center}>
-        <Typography variant='h4'>
+        <Typography className={classes.text} variant='h4'>
           Loading Playlist Songs...
         </Typography>
         <div className={classes.linearRoot} role="progressbar" aria-valuemin="0"

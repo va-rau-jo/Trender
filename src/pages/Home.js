@@ -24,7 +24,7 @@ const styles = () => ({
     justifyContent: 'space-evenly',
   },
   pageButton: {
-    borderRadius: '1vw',
+    borderRadius: '0.5vw',
     fontSize: '3vh',
     height: '7vh',
     marginBottom: '1vh',

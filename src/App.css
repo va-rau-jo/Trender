@@ -70,19 +70,18 @@ body {
 
 /* React tab system formatting */
 .react-tabs__tab {
-  border: 1px solid transparent;
-  bottom: -1px;
+  border: 0.1vh solid transparent;
+  border-radius: 0.5vh 0.5vh 0 0;
+  bottom: -0.1vh;
   cursor: pointer;
   display: flex;
   flex-grow: 1;
   justify-content: center;
-  list-style: none;
-  padding: 6px 12px;
+  padding: 0.5vh 0;
   position: relative;
+  user-select: none;
 }
 
 .react-tabs__tab--selected {
   background: #fff;
-  border-radius: 5px 5px 0 0;
-  color: black;
 }

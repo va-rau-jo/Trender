@@ -22,40 +22,62 @@ import PlaylistList from '../components/PlaylistList';
  * in external files. The CSS will actually follow this (some require the use
  * of important).
  */
+
+const BORDER_RADIUS = '0.5vw';
+
+const FONT_SIZE_SMALL = '1.4vh';
+const FONT_SIZE_MED = '1.6vh';
+const FONT_SIZE_LARGE = '1.8vh';
+const FONT_SIZE_HEADER = '2.5vh';
+
+const TEXTBOX_BORDER_WIDTH = '0.2vh';
+const TEXTBOX_PADDING = '1.2vh 1vw';
+
 const styles = () => ({
   body: {
     height: '100%',
   },
   checkboxDiv: {
-    margin: '24px auto',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '15vh',
+    justifyContent: 'space-evenly',
+    margin: '2.5vh auto',
     textAlign: 'left',
     width: 'fit-content',
   },
-  compareBtn: {
-    height: '20px',
-    width: '20px',
+  checkboxGroup: {
+    alignItems: 'center',
+    display: 'flex',
+  },
+  createButton: {
+    borderRadius: BORDER_RADIUS,
+    fontSize: FONT_SIZE_LARGE,
+    height: '4vh',
+    minWidth: '0',
+    padding: '2.5vh 2vw',
   },
   createdPlaylistMessage: {
     color: 'green',
     fontWeight: 'bold',
   },
   createTabPanel: {
-    paddingTop: '24px',
+    paddingTop: '3vh',
   },
   deletePlaylistBody: {
-    margin: '32px 8px',
+    margin: '4vh 1vw',
   },
   deletePlaylistsBtnDiv: {
-    marginTop: '16px',
+    marginTop: '2vh',
   },
   deletePlaylistsFooterDiv: {
-    marginTop: '32px',
+    marginTop: '4vh',
   },
   deletePlaylistsItem: {
     alignItems: 'center',
     display: 'flex',
     justifyContent: 'center',
-    padding: '8px',
+    padding: '1vh 1vw',
   },
   deletePlaylistsItemTitle: {
     display: 'inline',
@@ -66,82 +88,125 @@ const styles = () => ({
   deletePlaylistsItemSongs: {
     display: 'inline',
     fontSize: '12px',
-    marginLeft: '8px',
+    marginLeft: '1vw',
     whiteSpace: 'nowrap',
   },
   deletePlaylistsList: {
     backgroundColor: '#d1edf9',
-    borderRadius: '10px',
+    borderRadius: BORDER_RADIUS,
     listStyle: 'none',
-    margin: '0 32px 8px 32px',
+    margin: '0 4vw 1vh 4vw',
     maxHeight: '60vh',
     overflowY: 'scroll',
-    paddingLeft: '20px',
+    paddingLeft: '2vw',
   },
   deletePlaylistTitle: {
-    margin: '32px 0 16px 0',
+    margin: '4vh 0 2vh 0',
   },
   deleteTabPanel: {
     display: 'flex',
     flexDirection: 'column',
-    paddingTop: '24px',
+    paddingTop: '3vh',
+  },
+  descriptionTextbox: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
   },
   filterButton: {
-    marginLeft: '4px',
+    borderRadius: BORDER_RADIUS,
+    fontSize: FONT_SIZE_MED,
+    height: '4vh',
+    marginLeft: '0.5vw',
+    minWidth: '0',
+    padding: '2vh 3vw',
   },
   filterContainer: {
     alignItems: 'center',
     display: 'flex',
-    flexGrow: '1',
+    height: '5vh',
     justifyContent: 'space-evenly',
-    margin: '16px 20px 8px 0',
-    padding: '10px 0',
+    margin: 'auto 1vw auto 0',
+    padding: '1vh 0',
+    width: '75%',
   },
   filterHeader: {
-    display: 'flex',
     alignItems: 'flex-end',
+    display: 'flex',
+    height: '10vh',
   },
   filterInputContainer: {
     alignItems: 'center',
     display: 'flex',
+    justifyContent: 'space-evenly',
+    width: '35%',
+  },
+  filterTextbox: {
+    borderRadius: BORDER_RADIUS,
+    borderWidth: TEXTBOX_BORDER_WIDTH,
+    fontSize: FONT_SIZE_LARGE,
+    padding: TEXTBOX_PADDING,
   },
   flexHorizontal: {
     display: 'flex',
-    height: '94%',
+    height: '85vh',
   },
   flexVertical: {
     display: 'flex',
     flexDirection: 'column',
-    height: '85%',
-    margin: '0px 20px',
+    height: '95vh',
+    margin: '0 1vw',
+    overflow: 'hidden',
     position: 'relative',
+  },
+  inputTextbox: {
+    borderRadius: BORDER_RADIUS,
+    borderWidth: TEXTBOX_BORDER_WIDTH,
+    fontSize: FONT_SIZE_LARGE,
+    padding: TEXTBOX_PADDING,
+    width: '18vw',
   },
   // The container to display all the playlists
   listContainer: {
     display: 'flex',
     flexDirection: 'column',
-    flexGrow: '1',
-    marginRight: '20px',
+    margin: '0 1vw 1vh 0',
     textAlign: 'center',
+    width: '75%',
   },
   nameInput: {
     marginBottom: '8px',
   },
   optionsMessage: {
     color: '#666666',
-    fontSize: '14px',
-    padding: '0 32px',
+    fontSize: FONT_SIZE_SMALL,
+    padding: '0 4vw',
   },
   optionsTab: {
     backgroundColor: 'white',
-    minWidth: '350px',
+    borderRadius: '0',
     textAlign: 'center',
+    width: '25%',
   },
-  removeDuplicates: {
-    display: 'block',
+  selectButton: {
+    borderRadius: BORDER_RADIUS,
+    fontSize: FONT_SIZE_MED,
+    height: '4vh',
+    minWidth: '0',
+    padding: '2vh 2vw',
   },
-  selectAllBtn: {
-    marginRight: '8px',
+  selectButtons: {
+    display: 'flex',
+    justifyContent: 'space-evenly',
+    width: '35%',
+  },
+  settingsCheckbox: {
+    height: '2vh',
+    margin: '0',
+    padding: '1vh 0.5vw',
+    width: '2vh',
+  },
+  settingsLabel: {
+    fontSize: FONT_SIZE_MED,
+    marginLeft: '1vw',
   },
   // Summary component's area should expand to fit the remaining area.
   summary: {
@@ -150,14 +215,19 @@ const styles = () => ({
     textAlign: 'center',
     width: '87%',
   },
+  tabHeader: {
+    fontSize: FONT_SIZE_HEADER,
+  },
   tabList: {
     display: 'flex',
-    marginBottom: '-1px',
+    marginBottom: '-0.2vh',
     padding: 0,
-    width: '350px',
+    width: '25%',
   },
   textInputDiv: {
-    marginBottom: '16px',
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: '2vh',
   },
   textField: {
     width: '80%',
@@ -427,27 +497,31 @@ class Manager extends Component {
           <div className={classes.filterHeader}>
             <Paper elevation={1} className={classes.filterContainer}>
               <div className={classes.filterInputContainer}>
-                <TextField id='filterInput' label='Filter' variant='outlined'
-                  onKeyDown={this.filterInputOnKeyDown} />
+                <input id='filterInput' className={classes.filterTextbox}
+                  onKeyDown={this.filterInputOnKeyDown} placeholder='Filter'/>
                 <Button className={classes.filterButton} variant='contained' color='primary'
                   onClick={this.filterPlaylists}> Filter
                 </Button>
               </div>
-              <div>
-                <Button className={classes.selectAllBtn} variant='contained' color='secondary'
+              <div className={classes.selectButtons}>
+                <Button className={classes.selectButton} variant='contained' color='secondary'
                   onClick={this.selectAllPlaylists}>
                   Select All </Button>
-                <Button variant='contained' color='secondary'
+                <Button className={classes.selectButton} variant='contained' color='secondary'
                   onClick={this.unselectAllPlaylists}> Unselect All </Button>
               </div>
             </Paper>
             <TabList className={classes.tabList}>
               <Tab>
-                  <Typography variant='h6'>
-                    Create
-                  </Typography>
+                <Typography className={classes.tabHeader} variant='h6'>
+                  Create
+                </Typography>
               </Tab>
-              <Tab> <Typography variant='h6'> Delete </Typography> </Tab>
+              <Tab>
+                <Typography className={classes.tabHeader} variant='h6'>
+                  Delete
+                </Typography>
+              </Tab>
             </TabList>
           </div>
           <div className={classes.flexHorizontal}>
@@ -489,39 +563,49 @@ class Manager extends Component {
           </Typography>
         </div>
         <div className={classes.checkboxDiv}>
-          <FormControlLabel className={classes.removeDuplicates}
-            control={
-              <Checkbox color='primary'
-                checked={this.state.shouldRemoveDuplicates}
-                onChange={this.toggleRemoveDuplicates} />}
-            label='Remove Duplicates'
-          />
-          <FormControlLabel className={classes.removeDuplicates}
-            control={
-              <Checkbox color='primary'
-                checked={this.state.shouldMakePublic}
-                onChange={this.toggleMakePublic} />}
-            label='Make Public'
-          />
-          <FormControlLabel className={classes.removeDuplicates}
-            control={
-              <Checkbox color='primary'
-                checked={this.state.shouldMakeCollaborative}
-                onChange={this.toggleMakeCollaborative} />}
-            label='Make Collaborative'
-          />
+          <div className={classes.checkboxGroup}>
+            <input className={classes.settingsCheckbox} type='checkbox'
+              checked={this.state.shouldRemoveDuplicates}
+              onChange={this.toggleRemoveDuplicates} />
+            <Typography className={classes.settingsLabel} variant='body1'>
+              Remove Duplicates
+            </Typography>
+          </div>
+          <div className={classes.checkboxGroup}>
+            <input className={classes.settingsCheckbox} type='checkbox'
+              checked={this.state.shouldMakePublic}
+              onChange={this.toggleMakePublic} />
+            <Typography className={classes.settingsLabel} variant='body1'>
+              Make Public
+            </Typography>
+          </div>
+          <div className={classes.checkboxGroup}>
+            <input className={classes.settingsCheckbox} type='checkbox'
+              checked={this.state.shouldMakeCollaborative}
+              onChange={this.toggleMakeCollaborative} />
+            <Typography className={classes.settingsLabel} variant='body1'>
+              Make Collaborative
+            </Typography>
+          </div>
         </div>
         <div className={classes.textInputDiv}>
-          <TextField required className={classes.textField}
+           <input id='playlistNameInput' className={classes.inputTextbox}
+              onKeyDown={this.filterInputOnKeyDown} placeholder='New Playlist'/>
+          {/* <TextField required className={classes.textField}
             id='playlistNameInput' label='Playlist Name' variant='outlined'
-            defaultValue='New Playlist' />
+            defaultValue='New Playlist' /> */}
         </div>
         <div className={classes.textInputDiv}>
-          <TextField multiline label='Description' rows={4} className={classes.textField}
-            id='playlistDescriptionInput' variant='outlined' />
+          <textarea id='playlistDescriptionInput' rows='4' placeholder='Description'
+            className={[classes.inputTextbox, classes.descriptionTextbox].join(' ')}
+            onKeyDown={this.filterInputOnKeyDown} />
+          {/* <TextField multiline label='Description' rows={4} className={classes.textField}
+            id='playlistDescriptionInput' variant='outlined' /> */}
         </div>
-        <Button variant='contained' color='primary'
-          onClick={this.createPlaylist}> Create </Button>
+        <div className={classes.textInputDiv}>
+          <Button className={classes.createButton} variant='contained'
+            color='primary' onClick={this.createPlaylist}> Create </Button>
+        </div>
 
         {createdPlaylistData ?
           <Typography className={classes.createdPlaylistMessage}
