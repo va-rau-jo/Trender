@@ -28,7 +28,7 @@ html {
 
 body {
   background-color: #F2F2F2;
-  background-image: url('/images/logo_gray.png');
+  background-image: url('./images/logo_gray.png');
   background-repeat: repeat;
   height: 100%;
   margin: 0;
@@ -47,10 +47,10 @@ body {
 
 /* custom scrollbar */
 ::-webkit-scrollbar {
-  /* Horizontal scrollbars have a height of 22px */
-  height: 22px;
-  /* Vertical scrollbars have a width of 22px */
-  width: 22px;
+  /* Horizontal scrollbar's height */
+  height: 3.2vh; /* 22px; */
+  /* Vertical scrollbar's width */
+  width: 3.2vh; /* 22px; */
 }
 
 ::-webkit-scrollbar-track {
@@ -59,8 +59,8 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background-color: #a0a2a3;
-  border-radius: 20px;
-  border: 6px solid transparent;
+  border-radius: 2vh; /*20px; */
+  border: 1vh solid transparent; /* 6px solid transparent; */
   background-clip: content-box;
 }
 

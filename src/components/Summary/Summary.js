@@ -97,7 +97,6 @@ class Summary extends Component {
       // Array with the song objects of each monthly playlist
       songs: props.songs
     };
-    this.firebaseController = this.props.firebaseController;
     this.handleSelectChange = this.handleSelectChange.bind(this);
   }
 
@@ -109,63 +108,6 @@ class Summary extends Component {
       compareIndex: event.target.value
     });
   }
-
-  /**
-   * Event handler that starts when the user starts dragging a song
-   */
-  onDragStart = (event, index) => {
-    let row = this.refs.tableRow;
-    let parentNode = event.target.parentNode.parentNode;
-    this.draggedItem = this.state.songs[this.props.selected][index];
-    event.dataTransfer.effectAllowed = 'move';
-    event.dataTransfer.setData('text/html', parentNode);
-    // TODO: figure out the correct offset for every screen size
-    event.dataTransfer.setDragImage(parentNode, row.offsetWidth - 38, 0);
-  };
-
-  /**
-   * Event handler for when a song is in the process of being reordered
-   */
-  onDragOver = index => {
-    let songArray = this.state.songs;
-    const monthlySongs = songArray[this.props.selected];
-    const draggedOverItem = monthlySongs[index];
-
-    // if the dragged item isn't a song or it's dragging over itself, ignore
-    if (!this.draggedItem || this.draggedItem === draggedOverItem) {
-      return;
-    }
-    // filter out the currently dragged item
-    let updatedSongs = monthlySongs.filter(item => item !== this.draggedItem);
-    // add the dragged item after the dragged over item
-    updatedSongs.splice(index, 0, this.draggedItem);
-    songArray[this.props.selected] = updatedSongs;
-    this.setState({
-      songs: songArray
-    });
-  };
-
-  /**
-   * Event handler for when the user is done reordering a song
-   */
-  onDragEnd = () => {
-    this.draggedIndex = null;
-  };
-
-  toggleRankingEdits = (playlistName, index) => {
-    let toggled = this.state.rankingEditsToggled;
-    // just untoggled / saved
-    if (toggled) {
-      this.firebaseController.saveRankings(
-        playlistName,
-        this.state.songs[index]
-      );
-    }
-
-    this.setState({
-      rankingEditsToggled: !toggled
-    });
-  };
 
   isSongNew(song, songList) {
     if (!songList) {

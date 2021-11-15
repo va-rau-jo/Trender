@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
 import {
-  Checkbox,
   ImageList,
   ImageListItem,
   ListSubheader,
   Typography,
   withStyles
 } from '@material-ui/core';
+
+const BORDER_RADIUS = '1vh';
+const FONT_SIZE_LARGE = '2vh';
+const OVERLAY_COLOR = '#000000CC';
 
 const styles = () => ({
   listCheckbox: {
@@ -16,36 +19,38 @@ const styles = () => ({
     top: '0',
   },
   listItemDescription: {
-    backgroundColor: '#000000CC',
-    borderRadius: '0 0 10px 10px',
+    backgroundColor: OVERLAY_COLOR,
+    borderRadius: '0 0 ' + BORDER_RADIUS + ' ' + BORDER_RADIUS,
     bottom: '0',
-    color: 'white',
-    height: '30%',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '25%',
+    justifyContent: 'center',
     position: 'absolute',
-    textAlign: 'center',
     width: '100%',
   },
   listItemIndexDiv: {
+    backgroundColor: OVERLAY_COLOR,
+    borderRadius: BORDER_RADIUS,
+    padding: '0 0.7vw',
     position: 'absolute',
-    right: '5px',
-    top: '5px',
+    right: '0.5vw',
+    top: '0.5vh',
+    userSelect: 'none',
   },
   listItemIndex: {
-    backgroundColor: '#000000CC',
-    borderRadius: '50%',
-    color: 'white',
-    padding: '0 8px',
+    fontSize: FONT_SIZE_LARGE,
   },
   listItemSubtitle: {
-    // fontSize: '14px',
-    margin: '0 5px',
+    fontSize: '1.1vw',
+    margin: '0 0.5vw',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
   listItemText: {
-    // fontSize: '18px',
-    margin: '2px 5px 0 5px',
+    fontSize: '1.3vw',
+    margin: '0 0.5vw',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -56,61 +61,57 @@ const styles = () => ({
     transform: 'translateZ(0)',
   },
   playlistListImage: {
-    borderRadius: '10px',
+    borderRadius: BORDER_RADIUS,
     height: '100%',
     left: '0',
     position: 'absolute',
     top: '0',
+    userSelect: 'none',
     width: '100%',
   },
   // Overriding default inline style for ListItem
   playlistListItem: {
-    border: '4px solid white',
-    borderRadius: '16px',
+    border: '0.75vh solid white',
+    borderRadius: BORDER_RADIUS,
+    color: 'white',
     cursor: 'pointer',
-    margin: '5px',
-    // Height set to 0 and padding-bottom set to width to keep
-    // the list items square
+    margin: '0.5vh 1vw',
+    // Height set to 0 and padding-bottom set to width to keep the list items square
     height: '0 !important',
     padding: '0 0 20% 0 !important',
     position: 'relative',
-    userSelect: 'none',
     width: '20% !important',
   },
-  selectedListItem: {
-    border: '4px solid #ff2d52',
+  playlistListItemHeader: {
+    // !important needed to override ImageListItem styling
+    alignItems: 'center',
+    display: 'flex',
+    fontSize: '3vh',
+    justifyContent: 'center',
+    height: '6vh !important',
+    padding: '0.2vh 0.2vw !important',
   },
-  subheader: {
-    fontSize: '20px',
+  selectedListItem: {
+    border: '0.75vh solid #ff2d52',
+    borderRadius: '2vh'
   },
 });
-
-// Custom checkbox to be invisible when unchecked but a nice color when checked.
-const HiddenCheckbox = withStyles({
-  root: {
-    color: '#00000000', // invisible
-    '&$checked': {
-      color: '#ff2d52',
-    },
-  },
-  checked: {},
-})((props) => <Checkbox color="default" {...props} />);
 
 class PlaylistList extends Component {
   render() {
     const { classes, playlists, selectedIndices, togglePlaylist, visibleIndices } = this.props;
     return (
       <ImageList className={classes.playlistList}>
-        <ImageListItem key="Subheader" cols={2} style={{ height: 'auto' }}>
-            <ListSubheader className={classes.subheader} component="div">
-                Playlists
-            </ListSubheader>
+        <ImageListItem cols={2} className={classes.playlistListItemHeader} key="Subheader">
+          <ListSubheader className={classes.playlistListItemHeader} component="div">
+              Playlists
+          </ListSubheader>
         </ImageListItem>
         {visibleIndices.map(i => {
           const playlist = playlists[i];
           const selected = selectedIndices.includes(i);
           return (
-            <div cols={2} key={i} onClick={() => { togglePlaylist(i) }}
+            <div key={i} onClick={() => { togglePlaylist(i) }}
               className={classes.playlistListItem + ' ' + (selected ? classes.selectedListItem : '')}
               sx={{height: 0}} >
 
@@ -119,9 +120,9 @@ class PlaylistList extends Component {
 
               {selected ?
                 <div className={classes.listItemIndexDiv}>
-                    <Typography className={classes.listItemIndex} variant='h6'>
+                  <Typography className={classes.listItemIndex} variant='h6'>
                     {(selectedIndices.indexOf(i) + 1)}
-                    </Typography>
+                  </Typography>
                 </div>
                 : null}
 

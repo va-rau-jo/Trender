@@ -71,7 +71,6 @@ class MonthlyPlaylists extends Component {
     super(props);
 
     if (SpotifyAPIManager.getAccessToken()) {
-      SpotifyAPIManager.getUserData(props.firebaseController);
       SpotifyAPIManager.getPlaylistData(true, true).then(data => {
         this.groupPlaylistsByYear(data['playlists'], data['songs']);
         this.clearLoadingInterval();
@@ -203,7 +202,7 @@ class MonthlyPlaylists extends Component {
   }
 
   render() {
-    const { classes, firebaseController } = this.props;
+    const { classes } = this.props;
     const accessToken = SpotifyAPIManager.getAccessToken();
 
     // Go back to Home screen to fetch the Spotify access token.
@@ -258,7 +257,6 @@ class MonthlyPlaylists extends Component {
             {drawer}
             <div className={classes.summary}>
               <Summary
-                firebaseController={firebaseController}
                 comparePlaylist={this.state.comparePlaylist}
                 compareSongs={this.state.compareSongs}
                 playlist={this.state.selectedPlaylist}

@@ -1,12 +1,7 @@
-
-import firebase from 'firebase/app';
-import firebaseConfig from './config';
-import 'firebase/firestore';
 import queryString from 'query-string';
 import React, { Component } from 'react';
-import { Route, BrowserRouter, Switch } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import FirebaseController from './utils/FirebaseController';
 import Header from './components/Header';
 import Home from './pages/Home';
 import LoadingIndicator from './components/LoadingIndicator';
@@ -15,10 +10,6 @@ import MonthlyPlaylists from './pages/MonthyPlaylists';
 import SpotifyAPIManager from './utils/SpotifyAPIManager';
 
 import './App.css';
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const firebaseController = new FirebaseController(db);
 
 class App extends Component {
   constructor(props) {
@@ -53,21 +44,15 @@ class App extends Component {
           renders the first one whose path matches the current URL. Use a
           <Switch> any time you have multiple routes, but you want only one of
             them to render at a time */}
-          <Switch>
-            <Route exact path='/'>
-              <Home />
-            </Route>
-            <Route path='/monthly'>
-              <MonthlyPlaylists firebaseController={firebaseController} />
-            </Route>
-            <Route path='/manager'>
-              <Manager />
-            </Route>
+          <Routes>
+            <Route exact path='/' element={<Home />} />
+            <Route path='/monthly' element={<MonthlyPlaylists />} />
+            <Route path='/manager' element={<Manager />} />
             <Route>
               {/* TODO: make page not found page better */}
               Page Not Found
             </Route>
-          </Switch>
+          </Routes>
         </BrowserRouter>
       </>
     );

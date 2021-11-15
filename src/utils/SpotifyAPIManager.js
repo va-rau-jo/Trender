@@ -150,7 +150,7 @@ class SpotifyAPIManager {
     return new Promise(async (resolve, reject) => {
       this.repeatedlyFetch(url, PLAYLISTS_PER_REQUEST, 'GET').then(playlists => {
         if (filterByMonth) {
-          filterPlaylistsByMonth(playlists);
+          playlists = filterPlaylistsByMonth(playlists);
         }
 
         if (fetchSongs) {
@@ -215,42 +215,6 @@ class SpotifyAPIManager {
   }
 
   /**
-   * Gets the current user's id from Spotify API, and compares it to ids
-   * on Firebase, adding an entry if it does not already exist
-   * @param firebaseController The global firebase controller to make requests
-   * with.
-   */
-  static getUserData = (firebaseController) => {
-    fetch(BASE_URL + 'me', {
-      headers: { Authorization: 'Bearer ' + this.accessToken }
-    })
-      .then(res => {
-        return res.json();
-      })
-      .then(data => {
-        if (!data.error) {
-          // add user if one doesn't exist yet, or set its state
-          firebaseController.setCurrentUserId(data.id);
-          let db = firebaseController.getDatabase();
-          db.collection('users')
-            .where('userId', '==', data.id)
-            .get()
-            .then(querySnapshot => {
-              let docs = querySnapshot.docs;
-              if (docs.length !== 1 || docs[0] === null) {
-                console.log('adding user');
-                firebaseController.addUser(
-                  data.id,
-                  data.display_name,
-                  data.email
-                );
-              }
-            });
-        }
-      });
-  }
-
-  /**
    * Method to fetch all the items from an API endpoint (since Spotify limits
    * the items fetched per request). Repeats until the number of items returned
    * is less than the limit.
@@ -277,7 +241,7 @@ class SpotifyAPIManager {
             return res.json();
           }
         });
-        
+
         if (json && !json.error) {
           nextUrl = json.next;
           if (json.items.length > 0) {

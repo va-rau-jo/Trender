@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
 import {
   Button,
-  Checkbox,
-  FormControlLabel,
   Paper,
-  TextField,
   Typography,
   withStyles
 } from '@material-ui/core';
@@ -20,20 +17,27 @@ import PlaylistList from '../components/PlaylistList';
  * This is preferred over using an external css file for styling because React
  * components that are imported have their own classes that override CSS classes
  * in external files. The CSS will actually follow this (some require the use
- * of important).
+ * of !important).
  */
-
 const BORDER_RADIUS = '0.5vw';
-
-const FONT_SIZE_SMALL = '1.4vh';
+const BOX_SHADOW_SCALED = '0px 0.3vh 0.1vh -0.2vh rgb(0 0 0 / 20%),' +
+  '0px 0.2vh 0.2vh 0px rgb(0 0 0 / 14%),' +
+  '0px 0.1vh 0.5vh 0px rgb(0 0 0 / 12%)';
 const FONT_SIZE_MED = '1.6vh';
 const FONT_SIZE_LARGE = '1.8vh';
 const FONT_SIZE_HEADER = '2.5vh';
-
 const TEXTBOX_BORDER_WIDTH = '0.2vh';
 const TEXTBOX_PADDING = '1.2vh 1vw';
 
 const styles = () => ({
+  actionButton: {
+    borderRadius: BORDER_RADIUS,
+    boxShadow: BOX_SHADOW_SCALED,
+    fontSize: FONT_SIZE_LARGE,
+    height: '4vh',
+    minWidth: '0',
+    padding: '2.5vh 2vw',
+  },
   body: {
     height: '100%',
   },
@@ -50,22 +54,12 @@ const styles = () => ({
     alignItems: 'center',
     display: 'flex',
   },
-  createButton: {
-    borderRadius: BORDER_RADIUS,
-    fontSize: FONT_SIZE_LARGE,
-    height: '4vh',
-    minWidth: '0',
-    padding: '2.5vh 2vw',
-  },
   createdPlaylistMessage: {
     color: 'green',
     fontWeight: 'bold',
   },
   createTabPanel: {
     paddingTop: '3vh',
-  },
-  deletePlaylistBody: {
-    margin: '4vh 1vw',
   },
   deletePlaylistsBtnDiv: {
     marginTop: '2vh',
@@ -77,17 +71,18 @@ const styles = () => ({
     alignItems: 'center',
     display: 'flex',
     justifyContent: 'center',
-    padding: '1vh 1vw',
+    padding: '1vh 0vw',
   },
   deletePlaylistsItemTitle: {
     display: 'inline',
+    fontSize: FONT_SIZE_LARGE,
     fontWeight: 'bold',
     overflowX: 'hidden',
     textOverflow: 'ellipsis',
   },
   deletePlaylistsItemSongs: {
     display: 'inline',
-    fontSize: '12px',
+    fontSize: FONT_SIZE_MED,
     marginLeft: '1vw',
     whiteSpace: 'nowrap',
   },
@@ -95,13 +90,14 @@ const styles = () => ({
     backgroundColor: '#d1edf9',
     borderRadius: BORDER_RADIUS,
     listStyle: 'none',
-    margin: '0 4vw 1vh 4vw',
+    margin: '0 1vw 1vh 1vw',
     maxHeight: '60vh',
     overflowY: 'scroll',
     paddingLeft: '2vw',
   },
   deletePlaylistTitle: {
-    margin: '4vh 0 2vh 0',
+    fontSize: FONT_SIZE_HEADER,
+    margin: '2vh 0',
   },
   deleteTabPanel: {
     display: 'flex',
@@ -113,6 +109,7 @@ const styles = () => ({
   },
   filterButton: {
     borderRadius: BORDER_RADIUS,
+    boxShadow: BOX_SHADOW_SCALED,
     fontSize: FONT_SIZE_MED,
     height: '4vh',
     marginLeft: '0.5vw',
@@ -121,6 +118,7 @@ const styles = () => ({
   },
   filterContainer: {
     alignItems: 'center',
+    borderRadius: BORDER_RADIUS,
     display: 'flex',
     height: '5vh',
     justifyContent: 'space-evenly',
@@ -166,6 +164,7 @@ const styles = () => ({
   },
   // The container to display all the playlists
   listContainer: {
+    borderRadius: BORDER_RADIUS,
     display: 'flex',
     flexDirection: 'column',
     margin: '0 1vw 1vh 0',
@@ -177,26 +176,29 @@ const styles = () => ({
   },
   optionsMessage: {
     color: '#666666',
-    fontSize: FONT_SIZE_SMALL,
-    padding: '0 4vw',
+    fontSize: FONT_SIZE_MED,
+    padding: '0 2vw',
   },
   optionsTab: {
     backgroundColor: 'white',
-    borderRadius: '0',
+    borderRadius: '0 0 ' + BORDER_RADIUS  + ' ' + BORDER_RADIUS,
+    marginBottom: '1vh',
     textAlign: 'center',
     width: '25%',
   },
   selectButton: {
     borderRadius: BORDER_RADIUS,
+    boxShadow: BOX_SHADOW_SCALED,
     fontSize: FONT_SIZE_MED,
     height: '4vh',
     minWidth: '0',
     padding: '2vh 2vw',
+    whiteSpace: 'nowrap'
   },
   selectButtons: {
     display: 'flex',
     justifyContent: 'space-evenly',
-    width: '35%',
+    width: '40%',
   },
   settingsCheckbox: {
     height: '2vh',
@@ -207,13 +209,6 @@ const styles = () => ({
   settingsLabel: {
     fontSize: FONT_SIZE_MED,
     marginLeft: '1vw',
-  },
-  // Summary component's area should expand to fit the remaining area.
-  summary: {
-    backgroundColor: '#F7F6FD',
-    margin: '0 auto',
-    textAlign: 'center',
-    width: '87%',
   },
   tabHeader: {
     fontSize: FONT_SIZE_HEADER,
@@ -229,9 +224,6 @@ const styles = () => ({
     justifyContent: 'center',
     marginBottom: '2vh',
   },
-  textField: {
-    width: '80%',
-  }
 });
 
 const MESSAGE_TIMEOUT = 5000;
@@ -326,23 +318,20 @@ class Manager extends Component {
   deletePlaylists = () => {
     if (this.state.selectedIndices.length > 0) {
       this.setState({deletedPlaylistsLoading: true});
-      const ids = this.state.selectedIndices.map(i => this.state.playlists[i].id);
-        SpotifyAPIManager.deletePlaylists(ids).then(() => {
-          let copy = this.state.playlists.slice();
-          // Remove deleted playlists from state playlist array
-          this.state.selectedIndices.forEach(i => { copy.splice(i, 1); });
-          // Set playlists to new copy and reset selected and visible playlists
-          this.setState({
-            playlists: copy,
-            selectedIndices: [],
-            visibleIndices: [],
-          });
-          // Filter after setting visibleIndices to empty so we don't try to render
-          // the already deleted playlists
-          this.filterPlaylists();
-          this.setState({deletedPlaylistsLoading: false});
-          this.notifyDeletedPlaylists(ids.length);
+      const indices = this.state.selectedIndices.map(i => this.state.playlists[i].id);
+      SpotifyAPIManager.deletePlaylists(indices).then(() => {
+        let filteredPlaylists = this.filterDeletedPlaylists(indices, this.state.playlists);
+        this.setState({
+          playlists: filteredPlaylists,
+          selectedIndices: [],
+          visibleIndices: [],
         });
+        // Filter after setting visibleIndices to empty so we don't try to render
+        // the already deleted playlists
+        this.filterPlaylists();
+        this.setState({deletedPlaylistsLoading: false});
+        this.notifyDeletedPlaylists(indices.length);
+      });
     }
   }
 
@@ -591,19 +580,14 @@ class Manager extends Component {
         <div className={classes.textInputDiv}>
            <input id='playlistNameInput' className={classes.inputTextbox}
               onKeyDown={this.filterInputOnKeyDown} placeholder='New Playlist'/>
-          {/* <TextField required className={classes.textField}
-            id='playlistNameInput' label='Playlist Name' variant='outlined'
-            defaultValue='New Playlist' /> */}
         </div>
         <div className={classes.textInputDiv}>
           <textarea id='playlistDescriptionInput' rows='4' placeholder='Description'
             className={[classes.inputTextbox, classes.descriptionTextbox].join(' ')}
             onKeyDown={this.filterInputOnKeyDown} />
-          {/* <TextField multiline label='Description' rows={4} className={classes.textField}
-            id='playlistDescriptionInput' variant='outlined' /> */}
         </div>
         <div className={classes.textInputDiv}>
-          <Button className={classes.createButton} variant='contained'
+          <Button className={classes.actionButton} variant='contained'
             color='primary' onClick={this.createPlaylist}> Create </Button>
         </div>
 
@@ -630,8 +614,8 @@ class Manager extends Component {
             Delete all the playlists you have selected.
           </Typography>
         </div>
-        <Typography className={classes.deletePlaylistTitle} variant='h5'>
-          Playlists you're deleting
+        <Typography className={classes.deletePlaylistTitle} variant='h4'>
+          Playlists to delete
         </Typography>
         {anyPlaylistsSelected ?
           <ul className={classes.deletePlaylistsList}>
@@ -654,8 +638,8 @@ class Manager extends Component {
           </Typography>
         }
         <div className={classes.deletePlaylistsBtnDiv}>
-          <Button variant='contained' color='primary' disabled={!anyPlaylistsSelected}
-            onClick={this.deletePlaylists}> Delete </Button>
+          <Button className={classes.actionButton} variant='contained' color='primary'
+            disabled={!anyPlaylistsSelected} onClick={this.deletePlaylists}> Delete </Button>
         </div>
         <div className={classes.deletePlaylistsFooterDiv}>
           {deletedPlaylistsLoading
