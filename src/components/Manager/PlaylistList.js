@@ -12,12 +12,6 @@ const FONT_SIZE_LARGE = '2vh';
 const OVERLAY_COLOR = '#000000CC';
 
 const styles = () => ({
-  listCheckbox: {
-    bottom: '0',
-    position: 'absolute',
-    right: '5px',
-    top: '0',
-  },
   listItemDescription: {
     backgroundColor: OVERLAY_COLOR,
     borderRadius: '0 0 ' + BORDER_RADIUS + ' ' + BORDER_RADIUS,
@@ -42,14 +36,14 @@ const styles = () => ({
     fontSize: FONT_SIZE_LARGE,
   },
   listItemSubtitle: {
-    fontSize: '1.1vw',
+    fontSize: '1.7vh',
     margin: '0 0.5vw',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
   listItemText: {
-    fontSize: '1.3vw',
+    fontSize: '2vh',
     margin: '0 0.5vw',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -72,15 +66,14 @@ const styles = () => ({
   // Overriding default inline style for ListItem
   playlistListItem: {
     border: '0.75vh solid white',
-    borderRadius: BORDER_RADIUS,
     color: 'white',
     cursor: 'pointer',
     margin: '0.5vh 1vw',
     // Height set to 0 and padding-bottom set to width to keep the list items square
     height: '0 !important',
-    padding: '0 0 20% 0 !important',
+    padding: '0 0 22vh 0 !important',
     position: 'relative',
-    width: '20% !important',
+    width: '22vh !important',
   },
   playlistListItemHeader: {
     // !important needed to override ImageListItem styling
@@ -112,12 +105,9 @@ class PlaylistList extends Component {
           const selected = selectedIndices.includes(i);
           return (
             <div key={i} onClick={() => { togglePlaylist(i) }}
-              className={classes.playlistListItem + ' ' + (selected ? classes.selectedListItem : '')}
-              sx={{height: 0}} >
-
+              className={classes.playlistListItem + ' ' + (selected ? classes.selectedListItem : '')}>
               <img className={classes.playlistListImage} alt="Playlist"
                 src={playlist.images[0] ? playlist.images[0].url : "/images/sound_file.png"} />
-
               {selected ?
                 <div className={classes.listItemIndexDiv}>
                   <Typography className={classes.listItemIndex} variant='h6'>
@@ -125,7 +115,6 @@ class PlaylistList extends Component {
                   </Typography>
                 </div>
                 : null}
-
               <div className={classes.listItemDescription}>
                 <Typography className={classes.listItemText} variant='body1'>
                     {playlist.name}
@@ -133,8 +122,6 @@ class PlaylistList extends Component {
                 <Typography className={classes.listItemSubtitle} variant='body2'>
                     {playlist.tracks.total} Songs
                 </Typography>
-                {/* <HiddenCheckbox id={playlist.id + 'checkbox'} checked={selected}
-                    className={classes.listCheckbox} /> */}
               </div>
             </div>
           );

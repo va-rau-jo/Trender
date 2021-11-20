@@ -112,21 +112,28 @@ class MonthlyPlaylists extends Component {
   groupPlaylistsByYear(playlists, songs) {
     let years = [];
     let currentYear = null;
-    playlists.forEach((playlist, i) => {
-      if (songs[i].length > 0 ) {
-        const added = songs[i][Math.floor(songs[i].length / 2)].added_at;
-        const year = new Date(added).getFullYear();
-        // Add the first playlist to its own list or add a later year's playlist
-        // to a new list.
-        if (years.length === 0 || year !== currentYear) {
-          years.push([year, [[playlist, songs[i]]]]);
-          currentYear = year;
-        } else {
-          years[years.length - 1][1].push([playlist, songs[i]]);
+    if (!songs) {
+      currentYear = new Date().getFullYear();
+      years.push([currentYear, []]);
+      playlists.forEach(playlist => { years[0][1].push([playlist, []]) })
+    } else {
+      playlists.forEach((playlist, i) => {
+        if (songs[i].length > 0) {
+          const added = songs[i][Math.floor(songs[i].length / 2)].added_at;
+          const year = new Date(added).getFullYear();
+          // Add the first playlist to its own list or add a later year's playlist
+          // to a new list.
+          if (years.length === 0 || year !== currentYear) {
+            years.push([year, [[playlist, songs[i]]]]);
+            currentYear = year;
+          } else {
+            years[years.length - 1][1].push([playlist, songs[i]]);
+          }
         }
-      }
-    });
+      });
+    }
 
+    console.log(years);
     this.setState({ playlists: years });
   }
 
@@ -176,7 +183,7 @@ class MonthlyPlaylists extends Component {
       if (!this.compareIsDiff(yearIndex, monthIndex)) {
         this.setState({
           comparePlaylist: null,
-          compareSongs: null,
+          songsToCompare: null,
         });
       }
     });
@@ -197,7 +204,7 @@ class MonthlyPlaylists extends Component {
     event.stopPropagation();
     this.setState({
       comparePlaylist: this.getPlaylistFromStateVar(yearIndex, monthIndex),
-      compareSongs: this.getSongsFromStateVar(yearIndex, monthIndex),
+      songsToCompare: this.getSongsFromStateVar(yearIndex, monthIndex),
     });
   }
 
@@ -211,56 +218,49 @@ class MonthlyPlaylists extends Component {
         window.location.replace('/');
       } else if (this.state.error) {
         // TODO: have a better error when fetches fail.
+        console.log(this.state.error);
         return (<div> retry ? </div>);
       } else if (this.state.loadingProgress || !this.state.playlists) {
         return <ProgressIndicator progress={this.state.loadingProgress} total={this.state.loadingTotal} />;
       } else if (this.state.playlists) {
         const { playlists, selectedPlaylist } = this.state;
-
-        const drawer = (
-          <div className={classes.drawer}>
-            {/* Year list contains ['year', [[playlist1, songs1]... ] */}
-            {playlists.map((yearList, i) => (
-              <div key={i} >
-                {i !== 0 ? <Divider /> : null}
-
-                <List>
-                  <Typography variant='h6' className={classes.yearLabel}>
-                    {yearList[0]}
-                  </Typography>
-                  {yearList[1].map((playlistGroup, j) => (
-                    <ListItem onClick={() => {
-                      // Selected playlist cannot be selected twice.
-                      if (this.getPlaylistFromStateVar(i, j) !== selectedPlaylist) {
-                        this.updateMonth(i, j);
-                      }
-                    }}
-                      key={j}
-                      className={classes.listItemMonth +
-                        (this.getPlaylistFromStateVar(i, j) === selectedPlaylist ?
-                          ' ' + classes.selectedItem : '')}>
-
-                      <ListItemText primary={playlistGroup[0].name} />
-                      {this.compareIsDiff(i, j) ?
-                        <img className={classes.compareBtn} src='/images/compare.png' alt='compare'
-                          onClick={(e) => { this.updateCompareMonth(i, j, e) }} /> : null}
-                    </ListItem>
-                  ))}
-                </List>
-              </div>
-            ))}
-          </div>
-        );
-
         return (
           <div className={classes.flex}>
-            {drawer}
+            <div className={classes.drawer}>
+              {/* Year list contains ['year', [[playlist1, songs1]... ] */}
+              {playlists.map((yearList, i) => (
+                <div key={i} >
+                  {i !== 0 ? <Divider /> : null}
+                  <List>
+                    <Typography variant='h6' className={classes.yearLabel}>
+                      {yearList[0]}
+                    </Typography>
+                    {yearList[1].map((playlistGroup, j) => (
+                      <ListItem key={j} className={classes.listItemMonth +
+                        (this.getPlaylistFromStateVar(i, j) === selectedPlaylist ?
+                          ' ' + classes.selectedItem : '')}
+                        onClick={() => {
+                          // Selected playlist cannot be selected twice.
+                          if (this.getPlaylistFromStateVar(i, j) !== selectedPlaylist) {
+                            this.updateMonth(i, j);
+                          }
+                        }}>
+                        <ListItemText primary={playlistGroup[0].name} />
+                        {this.compareIsDiff(i, j) ?
+                          <img className={classes.compareBtn} src='/images/compare.png' alt='compare'
+                            onClick={(e) => { this.updateCompareMonth(i, j, e) }} /> : null}
+                      </ListItem>
+                    ))}
+                  </List>
+                </div>
+              ))}
+            </div>
             <div className={classes.summary}>
               <Summary
                 comparePlaylist={this.state.comparePlaylist}
-                compareSongs={this.state.compareSongs}
                 playlist={this.state.selectedPlaylist}
-                songs={this.state.selectedSongs} />
+                songs={this.state.selectedSongs}
+                songsToCompare={this.state.songsToCompare} />
             </div>
           </div>
         );

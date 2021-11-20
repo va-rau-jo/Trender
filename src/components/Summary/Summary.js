@@ -6,6 +6,9 @@ import {
   Typography,
   withStyles,
 } from "@material-ui/core";
+import SongList from './SongList';
+import { isSongNew } from '../../utils/helpers';
+import PlaylistList from '../Manager/PlaylistList';
 
 const styles = () => ({
   ellipsisText: {
@@ -28,10 +31,20 @@ const styles = () => ({
   // ImageList randomly sets inline style for padding, width, and height, so we
   // need important to override it.
   imageListItem: {
-    height: 'auto !important',
-    margin: '0 5px',
-    padding: '0 !important',
-    width: 'auto !important',
+    // height: 'auto !important',
+    // margin: '0 5px',
+    // padding: '0 !important',
+    // width: 'auto !important',
+    border: '0.75vh solid white',
+    borderRadius: '1px',
+    color: 'white',
+    cursor: 'pointer',
+    margin: '0.5vh 1vw',
+    // Height set to 0 and padding-bottom set to width to keep the list items square
+    height: '0 !important',
+    padding: '0 0 20% 0 !important',
+    position: 'relative',
+    width: '20% !important',
   },
   newLabel: {
     backgroundColor: 'red',
@@ -45,6 +58,9 @@ const styles = () => ({
   newLabelText: {
     color: 'white',
     userSelect: 'none',
+  },
+  noSongLabel: {
+    padding: '10px 0',
   },
   songArtist: {
     color: 'white',
@@ -60,9 +76,16 @@ const styles = () => ({
     transform: 'translateZ(0)',
   },
   songListImage: {
-    borderRadius: '10px',
-    height: '200px',
-    width: '200px',
+    // borderRadius: '10px',
+    // height: '200px',
+    // width: '200px',
+    borderRadius: '1px',
+    height: '100%',
+    left: '0',
+    position: 'absolute',
+    top: '0',
+    userSelect: 'none',
+    width: '100%',
   },
   songListPaper: {
     margin: '0 15px'
@@ -73,12 +96,21 @@ const styles = () => ({
     margin: '16px 0',
   },
   songItemDescription: {
+    // backgroundColor: '#000000CC',
+    // bottom: '4px',
+    // borderRadius: '0 0 10px 10px',
+    // height: '65px',
+    // position: 'absolute',
+    // textAlign: 'center',
+    // width: '100%',
     backgroundColor: '#000000CC',
-    bottom: '4px',
-    borderRadius: '0 0 10px 10px',
-    height: '65px',
+    borderRadius: '0 0 1px 1px',
+    bottom: '0',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '25%',
+    justifyContent: 'center',
     position: 'absolute',
-    textAlign: 'center',
     width: '100%',
   },
   songTitle: {
@@ -97,42 +129,19 @@ class Summary extends Component {
       // Array with the song objects of each monthly playlist
       songs: props.songs
     };
-    this.handleSelectChange = this.handleSelectChange.bind(this);
   }
 
-  /**
-   * Updates the state compareIndex variable with the selected value
-  */
-  handleSelectChange(event) {
-    this.setState({
-      compareIndex: event.target.value
-    });
-  }
-
-  isSongNew(song, songList) {
-    if (!songList) {
-      return false;
-    }
-
-    for (let i = 0; i < songList.length; i++) {
-      if (song.name === songList[i].name &&
-        song.artist === songList[i].artist) {
-        return false;
-      }
-    }
-    return true;
-  }
 
   render() {
-    const { classes, compareSongs, playlist, songs } = this.props;
+    const { classes, songsToCompare, playlist, songs } = this.props;
 
     if (!playlist) {
       return null;
     } else {
       const removals = [];
-      if (compareSongs) {
-        compareSongs.forEach((song) => {
-          if (this.isSongNew(song, songs)) {
+      if (songsToCompare) {
+        songsToCompare.forEach((song) => {
+          if (isSongNew(song, songs)) {
             removals.push(song);
           }
         });
@@ -144,61 +153,30 @@ class Summary extends Component {
             {playlist.name} Songs
           </Typography>
           <Paper elevation={3} className={classes.songListPaper}>
-            <ImageList className={classes.songList}>
-              {songs.slice(0).reverse().map((song) => (
-                <ImageListItem className={classes.imageListItem} key={song.id}>
-                  {song.image ?
-                    <img className={classes.songListImage}
-                      src={song.image.url} alt={song.name} /> :
-                    <img className={classes.songListImage}
-                      src="/images/sound_file.png" alt="N/A" />}
-                  {this.isSongNew(song, compareSongs) ?
-                    <div className={classes.newLabel}>
-                      <Typography className={classes.newLabelText}
-                        variant='subtitle2'>
-                          NEW
-                      </Typography>
-                    </div> : null}
-                  <div className={classes.songItemDescription}>
-                    <Typography className={[classes.songTitle, classes.ellipsisText].join(' ')}
-                      variant='h6'>
-                      {song.name}
-                    </Typography>
-                    <Typography className={[classes.songArtist, classes.ellipsisText].join(' ')} variant='subtitle2'>
-                      {song.artist}
-                    </Typography>
-                  </div>
-                </ImageListItem>
-              ))}
-            </ImageList>
+            {songs.length === 0 ?
+              <div>
+                <Typography className={classes.noSongLabel} variant='h6'>
+                  No songs in playlist
+                </Typography>
+              </div> :
+              <SongList songs={songs} songsToCompare={songsToCompare} />
+            }
           </Paper>
 
-          {compareSongs ?
+          {songsToCompare ?
             <>
               <Typography className={classes.songListTitle} variant='h2'>
                 Removals
               </Typography>
               <Paper elevation={3} className={classes.songListPaper}>
-                <ImageList className={classes.songList}>
-                  {removals.map((song) => (
-                    <ImageListItem className={classes.imageListItem} key={song.id}>
-                      {song.image ?
-                        <img className={classes.songListImage} src={song.image.url} alt={song.name} /> :
-                        <img className={classes.songListImage} src="/images/sound_file.png" alt="Missing file"/>}
-                      <div className={classes.songItemDescription}
-                        title={song.name}
-                        subtitle={song.artist}>
-                        <Typography className={[classes.songTitle, classes.ellipsisText].join(' ')}
-                          variant='h6'>
-                          {song.name}
-                        </Typography>
-                        <Typography className={[classes.songArtist, classes.ellipsisText].join(' ')} variant='subtitle2'>
-                          {song.artist}
-                        </Typography>
-                      </div>
-                    </ImageListItem>
-                  ))}
-                </ImageList>
+                {songs.length === 0 ?
+                  <div>
+                    <Typography className={classes.noSongLabel} variant='h6'>
+                      No songs in playlist
+                    </Typography>
+                  </div> :
+                  <SongList songs={removals} />
+                }
               </Paper>
             </> : null}
         </div>

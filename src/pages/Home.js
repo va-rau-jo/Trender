@@ -42,6 +42,29 @@ const styles = () => ({
   },
   title: {
     textAlign: 'center',
+  },
+  t1: {
+    background: 'red',
+//     width: 200
+// px
+// ;
+//     height: 200
+// px
+// ;
+//     border: 1
+// px
+//  solid white;
+//     display: inline-flex;
+
+  },
+  t2: {
+    background: 'black',
+    border: '31px solid green',
+    /* min-height: min-content; */
+    overflow: 'scroll',
+    width: '200px',
+    whiteSpace: 'nowrap',
+
   }
 });
 
