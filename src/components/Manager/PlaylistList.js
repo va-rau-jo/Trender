@@ -6,15 +6,19 @@ import {
   Typography,
   withStyles
 } from '@material-ui/core';
-
-const BORDER_RADIUS = '1vh';
-const FONT_SIZE_LARGE = '2vh';
-const OVERLAY_COLOR = '#000000CC';
+import { SHARED_STYLES } from '../../utils/sharedStyles';
 
 const styles = () => ({
+  ellipsisText: {
+    margin: SHARED_STYLES.OVERLAY_TEXT_MARGIN,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
   listItemDescription: {
-    backgroundColor: OVERLAY_COLOR,
-    borderRadius: '0 0 ' + BORDER_RADIUS + ' ' + BORDER_RADIUS,
+    backgroundColor: SHARED_STYLES.OVERLAY_COLOR,
+    borderRadius: '0 0 ' + SHARED_STYLES.LIST_BORDER_RADIUS +
+      ' ' + SHARED_STYLES.LIST_BORDER_RADIUS,
     bottom: '0',
     display: 'flex',
     flexDirection: 'column',
@@ -24,8 +28,8 @@ const styles = () => ({
     width: '100%',
   },
   listItemIndexDiv: {
-    backgroundColor: OVERLAY_COLOR,
-    borderRadius: BORDER_RADIUS,
+    backgroundColor: SHARED_STYLES.OVERLAY_COLOR,
+    borderRadius: SHARED_STYLES.LIST_BORDER_RADIUS,
     padding: '0 0.7vw',
     position: 'absolute',
     right: '0.5vw',
@@ -33,21 +37,13 @@ const styles = () => ({
     userSelect: 'none',
   },
   listItemIndex: {
-    fontSize: FONT_SIZE_LARGE,
+    fontSize: SHARED_STYLES.FONT_SIZE_XLARGE,
   },
   listItemSubtitle: {
-    fontSize: '1.7vh',
-    margin: '0 0.5vw',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
+    fontSize: SHARED_STYLES.FONT_SIZE_MED,
   },
   listItemText: {
-    fontSize: '2vh',
-    margin: '0 0.5vw',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
+    fontSize: SHARED_STYLES.FONT_SIZE_XLARGE,
   },
   playlistList: {
     justifyContent: 'space-evenly',
@@ -55,7 +51,7 @@ const styles = () => ({
     transform: 'translateZ(0)',
   },
   playlistListImage: {
-    borderRadius: BORDER_RADIUS,
+    borderRadius: SHARED_STYLES.LIST_BORDER_RADIUS,
     height: '100%',
     left: '0',
     position: 'absolute',
@@ -71,9 +67,9 @@ const styles = () => ({
     margin: '0.5vh 1vw',
     // Height set to 0 and padding-bottom set to width to keep the list items square
     height: '0 !important',
-    padding: '0 0 22vh 0 !important',
+    padding: '0 0 ' + SHARED_STYLES.LIST_ITEM_SIZE + ' !important',
     position: 'relative',
-    width: '22vh !important',
+    width: SHARED_STYLES.LIST_ITEM_SIZE + ' !important',
   },
   playlistListItemHeader: {
     // !important needed to override ImageListItem styling
@@ -116,10 +112,10 @@ class PlaylistList extends Component {
                 </div>
                 : null}
               <div className={classes.listItemDescription}>
-                <Typography className={classes.listItemText} variant='body1'>
+                <Typography className={[classes.listItemText, classes.ellipsisText].join(' ')} variant='body1'>
                     {playlist.name}
                 </Typography>
-                <Typography className={classes.listItemSubtitle} variant='body2'>
+                <Typography className={[classes.listItemSubtitle, classes.ellipsisText].join(' ')} variant='body2'>
                     {playlist.tracks.total} Songs
                 </Typography>
               </div>

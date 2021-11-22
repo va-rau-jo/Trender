@@ -12,6 +12,7 @@ import LoadingIndicator from '../components/LoadingIndicator';
 import SpotifyAPIManager from '../utils/SpotifyAPIManager';
 import ProgressIndicator from '../components/ProgressIndicator';
 import PlaylistList from '../components/Manager/PlaylistList';
+import { SHARED_STYLES } from '../utils/sharedStyles';
 
 /**
  * This is preferred over using an external css file for styling because React
@@ -19,22 +20,13 @@ import PlaylistList from '../components/Manager/PlaylistList';
  * in external files. The CSS will actually follow this (some require the use
  * of !important).
  */
-const BORDER_RADIUS = '0.5vw';
-const BOX_SHADOW_SCALED = '0px 0.3vh 0.1vh -0.2vh rgb(0 0 0 / 20%),' +
-  '0px 0.2vh 0.2vh 0px rgb(0 0 0 / 14%),' +
-  '0px 0.1vh 0.5vh 0px rgb(0 0 0 / 12%)';
-const FONT_SIZE_MED = '1.6vh';
-const FONT_SIZE_LARGE = '1.8vh';
-const FONT_SIZE_HEADER = '2.5vh';
-const TEXTBOX_BORDER_WIDTH = '0.2vh';
-const TEXTBOX_PADDING = '1.2vh 1vw';
 
 const styles = () => ({
   actionButton: {
-    borderRadius: BORDER_RADIUS,
-    boxShadow: BOX_SHADOW_SCALED,
-    fontSize: FONT_SIZE_LARGE,
-    height: '4vh',
+    borderRadius: SHARED_STYLES.BORDER_RADIUS,
+    boxShadow: SHARED_STYLES.BOX_SHADOW_SCALED,
+    fontSize: SHARED_STYLES.FONT_SIZE_LARGE,
+    height: SHARED_STYLES.BUTTON_HEIGHT,
     minWidth: '0',
     padding: '2.5vh 2vw',
   },
@@ -75,20 +67,20 @@ const styles = () => ({
   },
   deletePlaylistsItemTitle: {
     display: 'inline',
-    fontSize: FONT_SIZE_LARGE,
+    fontSize: SHARED_STYLES.FONT_SIZE_LARGE,
     fontWeight: 'bold',
     overflowX: 'hidden',
     textOverflow: 'ellipsis',
   },
   deletePlaylistsItemSongs: {
     display: 'inline',
-    fontSize: FONT_SIZE_MED,
+    fontSize: SHARED_STYLES.FONT_SIZE_SMALL,
     marginLeft: '1vw',
     whiteSpace: 'nowrap',
   },
   deletePlaylistsList: {
     backgroundColor: '#d1edf9',
-    borderRadius: BORDER_RADIUS,
+    borderRadius: SHARED_STYLES.BORDER_RADIUS,
     listStyle: 'none',
     margin: '0 1vw 1vh 1vw',
     maxHeight: '60vh',
@@ -96,7 +88,7 @@ const styles = () => ({
     paddingLeft: '2vw',
   },
   deletePlaylistTitle: {
-    fontSize: FONT_SIZE_HEADER,
+    fontSize: SHARED_STYLES.FONT_SIZE_HEADER,
     margin: '2vh 0',
   },
   deleteTabPanel: {
@@ -108,17 +100,17 @@ const styles = () => ({
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
   },
   filterButton: {
-    borderRadius: BORDER_RADIUS,
-    boxShadow: BOX_SHADOW_SCALED,
-    fontSize: FONT_SIZE_MED,
-    height: '4vh',
+    borderRadius: SHARED_STYLES.BORDER_RADIUS,
+    boxShadow: SHARED_STYLES.BOX_SHADOW_SCALED,
+    fontSize: SHARED_STYLES.FONT_SIZE_SMALL,
+    height: SHARED_STYLES.BUTTON_HEIGHT,
     marginLeft: '0.5vw',
     minWidth: '0',
     padding: '2vh 3vw',
   },
   filterContainer: {
     alignItems: 'center',
-    borderRadius: BORDER_RADIUS,
+    borderRadius: SHARED_STYLES.BORDER_RADIUS,
     display: 'flex',
     height: '5vh',
     justifyContent: 'space-evenly',
@@ -137,12 +129,6 @@ const styles = () => ({
     justifyContent: 'space-evenly',
     width: '35%',
   },
-  filterTextbox: {
-    borderRadius: BORDER_RADIUS,
-    borderWidth: TEXTBOX_BORDER_WIDTH,
-    fontSize: FONT_SIZE_LARGE,
-    padding: TEXTBOX_PADDING,
-  },
   flexHorizontal: {
     display: 'flex',
     height: '85vh',
@@ -150,21 +136,17 @@ const styles = () => ({
   flexVertical: {
     display: 'flex',
     flexDirection: 'column',
-    height: '95vh',
+    height: SHARED_STYLES.PAGE_HEIGHT,
     margin: '0 1vw',
     overflow: 'hidden',
     position: 'relative',
   },
   inputTextbox: {
-    borderRadius: BORDER_RADIUS,
-    borderWidth: TEXTBOX_BORDER_WIDTH,
-    fontSize: FONT_SIZE_LARGE,
-    padding: TEXTBOX_PADDING,
     width: '18vw',
   },
   // The container to display all the playlists
   listContainer: {
-    borderRadius: BORDER_RADIUS,
+    borderRadius: SHARED_STYLES.BORDER_RADIUS,
     display: 'flex',
     flexDirection: 'column',
     margin: '0 1vw 1vh 0',
@@ -176,21 +158,21 @@ const styles = () => ({
   },
   optionsMessage: {
     color: '#666666',
-    fontSize: FONT_SIZE_MED,
+    fontSize: SHARED_STYLES.FONT_SIZE_SMALL,
     padding: '0 2vw',
   },
   optionsTab: {
     backgroundColor: 'white',
-    borderRadius: '0 0 ' + BORDER_RADIUS  + ' ' + BORDER_RADIUS,
+    borderRadius: '0 0 ' + SHARED_STYLES.BORDER_RADIUS + ' ' + SHARED_STYLES.BORDER_RADIUS,
     marginBottom: '1vh',
     textAlign: 'center',
     width: '25%',
   },
   selectButton: {
-    borderRadius: BORDER_RADIUS,
-    boxShadow: BOX_SHADOW_SCALED,
-    fontSize: FONT_SIZE_MED,
-    height: '4vh',
+    borderRadius: SHARED_STYLES.BORDER_RADIUS,
+    boxShadow: SHARED_STYLES.BOX_SHADOW_SCALED,
+    fontSize: SHARED_STYLES.FONT_SIZE_SMALL,
+    height: SHARED_STYLES.BUTTON_HEIGHT,
     minWidth: '0',
     padding: '2vh 2vw',
     whiteSpace: 'nowrap'
@@ -201,23 +183,29 @@ const styles = () => ({
     width: '40%',
   },
   settingsCheckbox: {
-    height: '2vh',
+    height: SHARED_STYLES.FONT_SIZE_XLARGE,
     margin: '0',
     padding: '1vh 0.5vw',
-    width: '2vh',
+    width: SHARED_STYLES.FONT_SIZE_XLARGE,
   },
   settingsLabel: {
-    fontSize: FONT_SIZE_MED,
+    fontSize: SHARED_STYLES.FONT_SIZE_SMALL,
     marginLeft: '1vw',
   },
   tabHeader: {
-    fontSize: FONT_SIZE_HEADER,
+    fontSize: SHARED_STYLES.FONT_SIZE_HEADER,
   },
   tabList: {
     display: 'flex',
     marginBottom: '-0.2vh',
     padding: 0,
     width: '25%',
+  },
+  textbox: {
+    borderRadius: SHARED_STYLES.BORDER_RADIUS,
+    borderWidth: SHARED_STYLES.TEXTBOX_BORDER_WIDTH,
+    fontSize: SHARED_STYLES.FONT_SIZE_LARGE,
+    padding: SHARED_STYLES.TEXTBOX_PADDING,
   },
   textInputDiv: {
     display: 'flex',
@@ -486,7 +474,7 @@ class Manager extends Component {
           <div className={classes.filterHeader}>
             <Paper elevation={1} className={classes.filterContainer}>
               <div className={classes.filterInputContainer}>
-                <input id='filterInput' className={classes.filterTextbox}
+                <input id='filterInput' className={classes.textbox}
                   onKeyDown={this.filterInputOnKeyDown} placeholder='Filter'/>
                 <Button className={classes.filterButton} variant='contained' color='primary'
                   onClick={this.filterPlaylists}> Filter
@@ -578,12 +566,12 @@ class Manager extends Component {
           </div>
         </div>
         <div className={classes.textInputDiv}>
-           <input id='playlistNameInput' className={classes.inputTextbox}
+           <input id='playlistNameInput' className={[classes.textbox, classes.inputTextbox].join(' ')}
               onKeyDown={this.filterInputOnKeyDown} placeholder='New Playlist'/>
         </div>
         <div className={classes.textInputDiv}>
           <textarea id='playlistDescriptionInput' rows='4' placeholder='Description'
-            className={[classes.inputTextbox, classes.descriptionTextbox].join(' ')}
+            className={[classes.textbox, classes.inputTextbox, classes.descriptionTextbox].join(' ')}
             onKeyDown={this.filterInputOnKeyDown} />
         </div>
         <div className={classes.textInputDiv}>

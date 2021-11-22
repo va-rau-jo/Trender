@@ -50,10 +50,5 @@ export function isSongNew(song, songList) {
     return false;
   }
 
-  for (let i = 0; i < songList.length; i++) {
-    if (song.id === songList[i].id) {
-      return false;
-    }
-  }
-  return true;
+  return songList.find(x => x.id === song.id) === undefined;
 }

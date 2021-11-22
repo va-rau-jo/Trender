@@ -9,6 +9,7 @@ import LoadingIndicator from '../components/LoadingIndicator';
 import ProgressIndicator from '../components/ProgressIndicator';
 import SpotifyAPIManager from '../utils/SpotifyAPIManager';
 import Summary from '../components/Summary/Summary';
+import { SHARED_STYLES } from '../utils/sharedStyles';
 
 /**
  * This is preferred over using an external css file for styling because React
@@ -19,50 +20,73 @@ import Summary from '../components/Summary/Summary';
 const styles = () => ({
   // compare button on list items
   compareBtn: {
-    height: '20px',
-    width: '20px',
+    cursor: 'pointer',
+    height: '40%',
+    padding: '0.25vw',
+    position: 'absolute',
+    right: '1vw',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    transition: 'background-color 150ms',
+    '&:hover': {
+      backgroundColor: '#dedede'
+    },
+  },
+  compareBtnSelected: {
+    '&:hover': {
+      backgroundColor: '#DDDDDD'
+    },
   },
   // The drawer object
   drawer: {
     backgroundColor: 'white',
     height: '100%',
     overflowY: 'scroll',
-    width: '16%',
-  },
-  // Max width of drawer container
-  drawerContainer: {
-    width: '160px',
+    width: '20vw',
   },
   // Parent div to display the sidebar and summary
   flex: {
     display: 'flex',
-    height: '94%',
+    height: SHARED_STYLES.PAGE_HEIGHT,
+  },
+  monthList: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'column',
   },
   // List item (month name) in the drawer.
-  listItemMonth: {
-    cursor: 'pointer',
-    textAlign: 'center',
-    transition: 'background-color 150ms',
-    '&:hover': {
-      background: '#dedede'
-    },
+  monthListItem: {
+    display: 'flex',
+    justifyContent: 'center',
+    listStyle: 'none',
+    padding: '0.8vh 0.5vw',
+    position: 'relative',
+    width: '-webkit-fill-available',
   },
-  selectedItem: {
-    backgroundColor: '#c4ecc7',
-    '&:hover': {
-      background: '#c4ecc7'
-    },
+  monthName: {
+    fontSize: SHARED_STYLES.FONT_SIZE_LARGE,
+  },
+  selectedPrimaryItem: {
+    backgroundColor: '#759fff',
+  },
+  selectedSecondaryItem: {
+    backgroundColor: '#fd7a7a',
   },
   // Summary component's area should expand to fit the remaining area.
   summary: {
     margin: '0 auto',
     textAlign: 'center',
-    width: '84%',
+    width: '80vw',
+  },
+  yearGroup: {
+    margin: '1vh 0',
+    padding: '0',
   },
   // Label for each year in the drawer.
   yearLabel: {
+    fontSize: SHARED_STYLES.FONT_SIZE_HEADER,
     fontWeight: 'bold',
-    marginLeft: '10px',
+    marginLeft: '1vw',
   },
 });
 
@@ -101,8 +125,8 @@ class MonthlyPlaylists extends Component {
   }
 
   compareIsDiff(i, j) {
-    return this.state.selectedPlaylist &&
-      this.getPlaylistFromStateVar(i, j) !== this.state.selectedPlaylist;
+    return this.state.playlist1 &&
+      this.getPlaylistFromStateVar(i, j) !== this.state.playlist1;
   }
 
   /**
@@ -137,6 +161,15 @@ class MonthlyPlaylists extends Component {
     this.setState({ playlists: years });
   }
 
+  // getCompareButton(i, j) {
+
+  // return(
+
+  //     <img className={this.props.classes.compareBtn} src='/images/plus2.png'
+  //       alt='compare' onClick={(e) => { this.updateCompareMonth(i, j, e) }} />
+  //   );
+  // }
+
   /**
    * Extracts a playlist from the given year and month from the playlists state
    * variable.
@@ -166,8 +199,9 @@ class MonthlyPlaylists extends Component {
   }
 
   /**
-   * Onclick for the list of monthly playlists. Should open a summary of that
-   * playlist.
+   * Onclick handler for the list of monthly playlists. Should set the playlist to either the
+   * primary or secondary playlist so that 2 playlists can be compared. Calling update when already
+   * selected should unselect the playlist.
    *
    * @param {number} yearIndex The index of the outer array, [0] returns the playlists
    * from the latest year.
@@ -175,18 +209,37 @@ class MonthlyPlaylists extends Component {
    * playlist from the latest month.
    */
   updateMonth = (yearIndex, monthIndex) => {
-    this.setState({
-      selectedPlaylist: this.getPlaylistFromStateVar(yearIndex, monthIndex),
-      selectedSongs: this.getSongsFromStateVar(yearIndex, monthIndex),
-    }, () => {
-      // Reset the playlist to compare to if they are the same playlist.
-      if (!this.compareIsDiff(yearIndex, monthIndex)) {
-        this.setState({
-          comparePlaylist: null,
-          songsToCompare: null,
-        });
-      }
-    });
+    const { playlist1, playlist2 } = this.state;
+    const playlist = this.getPlaylistFromStateVar(yearIndex, monthIndex);
+
+    const isPrimary = playlist1 && (playlist.id === this.state.playlist1.id);
+    const isSecondary = playlist2 && (playlist.id === this.state.playlist2.id);
+
+    if (isPrimary) { // Remove selected playlist and set secondary to primary
+      this.setState({
+        playlist1: playlist2,
+        playlist2: undefined,
+        songs1: this.state.songs2,
+        songs2: undefined
+      });
+    } else if (isSecondary) { // Remove selected playlist from secondary
+      this.setState({
+        playlist2: undefined,
+        songs2: undefined
+      });
+    } else if (!playlist1) { // Add selected to primary
+      console.log("primary set");
+      this.setState({
+        playlist1: playlist,
+        songs1: this.getSongsFromStateVar(yearIndex, monthIndex),
+      });
+    } else { // Add selected to secondary
+      console.log("secondary set");
+      this.setState({
+        playlist2: playlist,
+        songs2: this.getSongsFromStateVar(yearIndex, monthIndex),
+      });
+    }
   }
 
   /**
@@ -203,8 +256,8 @@ class MonthlyPlaylists extends Component {
   updateCompareMonth = (yearIndex, monthIndex, event) => {
     event.stopPropagation();
     this.setState({
-      comparePlaylist: this.getPlaylistFromStateVar(yearIndex, monthIndex),
-      songsToCompare: this.getSongsFromStateVar(yearIndex, monthIndex),
+      playlist2: this.getPlaylistFromStateVar(yearIndex, monthIndex),
+      songs2: this.getSongsFromStateVar(yearIndex, monthIndex),
     });
   }
 
@@ -223,44 +276,58 @@ class MonthlyPlaylists extends Component {
       } else if (this.state.loadingProgress || !this.state.playlists) {
         return <ProgressIndicator progress={this.state.loadingProgress} total={this.state.loadingTotal} />;
       } else if (this.state.playlists) {
-        const { playlists, selectedPlaylist } = this.state;
+        const { playlists, playlist1, playlist2 } = this.state;
+        const playlist1Id = playlist1 ? playlist1.id : undefined;
+        const playlist2Id = playlist2 ? playlist2.id : undefined;
+
         return (
           <div className={classes.flex}>
             <div className={classes.drawer}>
               {/* Year list contains ['year', [[playlist1, songs1]... ] */}
               {playlists.map((yearList, i) => (
-                <div key={i} >
+                <div key={i}>
                   {i !== 0 ? <Divider /> : null}
-                  <List>
+                  <ul className={classes.yearGroup}>
                     <Typography variant='h6' className={classes.yearLabel}>
                       {yearList[0]}
                     </Typography>
-                    {yearList[1].map((playlistGroup, j) => (
-                      <ListItem key={j} className={classes.listItemMonth +
-                        (this.getPlaylistFromStateVar(i, j) === selectedPlaylist ?
-                          ' ' + classes.selectedItem : '')}
-                        onClick={() => {
-                          // Selected playlist cannot be selected twice.
-                          if (this.getPlaylistFromStateVar(i, j) !== selectedPlaylist) {
-                            this.updateMonth(i, j);
-                          }
-                        }}>
-                        <ListItemText primary={playlistGroup[0].name} />
-                        {this.compareIsDiff(i, j) ?
-                          <img className={classes.compareBtn} src='/images/compare.png' alt='compare'
-                            onClick={(e) => { this.updateCompareMonth(i, j, e) }} /> : null}
-                      </ListItem>
-                    ))}
-                  </List>
+                    <div className={classes.monthList}>
+                      {yearList[1].map((playlistGroup, j) => {
+                        const selectedPlaylist1 = playlistGroup[0].id === playlist1Id;
+                        const selectedPlaylist2 = playlistGroup[0].id === playlist2Id;
+                        const selected = selectedPlaylist1 || selectedPlaylist2;
+
+                        const liClass = [classes.monthListItem,
+                          (selectedPlaylist1 ? classes.selectedPrimaryItem :
+                            selectedPlaylist2 ? classes.selectedSecondaryItem : null)].join(' ');
+
+                        const imagePath = selected ? '/images/subtract.png' : '/images/plus2.png';
+                        const btnClass = !selected ? classes.compareBtn :
+                          [classes.compareBtn, classes.compareBtnSelected].join(' ');
+
+                        return (
+                          <li key={j} className={liClass}>
+                            <Typography className={classes.monthName} variant='body1'>
+                              {playlistGroup[0].name}
+                            </Typography>
+                            {!selected && playlist1 && playlist2 ? null :
+                              <img className={btnClass} src={imagePath} alt='compare'
+                                onClick={() => { this.updateMonth(i, j) }} />
+                            }
+                          </li>
+                        );
+                      })}
+                    </div>
+                  </ul>
                 </div>
               ))}
             </div>
             <div className={classes.summary}>
               <Summary
-                comparePlaylist={this.state.comparePlaylist}
-                playlist={this.state.selectedPlaylist}
-                songs={this.state.selectedSongs}
-                songsToCompare={this.state.songsToCompare} />
+                playlist1={this.state.playlist1}
+                playlist2={this.state.playlist2}
+                songs1={this.state.songs1}
+                songs2={this.state.songs2} />
             </div>
           </div>
         );

@@ -1,14 +1,12 @@
 import React, { Component } from "react";
 import {
-  ImageList,
-  ImageListItem,
   Paper,
   Typography,
   withStyles,
 } from "@material-ui/core";
 import SongList from './SongList';
 import { isSongNew } from '../../utils/helpers';
-import PlaylistList from '../Manager/PlaylistList';
+import { SHARED_STYLES } from '../../utils/sharedStyles';
 
 const styles = () => ({
   ellipsisText: {
@@ -28,96 +26,16 @@ const styles = () => ({
     margin: '4px',
     width: '16px'
   },
-  // ImageList randomly sets inline style for padding, width, and height, so we
-  // need important to override it.
-  imageListItem: {
-    // height: 'auto !important',
-    // margin: '0 5px',
-    // padding: '0 !important',
-    // width: 'auto !important',
-    border: '0.75vh solid white',
-    borderRadius: '1px',
-    color: 'white',
-    cursor: 'pointer',
-    margin: '0.5vh 1vw',
-    // Height set to 0 and padding-bottom set to width to keep the list items square
-    height: '0 !important',
-    padding: '0 0 20% 0 !important',
-    position: 'relative',
-    width: '20% !important',
-  },
-  newLabel: {
-    backgroundColor: 'red',
-    borderRadius: '10px',
-    position: 'absolute',
-    right: '4px',
-    textAlign: 'center',
-    top: '5px',
-    width: '25%',
-  },
-  newLabelText: {
-    color: 'white',
-    userSelect: 'none',
-  },
   noSongLabel: {
     padding: '10px 0',
   },
-  songArtist: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  songList: {
-    background: 'white',
-    borderRadius: '10px',
-    flexWrap: 'nowrap',
-    // overrides ImageList inline style
-    margin: '5px 20px !important',
-    paddingTop: '15px',
-    transform: 'translateZ(0)',
-  },
-  songListImage: {
-    // borderRadius: '10px',
-    // height: '200px',
-    // width: '200px',
-    borderRadius: '1px',
-    height: '100%',
-    left: '0',
-    position: 'absolute',
-    top: '0',
-    userSelect: 'none',
-    width: '100%',
-  },
   songListPaper: {
-    margin: '0 15px'
+    margin: '1vh 1.5vw'
   },
   songListTitle: {
-    fontSize: '36px',
+    fontSize: SHARED_STYLES.FONT_SIZE_HEADER,
     fontWeight: 'bold',
-    margin: '16px 0',
-  },
-  songItemDescription: {
-    // backgroundColor: '#000000CC',
-    // bottom: '4px',
-    // borderRadius: '0 0 10px 10px',
-    // height: '65px',
-    // position: 'absolute',
-    // textAlign: 'center',
-    // width: '100%',
-    backgroundColor: '#000000CC',
-    borderRadius: '0 0 1px 1px',
-    bottom: '0',
-    display: 'flex',
-    flexDirection: 'column',
-    height: '25%',
-    justifyContent: 'center',
-    position: 'absolute',
-    width: '100%',
-  },
-  songTitle: {
-    color: 'white',
-    fontSize: '16px',
-    fontWeight: 'bold',
-    marginTop: '5px',
+    marginTop: '1vh',
   },
 });
 
@@ -131,17 +49,21 @@ class Summary extends Component {
     };
   }
 
-
   render() {
-    const { classes, songsToCompare, playlist, songs } = this.props;
+    const { classes, playlist1, playlist2, songs1, songs2 } = this.props;
 
-    if (!playlist) {
+    console.log(playlist1);
+    console.log(playlist2);
+    console.log(songs1);
+    console.log(songs2);
+
+    if (!playlist1) {
       return null;
     } else {
       const removals = [];
-      if (songsToCompare) {
-        songsToCompare.forEach((song) => {
-          if (isSongNew(song, songs)) {
+      if (songs2) {
+        songs2.forEach((song) => {
+          if (isSongNew(song, songs1)) {
             removals.push(song);
           }
         });
@@ -149,27 +71,25 @@ class Summary extends Component {
 
       return (
         <div className={classes.flexVert}>
-          <Typography className={classes.songListTitle} variant='h2'>
-            {playlist.name} Songs
-          </Typography>
           <Paper elevation={3} className={classes.songListPaper}>
-            {songs.length === 0 ?
+            <Typography className={classes.songListTitle} variant='h2'>
+              {playlist1.name} Songs
+            </Typography>
+            {songs1.length === 0 ?
               <div>
                 <Typography className={classes.noSongLabel} variant='h6'>
                   No songs in playlist
                 </Typography>
               </div> :
-              <SongList songs={songs} songsToCompare={songsToCompare} />
+              <SongList songs={songs1} songsToCompare={songs2} />
             }
           </Paper>
-
-          {songsToCompare ?
-            <>
-              <Typography className={classes.songListTitle} variant='h2'>
-                Removals
-              </Typography>
+          {songs2 ?
               <Paper elevation={3} className={classes.songListPaper}>
-                {songs.length === 0 ?
+                <Typography className={classes.songListTitle} variant='h2'>
+                  Removals
+                </Typography>
+                {songs1.length === 0 ?
                   <div>
                     <Typography className={classes.noSongLabel} variant='h6'>
                       No songs in playlist
@@ -177,8 +97,7 @@ class Summary extends Component {
                   </div> :
                   <SongList songs={removals} />
                 }
-              </Paper>
-            </> : null}
+            </Paper> : null}
         </div>
       );
     }

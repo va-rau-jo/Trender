@@ -4,25 +4,36 @@ import {
   withStyles
 } from '@material-ui/core';
 import { isSongNew } from '../../utils/helpers';
+import { SHARED_STYLES } from '../../utils/sharedStyles';
 
-const BORDER_RADIUS = '1vh';
-const OVERLAY_COLOR = '#000000CC';
 
 const styles = () => ({
-  // The MaterialUI ImageList component sets inline style for padding,
-  // width, and height, so we need important to override it.
   ellipsisText: {
-    margin: '0 5px',
+    margin: '0 0.5vw',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
+  newLabel: {
+    backgroundColor: 'red',
+    borderRadius: '1vw',
+    position: 'absolute',
+    right: '0.5vw',
+    textAlign: 'center',
+    top: '0.75vh',
+    width: '25%',
+  },
+  newLabelText: {
+    color: 'white',
+    fontSize: SHARED_STYLES.FONT_SIZE_SMALL,
+    userSelect: 'none',
+  },
   songArtist: {
-    fontSize: '1.7vh',
+    fontSize: SHARED_STYLES.FONT_SIZE_MED,
   },
   songItemDescription: {
-    backgroundColor: OVERLAY_COLOR,
-    borderRadius: '0 0 ' + BORDER_RADIUS + ' ' + BORDER_RADIUS,
+    backgroundColor: SHARED_STYLES.OVERLAY_COLOR,
+    borderRadius: '0 0 ' + SHARED_STYLES.LIST_BORDER_RADIUS + ' ' + SHARED_STYLES.LIST_BORDER_RADIUS,
     bottom: '0',
     display: 'flex',
     flexDirection: 'column',
@@ -34,12 +45,12 @@ const styles = () => ({
   songList: {
     margin: '0 1vw',
     overflowX: 'scroll',
-    padding: '0',
+    padding: '1vh 0 0 0',
     transform: 'translateZ(0)',
     whiteSpace: 'nowrap',
   },
   songListImage: {
-    borderRadius: BORDER_RADIUS,
+    borderRadius: SHARED_STYLES.LIST_BORDER_RADIUS,
     height: '100%',
     left: '0',
     position: 'absolute',
@@ -50,14 +61,14 @@ const styles = () => ({
   songListItem: {
     border: '0.75vh solid white',
     color: 'white',
-    display: 'inline-table',
+    display: 'inline-flex',
     margin: '0',
-    padding: '0 0 22vh 0',
+    padding: '0 0 ' + SHARED_STYLES.LIST_ITEM_SIZE + ' 0',
     position: 'relative',
-    width: '22vh',
+    width: SHARED_STYLES.LIST_ITEM_SIZE,
   },
   songTitle: {
-    fontSize: '2vh',
+    fontSize: SHARED_STYLES.FONT_SIZE_XLARGE,
   },
 });
 

@@ -4,6 +4,7 @@ import {
   Paper,
   Typography,  withStyles } from '@material-ui/core';
 import { Link } from 'react-router-dom';
+import { SHARED_STYLES } from '../utils/sharedStyles';
 
 const styles = () => ({
   descriptionBullet: {
@@ -16,7 +17,7 @@ const styles = () => ({
   flex: {
     display: 'flex',
     flexDirection: 'column',
-    height: '94%',
+    height: SHARED_STYLES.PAGE_HEIGHT,
     justifyContent: 'center',
   },
   innerFlex: {
