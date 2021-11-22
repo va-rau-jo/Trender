@@ -111,6 +111,7 @@ const styles = () => ({
   filterContainer: {
     alignItems: 'center',
     borderRadius: SHARED_STYLES.BORDER_RADIUS,
+    boxShadow: SHARED_STYLES.BOX_SHADOW_SCALED,
     display: 'flex',
     height: '5vh',
     justifyContent: 'space-evenly',
@@ -147,6 +148,7 @@ const styles = () => ({
   // The container to display all the playlists
   listContainer: {
     borderRadius: SHARED_STYLES.BORDER_RADIUS,
+    boxShadow: SHARED_STYLES.BOX_SHADOW_SCALED,
     display: 'flex',
     flexDirection: 'column',
     margin: '0 1vw 1vh 0',
@@ -164,6 +166,7 @@ const styles = () => ({
   optionsTab: {
     backgroundColor: 'white',
     borderRadius: '0 0 ' + SHARED_STYLES.BORDER_RADIUS + ' ' + SHARED_STYLES.BORDER_RADIUS,
+    boxShadow: SHARED_STYLES.BOX_SHADOW_SCALED,
     marginBottom: '1vh',
     textAlign: 'center',
     width: '25%',

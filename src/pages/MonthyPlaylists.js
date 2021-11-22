@@ -21,10 +21,10 @@ const styles = () => ({
   // compare button on list items
   compareBtn: {
     cursor: 'pointer',
-    height: '40%',
+    height: '30%',
     padding: '0.25vw',
     position: 'absolute',
-    right: '1vw',
+    right: '2vh',
     top: '50%',
     transform: 'translateY(-50%)',
     transition: 'background-color 150ms',
@@ -34,7 +34,7 @@ const styles = () => ({
   },
   compareBtnSelected: {
     '&:hover': {
-      backgroundColor: '#DDDDDD'
+      backgroundColor: '#efefef'
     },
   },
   // The drawer object
@@ -42,7 +42,7 @@ const styles = () => ({
     backgroundColor: 'white',
     height: '100%',
     overflowY: 'scroll',
-    width: '20vw',
+    width: '25vh',
   },
   // Parent div to display the sidebar and summary
   flex: {
@@ -59,7 +59,7 @@ const styles = () => ({
     display: 'flex',
     justifyContent: 'center',
     listStyle: 'none',
-    padding: '0.8vh 0.5vw',
+    padding: '0.8vh',
     position: 'relative',
     width: '-webkit-fill-available',
   },
@@ -76,7 +76,7 @@ const styles = () => ({
   summary: {
     margin: '0 auto',
     textAlign: 'center',
-    width: '80vw',
+    width: 'calc(100vw - 25vh)',
   },
   yearGroup: {
     margin: '1vh 0',
@@ -86,7 +86,7 @@ const styles = () => ({
   yearLabel: {
     fontSize: SHARED_STYLES.FONT_SIZE_HEADER,
     fontWeight: 'bold',
-    marginLeft: '1vw',
+    marginLeft: '1vh',
   },
 });
 
@@ -325,7 +325,6 @@ class MonthlyPlaylists extends Component {
             <div className={classes.summary}>
               <Summary
                 playlist1={this.state.playlist1}
-                playlist2={this.state.playlist2}
                 songs1={this.state.songs1}
                 songs2={this.state.songs2} />
             </div>

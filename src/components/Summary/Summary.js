@@ -50,12 +50,7 @@ class Summary extends Component {
   }
 
   render() {
-    const { classes, playlist1, playlist2, songs1, songs2 } = this.props;
-
-    console.log(playlist1);
-    console.log(playlist2);
-    console.log(songs1);
-    console.log(songs2);
+    const { classes, playlist1, songs1, songs2 } = this.props;
 
     if (!playlist1) {
       return null;
