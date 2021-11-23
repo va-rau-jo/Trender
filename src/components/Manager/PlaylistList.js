@@ -17,8 +17,7 @@ const styles = () => ({
   },
   listItemDescription: {
     backgroundColor: SHARED_STYLES.OVERLAY_COLOR,
-    borderRadius: '0 0 ' + SHARED_STYLES.LIST_BORDER_RADIUS +
-      ' ' + SHARED_STYLES.LIST_BORDER_RADIUS,
+    borderRadius: '0 0 ' + SHARED_STYLES.LIST_BORDER_RADIUS + ' ' + SHARED_STYLES.LIST_BORDER_RADIUS,
     bottom: '0',
     display: 'flex',
     flexDirection: 'column',
@@ -81,6 +80,7 @@ const styles = () => ({
     padding: '0.2vh 0.2vw !important',
   },
   selectedListItem: {
+    backgroundColor: '#ff2d52',
     border: '0.75vh solid #ff2d52',
     borderRadius: '2vh'
   },
@@ -103,7 +103,7 @@ class PlaylistList extends Component {
             <div key={i} onClick={() => { togglePlaylist(i) }}
               className={classes.playlistListItem + ' ' + (selected ? classes.selectedListItem : '')}>
               <img className={classes.playlistListImage} alt="Playlist"
-                src={playlist.images[0] ? playlist.images[0].url : "/images/sound_file.png"} />
+                src={playlist.images[0] ? playlist.images[0].url : "/images/sound_file_white.png"} />
               {selected ?
                 <div className={classes.listItemIndexDiv}>
                   <Typography className={classes.listItemIndex} variant='h6'>

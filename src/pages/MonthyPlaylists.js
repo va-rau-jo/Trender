@@ -156,19 +156,8 @@ class MonthlyPlaylists extends Component {
         }
       });
     }
-
-    console.log(years);
     this.setState({ playlists: years });
   }
-
-  // getCompareButton(i, j) {
-
-  // return(
-
-  //     <img className={this.props.classes.compareBtn} src='/images/plus2.png'
-  //       alt='compare' onClick={(e) => { this.updateCompareMonth(i, j, e) }} />
-  //   );
-  // }
 
   /**
    * Extracts a playlist from the given year and month from the playlists state
@@ -301,7 +290,7 @@ class MonthlyPlaylists extends Component {
                           (selectedPlaylist1 ? classes.selectedPrimaryItem :
                             selectedPlaylist2 ? classes.selectedSecondaryItem : null)].join(' ');
 
-                        const imagePath = selected ? '/images/subtract.png' : '/images/plus2.png';
+                        const imagePath = selected ? '/images/subtract.png' : '/images/plus.png';
                         const btnClass = !selected ? classes.compareBtn :
                           [classes.compareBtn, classes.compareBtnSelected].join(' ');
 

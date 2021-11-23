@@ -16,7 +16,7 @@ const styles = () => ({
   logoDiv: {
     alignItems: 'center',
     display: 'inline-flex',
-    height: '100%',
+    height: '100%'
   },
   logo: {
     height: '4vh',
@@ -25,6 +25,7 @@ const styles = () => ({
     display: 'flex',
     marginLeft: '1vh',
     textDecoration: 'none',
+    width: 'fit-content',
   },
   tabs: {
     backgroundColor: '#434343',
@@ -35,7 +36,7 @@ const styles = () => ({
     color: 'white',
     fontSize: '4vh',
     margin: '0 1vh',
-    textAlign: 'center',
+    textAlign: 'center'
   }
 });
 

@@ -55,8 +55,14 @@ class Summary extends Component {
     if (!playlist1) {
       return null;
     } else {
+      const additions = [];
       const removals = [];
       if (songs2) {
+        songs1.forEach((song) => {
+          if (isSongNew(song, songs2)) {
+            additions.push(song);
+          }
+        });
         songs2.forEach((song) => {
           if (isSongNew(song, songs1)) {
             removals.push(song);
@@ -80,18 +86,18 @@ class Summary extends Component {
             }
           </Paper>
           {songs2 ?
-              <Paper elevation={3} className={classes.songListPaper}>
-                <Typography className={classes.songListTitle} variant='h2'>
-                  Removals
-                </Typography>
-                {songs1.length === 0 ?
-                  <div>
-                    <Typography className={classes.noSongLabel} variant='h6'>
-                      No songs in playlist
-                    </Typography>
-                  </div> :
-                  <SongList songs={removals} />
-                }
+            <Paper elevation={3} className={classes.songListPaper}>
+              <Typography className={classes.songListTitle} variant='h2'>
+                Additions
+              </Typography>
+              <SongList songs={additions} />
+            </Paper> : null}
+          {songs2 ?
+            <Paper elevation={3} className={classes.songListPaper}>
+              <Typography className={classes.songListTitle} variant='h2'>
+                Removals
+              </Typography>
+              <SongList songs={removals} />
             </Paper> : null}
         </div>
       );

@@ -6,7 +6,6 @@ import {
 import { isSongNew } from '../../utils/helpers';
 import { SHARED_STYLES } from '../../utils/sharedStyles';
 
-
 const styles = () => ({
   ellipsisText: {
     margin: '0 0.5vw',
@@ -51,21 +50,23 @@ const styles = () => ({
   },
   songListImage: {
     borderRadius: SHARED_STYLES.LIST_BORDER_RADIUS,
+    cursor: 'pointer',
     height: '100%',
-    left: '0',
     position: 'absolute',
-    top: '0',
     userSelect: 'none',
-    width: '100%',
   },
   songListItem: {
     border: '0.75vh solid white',
+    borderRadius: '2vh',
     color: 'white',
     display: 'inline-flex',
-    margin: '0',
-    padding: '0 0 ' + SHARED_STYLES.LIST_ITEM_SIZE + ' 0',
     position: 'relative',
+    height: SHARED_STYLES.LIST_ITEM_SIZE,
     width: SHARED_STYLES.LIST_ITEM_SIZE,
+    '&:hover': {
+      backgroundColor: '#ff2d52',
+      border: '0.75vh solid #ff2d52',
+    },
   },
   songTitle: {
     fontSize: SHARED_STYLES.FONT_SIZE_XLARGE,
@@ -82,8 +83,8 @@ class SongList extends Component {
         {songs.map((song) => (
           <div className={classes.songListItem} key={song.id}>
             {song.image ?
-              <img className={classes.songListImage} src={song.image.url} alt={song.name} /> :
-              <img className={classes.songListImage} src="/images/sound_file.png" alt="Missing file" />}
+              <img className={classes.songListImage} key={song.id} src={song.image.url} alt={song.name} /> :
+              <img className={classes.songListImage} src='/images/sound_file_white.png' alt='Missing file' />}
              {shouldDisplayNewLabel && isSongNew(song, songsToCompare) ?
                 <div className={classes.newLabel}>
                   <Typography className={classes.newLabelText} variant='subtitle2'>
