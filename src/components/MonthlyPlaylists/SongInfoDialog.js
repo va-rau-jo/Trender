@@ -2,14 +2,16 @@ import React, { Component } from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogTitle,
   Typography,
   withStyles
 } from '@material-ui/core';
 import CloseIcon from '@mui/icons-material/Close';
-import { IconButton } from '@mui/material';
+import { IconButton, Slider, VolumeDown, VolumeUp } from '@mui/material';
+
 import { verifyImageUrl } from '../../utils/helpers';
 import { SHARED_STYLES } from '../../utils/sharedStyles';
+import SpotifyAPIManager from '../../utils/Spotify/SpotifyAPIManager';
+import PlaybackMenu from './PlaybackMenu';
 
 // !important needed to override the CloseIcon and IconButton styling
 const styles = () => ({
@@ -25,7 +27,6 @@ const styles = () => ({
   },
   closeButtonSvg: {
     height: '3vh !important',
-
   },
   ellipsisText: {
     margin: SHARED_STYLES.OVERLAY_TEXT_MARGIN,
@@ -93,23 +94,153 @@ const styles = () => ({
   },
   timespanValue: {
     fontSize: '2vh',
+  },
+  volumeSlider: {
+    height: '3vh'
   }
 });
 
+const PLAYER_BASE_URL = 'https://api.spotify.com/v1/me/player/';
+
 class SongInfoDialog extends Component {
+  constructor(props) {
+    super(props);
+
+    const script = document.createElement('script');
+    script.src = 'https://sdk.scdn.co/spotify-player.js';
+    script.async = true;
+
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      const player = new window.Spotify.Player({
+          name: 'Trender Spotify Player',
+          getOAuthToken: cb => { cb(SpotifyAPIManager.getAccessToken()); }
+      });
+
+      // player.addListener('player_state_changed', () => {console.log('player state changed')});
+      this.state = {spotifyPlayer: player, volume: 50};
+      this.connectToPlayer();
+    }
+
+    document.body.appendChild(script);
+  }
+
+  connectToPlayer = () => {
+    if (this.state.spotifyPlayer) {
+        clearTimeout(this.connectToPlayerTimeout);
+        this.state.spotifyPlayer.addListener('ready', ({device_id}) => {
+          this.setState({
+              loadingState: 'spotify player ready',
+              spotifyDeviceId: device_id,
+              spotifyPlayerReady: true
+          });
+        });
+
+        this.state.spotifyPlayer.addListener('not_ready', ({device_id}) => {
+          this.setState({error: 'Device id has gone offline ' + device_id});
+        });
+
+        this.state.spotifyPlayer.connect()
+          .then(_ => {
+              this.setState({loadingState: 'connected to player'});
+          });
+    } else {
+      this.connectToPlayerTimeout = setTimeout(this.connectToPlayer.bind(this), 1000);
+    }
+  }
+
+  playTrack = () => {
+    fetch(PLAYER_BASE_URL + 'play?device_id=' + this.state.spotifyDeviceId, {
+      method: 'PUT',
+      body: JSON.stringify({uris: [this.props.song.uri]}),
+      headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SpotifyAPIManager.getAccessToken()}`
+      }
+    }).then(async res => {
+        console.log(res);
+        if (res.status === 403) {
+          this.setState({ error: 'Spotify Premium is required to play songs' });
+        } else {
+          this.setState({
+            songPaused: false,
+            songStarted: true,
+          });
+          console.log('Started playback', this.state);
+        }
+    }).catch((error) => {
+        this.setState({loadingState: 'playback error: ' + error});
+    })
+  };
+
+  resumeTrack = () => {
+    if (this.state.songStarted && this.state.songPaused) {
+      fetch(PLAYER_BASE_URL + 'play?device_id=' + this.state.spotifyDeviceId, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SpotifyAPIManager.getAccessToken()}`
+        },
+      }).then((ev) => {
+        this.setState({songPaused: false});
+      });
+      console.log("Started playback", this.state);
+    }
+  }
+
+  pauseTrack = () => {
+    if (!this.state.songPaused) {
+      fetch(PLAYER_BASE_URL + 'pause?device_id=' + this.state.spotifyDeviceId, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SpotifyAPIManager.getAccessToken()}`
+          },
+      }).then((ev) => {
+        this.setState({songPaused: true});
+      });
+    }
+  }
+
+  spotifySDKCallback = () => {
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      console.log(window);
+      console.log(window.Spotify);            
+      // const token = '[My Spotify Web API access token]';
+      const player = new window.Spotify.Player({
+          name: 'Spotify Demo Player',
+          getOAuthToken: cb => { cb(SpotifyAPIManager.getAccessToken()); }
+      });
+
+      player.addListener('player_state_changed', () => {console.log('player state changed')});
+      this.setState({spotifyPlayer: player});
+    }
+  }
+
+  onClose = () => {
+    this.setState({ songPaused: false, songStarted: false });
+    this.props.onClose();
+  }
+
+  onVolumeChange = (event, volume) => {
+    if (volume !== this.state.volume) {
+      this.setState({volume: volume});
+      console.log('volume: ' + volume);
+    }
+  }
 
   render() {
-    const { classes, isOpen, onClose, playlists, song, spotifyPlayer } = this.props;
+    const { classes, isOpen, playlists, song } = this.props;
 
-    if (!isOpen) {
+    if (!isOpen || this.state == null) {
       return null;
     }
 
+    console.log(song);
     return (
-        <Dialog className={classes.dialog} open={true} onClose={onClose} 
+        <Dialog className={classes.dialog} open={true} onClose={this.onClose} 
           PaperProps={{ style: { minWidth: '35vw' } }}>
           <DialogContent>
-            <IconButton className={classes.closeButton} aria-label="close" onClick={onClose}>
+            <IconButton className={classes.closeButton} aria-label='close' onClick={this.onClose}>
               <CloseIcon className={classes.closeButtonSvg} />
             </IconButton>
             <div className={classes.contentHeader}>
@@ -125,10 +256,13 @@ class SongInfoDialog extends Component {
                   <Typography className={classes.playLabel} variant='body1'>
                     Play Sample
                   </Typography>
-                  <img className={classes.playButton} onClick={() => {
-                    spotifyPlayer.connect();
-                    spotifyPlayer.togglePlay();
-                  }} src={'images/play2.png'} />
+                  <PlaybackMenu 
+                    playTrack={this.playTrack}
+                    pauseTrack={this.pauseTrack}
+                    resumeTrack={this.resumeTrack}
+                    songStarted={this.state.songStarted}
+                    songPaused={this.state.songPaused}
+                    onVolumeChange={this.onVolumeChange} />
                 </div>
               </div>
             </div>

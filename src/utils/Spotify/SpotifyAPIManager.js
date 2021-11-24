@@ -202,6 +202,7 @@ class SpotifyAPIManager {
                 image: song.track ? song.track.album.images[0] : null,
                 isLocalFile: song.is_local,
                 name: song.track ? song.track.name : '',
+                uri: song.track.uri,
               })));
               this.loadingProgress++;
               if (this.loadingProgress === playlists.length) {

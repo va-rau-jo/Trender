@@ -9,11 +9,10 @@ import {
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
 import LoadingIndicator from '../components/LoadingIndicator';
-import SpotifyAPIManager from '../utils/Spotify/SpotifyAPIManager';
 import ProgressIndicator from '../components/ProgressIndicator';
 import PlaylistList from '../components/Manager/PlaylistList';
 import { SHARED_STYLES } from '../utils/sharedStyles';
-
+import SpotifyAPIManager from '../utils/Spotify/SpotifyAPIManager';
 /**
  * This is preferred over using an external css file for styling because React
  * components that are imported have their own classes that override CSS classes

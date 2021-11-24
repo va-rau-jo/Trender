@@ -4,9 +4,9 @@ import Divider from '@material-ui/core/Divider';
 
 import LoadingIndicator from '../components/LoadingIndicator';
 import ProgressIndicator from '../components/ProgressIndicator';
+import { SHARED_STYLES } from '../utils/sharedStyles';
 import SpotifyAPIManager from '../utils/Spotify/SpotifyAPIManager';
 import Summary from '../components/MonthlyPlaylists/Summary';
-import { SHARED_STYLES } from '../utils/sharedStyles';
 import SongInfoDialog from '../components/MonthlyPlaylists/SongInfoDialog';
 
 /**
@@ -303,7 +303,7 @@ class MonthlyPlaylists extends Component {
               ))}
             </div>
             <div className={classes.summary}>
-              <SongInfoDialog isOpen={songDialogOpen} playlists={playlists} song={songDialogSong} spotifyPlayer={this.state.spotifyPlayer}
+              <SongInfoDialog isOpen={songDialogOpen} playlists={playlists} song={songDialogSong}
                 onClose={() => {this.setState({songDialogOpen: false})}} />
               <Summary
                 openSongInfoDialog={this.openSongInfoDialog}
