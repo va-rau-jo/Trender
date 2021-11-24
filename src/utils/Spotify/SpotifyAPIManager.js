@@ -1,4 +1,4 @@
-import { filterPlaylistsByMonth } from './helpers';
+import { filterPlaylistsByMonth } from '../helpers';
 
 const BASE_URL = 'https://api.spotify.com/v1/';
 

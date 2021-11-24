@@ -1,15 +1,13 @@
 import React, { Component } from 'react';
 import { Typography, withStyles } from '@material-ui/core';
 import Divider from '@material-ui/core/Divider';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
 
 import LoadingIndicator from '../components/LoadingIndicator';
 import ProgressIndicator from '../components/ProgressIndicator';
-import SpotifyAPIManager from '../utils/SpotifyAPIManager';
-import Summary from '../components/Summary/Summary';
+import SpotifyAPIManager from '../utils/Spotify/SpotifyAPIManager';
+import Summary from '../components/MonthlyPlaylists/Summary';
 import { SHARED_STYLES } from '../utils/sharedStyles';
+import SongInfoDialog from '../components/MonthlyPlaylists/SongInfoDialog';
 
 /**
  * This is preferred over using an external css file for styling because React
@@ -93,6 +91,7 @@ const styles = () => ({
 class MonthlyPlaylists extends Component {
   constructor(props) {
     super(props);
+    this.state = {songDialogOpen: false};
 
     if (SpotifyAPIManager.getAccessToken()) {
       SpotifyAPIManager.getPlaylistData(true, true).then(data => {
@@ -187,6 +186,10 @@ class MonthlyPlaylists extends Component {
     return this.state.playlists[yearIndex][1][monthIndex][1];
   }
 
+  openSongInfoDialog = (song) => {
+    this.setState({ songDialogOpen: true, songDialogSong: song });
+  }
+
   /**
    * Onclick handler for the list of monthly playlists. Should set the playlist to either the
    * primary or secondary playlist so that 2 playlists can be compared. Calling update when already
@@ -212,22 +215,11 @@ class MonthlyPlaylists extends Component {
         songs2: undefined
       });
     } else if (isSecondary) { // Remove selected playlist from secondary
-      this.setState({
-        playlist2: undefined,
-        songs2: undefined
-      });
+      this.setState({ playlist2: undefined, songs2: undefined });
     } else if (!playlist1) { // Add selected to primary
-      console.log("primary set");
-      this.setState({
-        playlist1: playlist,
-        songs1: this.getSongsFromStateVar(yearIndex, monthIndex),
-      });
+      this.setState({ playlist1: playlist,songs1: this.getSongsFromStateVar(yearIndex, monthIndex) });
     } else { // Add selected to secondary
-      console.log("secondary set");
-      this.setState({
-        playlist2: playlist,
-        songs2: this.getSongsFromStateVar(yearIndex, monthIndex),
-      });
+      this.setState({ playlist2: playlist, songs2: this.getSongsFromStateVar(yearIndex, monthIndex) });
     }
   }
 
@@ -260,12 +252,11 @@ class MonthlyPlaylists extends Component {
         window.location.replace('/');
       } else if (this.state.error) {
         // TODO: have a better error when fetches fail.
-        console.log(this.state.error);
         return (<div> retry ? </div>);
       } else if (this.state.loadingProgress || !this.state.playlists) {
         return <ProgressIndicator progress={this.state.loadingProgress} total={this.state.loadingTotal} />;
       } else if (this.state.playlists) {
-        const { playlists, playlist1, playlist2 } = this.state;
+        const { playlists, playlist1, playlist2, songDialogOpen, songDialogSong } = this.state;
         const playlist1Id = playlist1 ? playlist1.id : undefined;
         const playlist2Id = playlist2 ? playlist2.id : undefined;
 
@@ -312,7 +303,10 @@ class MonthlyPlaylists extends Component {
               ))}
             </div>
             <div className={classes.summary}>
+              <SongInfoDialog isOpen={songDialogOpen} playlists={playlists} song={songDialogSong} spotifyPlayer={this.state.spotifyPlayer}
+                onClose={() => {this.setState({songDialogOpen: false})}} />
               <Summary
+                openSongInfoDialog={this.openSongInfoDialog}
                 playlist1={this.state.playlist1}
                 songs1={this.state.songs1}
                 songs2={this.state.songs2} />

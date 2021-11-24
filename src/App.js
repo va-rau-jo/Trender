@@ -7,7 +7,7 @@ import Home from './pages/Home';
 import LoadingIndicator from './components/LoadingIndicator';
 import Manager from './pages/Manager';
 import MonthlyPlaylists from './pages/MonthyPlaylists';
-import SpotifyAPIManager from './utils/SpotifyAPIManager';
+import SpotifyAPIManager from './utils/Spotify/SpotifyAPIManager';
 
 import './App.css';
 

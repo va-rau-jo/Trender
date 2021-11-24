@@ -52,3 +52,14 @@ export function isSongNew(song, songList) {
 
   return songList.find(x => x.id === song.id) === undefined;
 }
+
+/**
+ * Verifies that the object passed in (song or playlist) has a
+ * valid image property. Songs that are local files don't have images,
+ * so we replace the url with a blank sound file image.
+ * @param {JSON} obj An object with an image property. 
+ * @returns {string} Either the song's image url or the default song url.
+ */
+export function verifyImageUrl(obj) {
+  return (obj && obj.image) ? obj.image.url : '/images/sound_file_white.png';
+}

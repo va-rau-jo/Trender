@@ -3,12 +3,12 @@ import {
   Typography,
   withStyles
 } from '@material-ui/core';
-import { isSongNew } from '../../utils/helpers';
+import { isSongNew, verifyImageUrl } from '../../utils/helpers';
 import { SHARED_STYLES } from '../../utils/sharedStyles';
 
 const styles = () => ({
   ellipsisText: {
-    margin: '0 0.5vw',
+    margin: SHARED_STYLES.OVERLAY_TEXT_MARGIN,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -75,32 +75,33 @@ const styles = () => ({
 
 class SongList extends Component {
   render() {
-    const { classes, songs, songsToCompare } = this.props;
+    const { classes, openDialog, songs, songsToCompare } = this.props;
     const shouldDisplayNewLabel = songsToCompare !== undefined;
 
     return (
       <ul className={classes.songList}>
-        {songs.map((song) => (
-          <div className={classes.songListItem} key={song.id}>
-            {song.image ?
-              <img className={classes.songListImage} key={song.id} src={song.image.url} alt={song.name} /> :
-              <img className={classes.songListImage} src='/images/sound_file_white.png' alt='Missing file' />}
-             {shouldDisplayNewLabel && isSongNew(song, songsToCompare) ?
-                <div className={classes.newLabel}>
-                  <Typography className={classes.newLabelText} variant='subtitle2'>
-                    NEW
-                  </Typography>
-                </div> : null}
-            <div className={classes.songItemDescription} title={song.name} subtitle={song.artist}>
-              <Typography className={[classes.songTitle, classes.ellipsisText].join(' ')} variant='body2'>
-                {song.name}
-              </Typography>
-              <Typography className={[classes.songArtist, classes.ellipsisText].join(' ')} variant='body2'>
-                {song.artist}
-              </Typography>
+        {songs.map((song) => {
+          return (
+            <div className={classes.songListItem} key={song.id}>
+              <img className={classes.songListImage} src={verifyImageUrl(song)} alt={song.name} onClick={() => {openDialog(song)}}/>
+              {shouldDisplayNewLabel && isSongNew(song, songsToCompare) ?
+                  <div className={classes.newLabel}>
+                    <Typography className={classes.newLabelText} variant='subtitle2'>
+                      NEW
+                    </Typography>
+                  </div> : null}
+              <div className={classes.songItemDescription}>
+                <Typography className={[classes.songTitle, classes.ellipsisText].join(' ')} variant='body2'>
+                  {song.name}
+                </Typography>
+                <Typography className={[classes.songArtist, classes.ellipsisText].join(' ')} variant='body2'>
+                  {song.artist}
+                </Typography>
+              </div>
             </div>
-          </div>
-        ))}
+            );
+          }
+        )}
       </ul>
     );
   }

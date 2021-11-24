@@ -44,29 +44,6 @@ const styles = () => ({
   title: {
     textAlign: 'center',
   },
-  t1: {
-    background: 'red',
-//     width: 200
-// px
-// ;
-//     height: 200
-// px
-// ;
-//     border: 1
-// px
-//  solid white;
-//     display: inline-flex;
-
-  },
-  t2: {
-    background: 'black',
-    border: '31px solid green',
-    /* min-height: min-content; */
-    overflow: 'scroll',
-    width: '200px',
-    whiteSpace: 'nowrap',
-
-  }
 });
 
 class Home extends Component {
@@ -87,10 +64,10 @@ class Home extends Component {
                 View trends between your monthly playlists
               </Typography>
               <Typography variant="body1" className={classes.descriptionBullet}>
-                - See the differences between each month
+                - Track the songs that are added and removed each month
               </Typography>
               <Typography variant="body1" className={classes.descriptionBullet}>
-                - Track the songs that are added and removed each month
+                - Click on a song to see when it was added and removed
               </Typography>
             </div>
           </Paper>

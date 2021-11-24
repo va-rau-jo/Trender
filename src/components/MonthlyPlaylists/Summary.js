@@ -10,7 +10,7 @@ import { SHARED_STYLES } from '../../utils/sharedStyles';
 
 const styles = () => ({
   ellipsisText: {
-    margin: '0 5px',
+    margin: SHARED_STYLES.OVERLAY_TEXT_MARGIN,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -19,15 +19,8 @@ const styles = () => ({
     display: 'flex',
     flexDirection: 'column',
   },
-  hamburger: {
-    cursor: 'pointer',
-    float: 'left',
-    height: '16px',
-    margin: '4px',
-    width: '16px'
-  },
   noSongLabel: {
-    padding: '10px 0',
+    padding: '1vh 0',
   },
   songListPaper: {
     margin: '1vh 1.5vw'
@@ -50,7 +43,7 @@ class Summary extends Component {
   }
 
   render() {
-    const { classes, playlist1, songs1, songs2 } = this.props;
+    const { classes, playlist1, songs1, songs2, openSongInfoDialog } = this.props;
 
     if (!playlist1) {
       return null;
@@ -82,7 +75,7 @@ class Summary extends Component {
                   No songs in playlist
                 </Typography>
               </div> :
-              <SongList songs={songs1} songsToCompare={songs2} />
+              <SongList openDialog={openSongInfoDialog} songs={songs1} songsToCompare={songs2} />
             }
           </Paper>
           {songs2 ?
@@ -90,14 +83,14 @@ class Summary extends Component {
               <Typography className={classes.songListTitle} variant='h2'>
                 Additions
               </Typography>
-              <SongList songs={additions} />
+              <SongList openDialog={openSongInfoDialog} songs={additions} />
             </Paper> : null}
           {songs2 ?
             <Paper elevation={3} className={classes.songListPaper}>
               <Typography className={classes.songListTitle} variant='h2'>
                 Removals
               </Typography>
-              <SongList songs={removals} />
+              <SongList openDialog={openSongInfoDialog} songs={removals} />
             </Paper> : null}
         </div>
       );
