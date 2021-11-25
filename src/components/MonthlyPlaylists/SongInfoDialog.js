@@ -6,13 +6,21 @@ import {
   withStyles
 } from '@material-ui/core';
 
-import { verifyImageUrl } from '../../utils/helpers';
+import { formatReadableDate, getListenTime, verifyImageUrl } from '../../utils/helpers';
 import { SHARED_STYLES } from '../../utils/sharedStyles';
 import SpotifyPlaylistManager from '../../utils/Spotify/SpotifyPlaylistManager';
 import PlaybackMenu from './PlaybackMenu';
 import SpotifyPlaybackManager from '../../utils/Spotify/SpotifyPlaybackManager';
 
 const styles = () => ({
+  analysisDiv: {
+    backgroundColor: '#EEEEEE',
+    borderRadius: SHARED_STYLES.BORDER_RADIUS,
+    display: 'flex',
+    flexDirection: 'column',
+    marginTop: '1vh',
+    padding: '0 1vw 1vh 1vw'
+  },
   contentHeader: {
     display: 'flex',
   },
@@ -44,15 +52,18 @@ const styles = () => ({
     marginTop: '2vh',
   },
   songArtist: {
-    fontSize: SHARED_STYLES.FONT_SIZE_HEADER,
+    fontSize: '2.2vh',
     fontWeight: 'bold',
+    whiteSpace: 'pre-wrap'
   },
   songDescription: {
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'column',
     flexGrow: '1',
+    justifyContent: 'center',
     marginLeft: '1vw',
+    textAlign: 'center',
   },
   songImage: {
     borderRadius: '1vh',
@@ -62,17 +73,21 @@ const styles = () => ({
     display: 'flex',    
   },
   songTitle: {
-    fontSize: SHARED_STYLES.FONT_SIZE_GIANT,
+    fontSize: '3vh',
     fontWeight: 'bold',
+    whiteSpace: 'pre-wrap'
   },
   timespanDescription: {
-    border: '1px solid red',
     display: 'flex',
     justifyContent: 'space-around',
     marginTop: '1vh'
   },
+  timespanExplanation: {
+    fontSize: SHARED_STYLES.FONT_SIZE_LARGE,
+  },
   timespanHeader: {
-    fontSize: SHARED_STYLES.FONT_SIZE_HEADER,
+    color: '#333333',
+    fontSize: SHARED_STYLES.FONT_SIZE_LARGE,
   },
   timespanResultDiv: {
     display: 'flex',
@@ -85,7 +100,7 @@ const styles = () => ({
     flexDirection: 'column',
   },
   timespanValue: {
-    fontSize: '2vh',
+    fontSize: SHARED_STYLES.FONT_SIZE_XLARGE,
   },
   volumeSlider: {
     height: '3vh'
@@ -160,13 +175,15 @@ class SongInfoDialog extends Component {
   startProgressInterval = () => {
     this.setState({ songProgressInterval: setInterval(() => {
       this.state.spotifyPlayer.getCurrentState().then(res => {
-        if (res.position === 0) {
-          this.setState({
-            songPaused: false,
-            songStarted: false
-          });
+        if (res) {
+          if (res.position === 0) {
+            this.setState({
+              songPaused: false,
+              songStarted: false
+            });
+          }
+          this.setState({ songProgress: res.position / 1000 });
         }
-        this.setState({ songProgress: res.position / 1000 });
       })
     }, 1000)})
   }
@@ -188,6 +205,7 @@ class SongInfoDialog extends Component {
   }
 
   onClose = () => {
+    this.state.spotifyPlayer.pause();
     this.setState({ songPaused: false, songStarted: false });
     this.props.onClose();
   }
@@ -216,11 +234,11 @@ class SongInfoDialog extends Component {
     }
 
     const artistText = song.artist === '' ? 'Unknown artist' : song.artist;
-
+    const listenTime = getListenTime(songFirstAdded, songRemoved);
 
     return (
         <Dialog className={classes.dialog} open={true} onClose={this.onClose} 
-          PaperProps={{ style: { minWidth: '35vw' } }}>
+          PaperProps={{ style: { maxWidth: '60vw', minWidth: '35vw' } }}>
           <DialogContent>
            <img alt='close' className={classes.closeButton} src={'images/close.png'} onClick={this.onClose} />
             <div className={classes.contentHeader}>
@@ -247,28 +265,33 @@ class SongInfoDialog extends Component {
                   song={song}
                   volume={this.state.volume ?? 0}/>
               </div> : null }
-            <div className={classes.timespanDescription}>
-              <div className={classes.timespanSection}>
-                <Typography className={classes.timespanHeader} variant='h6'>
-                  First Added
-                </Typography>
-                <Typography className={classes.timespanValue} variant='body1'>
-                  {songFirstAdded}
+            <div className={classes.analysisDiv}> 
+              <div className={classes.timespanDescription}>
+                <div className={classes.timespanSection}>
+                  <Typography className={classes.timespanHeader} variant='h6'>
+                    First Added
+                  </Typography>
+                  <Typography className={classes.timespanValue} variant='body1'>
+                    {formatReadableDate(songFirstAdded)}
+                  </Typography>
+                </div>
+                {songRemoved ? 
+                  <div className={classes.timespanSection}>
+                    <Typography className={classes.timespanHeader} variant='h6'>
+                      Removed
+                    </Typography>
+                    <Typography className={classes.timespanValue} variant='body1'>
+                      {songRemoved}
+                    </Typography>
+                  </div> : null}
+              </div>
+              <div className={classes.timespanResultDiv}>
+                <Typography className={classes.timespanExplanation} variant='body1'>
+                  You {!songRemoved ? 'have' : ''} listened to this song for
+                  {' '}{listenTime}{' '}
+                  months!
                 </Typography>
               </div>
-              <div className={classes.timespanSection}>
-                <Typography className={classes.timespanHeader} variant='h6'>
-                  Removed
-                </Typography>
-                <Typography className={classes.timespanValue} variant='body1'>
-                  {songRemoved}
-                </Typography>
-              </div>
-            </div>
-            <div className={classes.timespanResultDiv}>
-              <Typography className={classes.timespanValue} variant='body1'>
-                You listened to this song for 2 months
-              </Typography>
             </div>
         </DialogContent>
       </Dialog>

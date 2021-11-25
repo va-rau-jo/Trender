@@ -219,7 +219,6 @@ class MonthlyPlaylists extends Component {
 
   openSongInfoDialog = (song) => {
     const result = this.getSongAddedRemovedDate(song);
-    console.log(result);
     this.setState({ 
       songDialogOpen: true,
       songDialogSong: song,

@@ -12,7 +12,7 @@ const styles = () => ({
     alignItems: 'flex-start',
     display: 'flex',
     justifyContent: 'space-between',
-    margin: '0.5vh 0',
+    marginBottom: '0.5vh',
     width: '100%'
   },
   container: {
@@ -42,7 +42,7 @@ const styles = () => ({
     width: '95%'
   },
   timeLabel: {
-    color: '#333333',
+    color: '#666666',
     fontSize: SHARED_STYLES.FONT_SIZE_SMALL,
   },
   volumeContainer: {

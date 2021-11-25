@@ -50,18 +50,18 @@ const styles = () => ({
   },
   songListImage: {
     borderRadius: SHARED_STYLES.LIST_BORDER_RADIUS,
-    cursor: 'pointer',
     height: '100%',
     position: 'absolute',
-    userSelect: 'none',
   },
   songListItem: {
     border: '0.75vh solid white',
     borderRadius: '2vh',
     color: 'white',
+    cursor: 'pointer',
     display: 'inline-flex',
-    position: 'relative',
     height: SHARED_STYLES.LIST_ITEM_SIZE,
+    position: 'relative',
+    userSelect: 'none',
     width: SHARED_STYLES.LIST_ITEM_SIZE,
     '&:hover': {
       backgroundColor: SHARED_STYLES.SELECT_BORDER_COLOR,
@@ -82,8 +82,8 @@ class SongList extends Component {
       <ul className={classes.songList}>
         {songs.map((song) => {
           return (
-            <div className={classes.songListItem} key={song.uri}>
-              <img className={classes.songListImage} src={verifyImageUrl(song)} alt={song.name} onClick={() => {openDialog(song)}}/>
+            <div className={classes.songListItem} key={song.uri} onClick={() => {openDialog(song)}}>
+              <img className={classes.songListImage} src={verifyImageUrl(song)} alt={song.name}/>
               {shouldDisplayNewLabel && isSongNew(song, songsToCompare) ?
                   <div className={classes.newLabel}>
                     <Typography className={classes.newLabelText} variant='subtitle2'>
