@@ -55,7 +55,6 @@ const styles = () => ({
   },
   songListItem: {
     border: '0.75vh solid white',
-    borderRadius: '2vh',
     color: 'white',
     cursor: 'pointer',
     display: 'inline-flex',

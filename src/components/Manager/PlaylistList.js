@@ -17,7 +17,7 @@ const styles = () => ({
   },
   listItemDescription: {
     backgroundColor: SHARED_STYLES.OVERLAY_COLOR,
-    borderRadius: '0 0 ' + SHARED_STYLES.LIST_BORDER_RADIUS + ' ' + SHARED_STYLES.LIST_BORDER_RADIUS,
+    borderRadius: '0 0 ' + SHARED_STYLES.LIST_ITEM_BORDER_RADIUS + ' ' + SHARED_STYLES.LIST_ITEM_BORDER_RADIUS,
     bottom: '0',
     display: 'flex',
     flexDirection: 'column',
@@ -28,7 +28,7 @@ const styles = () => ({
   },
   listItemIndexDiv: {
     backgroundColor: SHARED_STYLES.OVERLAY_COLOR,
-    borderRadius: SHARED_STYLES.LIST_BORDER_RADIUS,
+    borderRadius: SHARED_STYLES.BORDER_RADIUS_CIRCLE,
     padding: '0 0.7vw',
     position: 'absolute',
     right: '0.5vw',
@@ -50,7 +50,7 @@ const styles = () => ({
     transform: 'translateZ(0)',
   },
   playlistListImage: {
-    borderRadius: SHARED_STYLES.LIST_BORDER_RADIUS,
+    borderRadius: SHARED_STYLES.LIST_ITEM_BORDER_RADIUS,
     height: '100%',
     left: '0',
     position: 'absolute',

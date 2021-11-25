@@ -36,20 +36,10 @@ const styles = () => ({
       backgroundColor: SHARED_STYLES.BUTTON_HOVER_COLOR
     },
   },
-  ellipsisText: {
-    margin: SHARED_STYLES.OVERLAY_TEXT_MARGIN,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-  },
   playDiv: {
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'column',
-  },
-  playLabel: {
-    fontSize: SHARED_STYLES.FONT_SIZE_MED,
-    marginTop: '2vh',
   },
   songArtist: {
     fontSize: '2.2vh',
@@ -68,9 +58,6 @@ const styles = () => ({
   songImage: {
     borderRadius: '1vh',
     height: '15vh',
-  },
-  songInfo: {
-    display: 'flex',    
   },
   songTitle: {
     fontSize: '3vh',
@@ -102,19 +89,19 @@ const styles = () => ({
   timespanValue: {
     fontSize: SHARED_STYLES.FONT_SIZE_XLARGE,
   },
-  volumeSlider: {
-    height: '3vh'
-  }
 });
 
 class SongInfoDialog extends Component {
   constructor(props) {
     super(props);
 
+    // Load the Spotify Web Player through a script tag
     const script = document.createElement('script');
     script.src = 'https://sdk.scdn.co/spotify-player.js';
     script.async = true;
 
+    // Callback must be set here otherwise the function is not
+    // found by the Spotify API
     window.onSpotifyWebPlaybackSDKReady = () => {
       const player = new window.Spotify.Player({
         name: 'Trender Spotify Player',
@@ -129,6 +116,10 @@ class SongInfoDialog extends Component {
     document.body.appendChild(script);
   }
 
+  /**
+   * Spotify web player function that connects to a Spotify playback device.
+   * Stores the device id for later usage.
+   */
   connectToPlayer = () => {
     if (this.state.spotifyPlayer) {
         clearTimeout(this.connectToPlayerTimeout);
@@ -154,6 +145,51 @@ class SongInfoDialog extends Component {
     }
   }
 
+  /**
+   * On dialog close.
+   * Pauses the song if it is playing and closes the dialog.
+   */
+  onClose = () => {
+    this.state.spotifyPlayer.pause();
+    this.setState({ songPaused: false, songStarted: false });
+    this.props.onClose();
+  }
+
+  /**
+   * Event handler for when the user seeks on the progress bar manually.
+   * Calls the spotify web player's seek method to seek to their position.
+   * @param {Event} _ The event variable, not needed.
+   * @param {number} progress The progress of the progress bar (0-100) The
+   * stored progress in the state is the raw seconds in the song.
+   */
+  onProgressChange = (_, progress) => {
+    progress = this.props.song.duration * (progress / 100);
+    if (progress !== this.state.progress) {
+      this.setState({songProgress: progress});
+      this.state.spotifyPlayer.seek(progress * 1000);
+    }
+  }
+
+  /**
+   * Event handler for when the user changes the volume bar.
+   * Calls the spotify web player's setVolume method.
+   * @param {Event} _ The event variable, not needed.
+   * @param {number} volume The volume on the progress bar (0-100). The
+   * stored volume in the state is 0-1.
+   */
+   onVolumeChange = (_, volume) => {
+    volume = volume / 100;
+    if (volume !== this.state.volume) {
+      this.setState({volume: volume});
+      this.state.spotifyPlayer.setVolume(volume);
+    }
+  }
+
+  /**
+   * Spotify web player function that will start playing the current song. Also
+   * uses the current song progress so we can start in the middle of a song if
+   * needed.
+   */
   playSong = () => {
     SpotifyPlaybackManager.playSong(this.props.song.uri, this.state.songProgress * 1000)
       .then(async res => {
@@ -172,6 +208,10 @@ class SongInfoDialog extends Component {
     })
   };
 
+  /**
+   * While a song is playing, this interval is started so the progress
+   * bar moves while the song plays. On pause, this should be cleared.
+   */
   startProgressInterval = () => {
     this.setState({ songProgressInterval: setInterval(() => {
       this.state.spotifyPlayer.getCurrentState().then(res => {
@@ -188,10 +228,17 @@ class SongInfoDialog extends Component {
     }, 1000)})
   }
 
+  /**
+   * Stops the progress interval so the progress bar stops moving
+   * when a song is paused or clicked away from.
+   */
   stopProgressInterval = () => {
     clearInterval(this.state.songProgressInterval);
   }
 
+  /**
+   * Spotify web player function that toggles between paused and resumed.
+   */
   toggleSong = () => {
     if (this.state.songStarted) {
       if (this.state.songPaused) {
@@ -201,28 +248,6 @@ class SongInfoDialog extends Component {
       }
       this.state.spotifyPlayer.togglePlay();
       this.setState({songPaused: !this.state.songPaused});
-    }
-  }
-
-  onClose = () => {
-    this.state.spotifyPlayer.pause();
-    this.setState({ songPaused: false, songStarted: false });
-    this.props.onClose();
-  }
-
-  onProgressChange = (_, progress) => {
-    progress = this.props.song.duration * (progress / 100);
-    if (progress !== this.state.progress) {
-      this.setState({songProgress: progress});
-      this.state.spotifyPlayer.seek(progress * 1000);
-    }
-  }
-
-  onVolumeChange = (_, volume) => {
-    volume = volume / 100; // Spotify volume is 0-1
-    if (volume !== this.state.volume) {
-      this.setState({volume: volume});
-      this.state.spotifyPlayer.setVolume(volume);
     }
   }
 
@@ -244,10 +269,10 @@ class SongInfoDialog extends Component {
             <div className={classes.contentHeader}>
               <img className={classes.songImage} src={verifyImageUrl(song)} alt={song.name}/>
               <div className={classes.songDescription}>
-                <Typography className={[classes.songTitle, classes.ellipsisText].join(' ')} variant='h1'>
+                <Typography className={classes.songTitle} variant='h1'>
                   {song.name}
                 </Typography>
-                <Typography className={[classes.songArtist, classes.ellipsisText].join(' ')} variant='h2'>
+                <Typography className={classes.songArtist} variant='h2'>
                   {artistText}
                 </Typography>
               </div>

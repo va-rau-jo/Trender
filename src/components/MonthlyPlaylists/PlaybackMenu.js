@@ -103,6 +103,13 @@ const overrides = {
 };
 
 class PlaybackMenu extends Component {
+  /**
+   * Given a progress value between 0-100 and the duration of the song
+   * returns the minute:seconds of the current position.
+   * @param {number} progress A position in the song.
+   * @param {number} duration The duration of the song in seconds. 
+   * @returns {string} A string label such as 0:00 or 2:49.
+   */
   getTimeLabel = (progress, duration) => {
     const time = duration * (progress / 100);
     const min = Math.floor(parseFloat(time) / 60);
@@ -110,6 +117,12 @@ class PlaybackMenu extends Component {
     return min + ':' + (seconds + '').padStart(2, '0');
   }
 
+  /**
+   * Given the number of seconds into the song, returns the 
+   * progress value between 0-100. Needed for the progress bar.
+   * @param {number} progress Progress in the song in seconds. 
+   * @returns {number} The progress between 0-100.
+   */
   getProgressBarValue = (progress) => {
     return progress / this.props.song.duration * 100;
   }

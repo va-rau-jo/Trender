@@ -205,9 +205,9 @@ const styles = () => ({
   },
   textbox: {
     borderRadius: SHARED_STYLES.BORDER_RADIUS,
-    borderWidth: SHARED_STYLES.TEXTBOX_BORDER_WIDTH,
+    borderWidth: '0.2vh',
     fontSize: SHARED_STYLES.FONT_SIZE_LARGE,
-    padding: SHARED_STYLES.TEXTBOX_PADDING,
+    padding: '1.2vh 1vw',
   },
   textInputDiv: {
     display: 'flex',
