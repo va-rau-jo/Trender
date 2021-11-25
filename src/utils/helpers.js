@@ -50,7 +50,7 @@ export function isSongNew(song, songList) {
     return false;
   }
 
-  return songList.find(x => x.id === song.id) === undefined;
+  return songList.find(x => x.uri === song.uri) === undefined;
 }
 
 /**

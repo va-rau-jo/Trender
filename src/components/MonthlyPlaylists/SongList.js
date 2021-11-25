@@ -82,7 +82,7 @@ class SongList extends Component {
       <ul className={classes.songList}>
         {songs.map((song) => {
           return (
-            <div className={classes.songListItem} key={song.id}>
+            <div className={classes.songListItem} key={song.uri}>
               <img className={classes.songListImage} src={verifyImageUrl(song)} alt={song.name} onClick={() => {openDialog(song)}}/>
               {shouldDisplayNewLabel && isSongNew(song, songsToCompare) ?
                   <div className={classes.newLabel}>

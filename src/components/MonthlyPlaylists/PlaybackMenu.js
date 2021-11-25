@@ -130,11 +130,11 @@ class PlaybackMenu extends Component {
 
           <div className={classes.playButtonContainer}>
             {!songStarted ? 
-              <img className={classes.playButton} src={'images/play.png'} onClick={playSong} /> :
+              <img alt='play' className={classes.playButton} src={'images/play.png'} onClick={playSong} /> :
             songStarted && !songPaused ? 
-              <img className={classes.playButton} src={'images/pause.png'} onClick={toggleSong} /> : 
+              <img alt='pause' className={classes.playButton} src={'images/pause.png'} onClick={toggleSong} /> : 
             songStarted && songPaused ? 
-              <img className={classes.playButton} src={'images/play.png'} onClick={toggleSong} /> : 
+              <img alt='resume' className={classes.playButton} src={'images/play.png'} onClick={toggleSong} /> : 
             null}
           </div>
 
@@ -143,11 +143,11 @@ class PlaybackMenu extends Component {
           </Typography>
         </div>
         <div className={classes.volumeContainer}>
-          <img className={classes.volumeIcon} src={'images/volume_down.png'} />
+          <img alt='volume down' className={classes.volumeIcon} src={'images/volume_down.png'} />
           <div className={classes.volumeSlider}>
             <Slider sx={overrides.volumeSlider} value={volume * 100} onChange={onVolumeChange} />
           </div>
-          <img className={classes.volumeIcon} src={'images/volume_up.png'} />
+          <img alt='volume up' className={classes.volumeIcon} src={'images/volume_up.png'} />
         </div>
       </div>
     );

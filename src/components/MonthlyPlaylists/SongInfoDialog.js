@@ -66,12 +66,13 @@ const styles = () => ({
     fontWeight: 'bold',
   },
   timespanDescription: {
+    border: '1px solid red',
     display: 'flex',
     justifyContent: 'space-around',
     marginTop: '1vh'
   },
   timespanHeader: {
-    fontSize: '3vh',
+    fontSize: SHARED_STYLES.FONT_SIZE_HEADER,
   },
   timespanResultDiv: {
     display: 'flex',
@@ -139,7 +140,7 @@ class SongInfoDialog extends Component {
   }
 
   playSong = () => {
-    SpotifyPlaybackManager.playSong(this.props.song.uri)
+    SpotifyPlaybackManager.playSong(this.props.song.uri, this.state.songProgress * 1000)
       .then(async res => {
         if (res.status === 403) {
           this.setState({ error: 'Spotify Premium is required to play songs' });
@@ -150,7 +151,6 @@ class SongInfoDialog extends Component {
             songStarted: true,
           });
           this.startProgressInterval();
-          console.log('Started playback');
         }
     }).catch((error) => {
         this.setState({loadingState: 'playback error: ' + error});
@@ -160,6 +160,12 @@ class SongInfoDialog extends Component {
   startProgressInterval = () => {
     this.setState({ songProgressInterval: setInterval(() => {
       this.state.spotifyPlayer.getCurrentState().then(res => {
+        if (res.position === 0) {
+          this.setState({
+            songPaused: false,
+            songStarted: false
+          });
+        }
         this.setState({ songProgress: res.position / 1000 });
       })
     }, 1000)})
@@ -190,7 +196,6 @@ class SongInfoDialog extends Component {
     progress = this.props.song.duration * (progress / 100);
     if (progress !== this.state.progress) {
       this.setState({songProgress: progress});
-      console.log("seeking");
       this.state.spotifyPlayer.seek(progress * 1000);
     }
   }
@@ -204,19 +209,20 @@ class SongInfoDialog extends Component {
   }
 
   render() {
-    const { classes, isOpen, playlists, song } = this.props;
+    const { classes, isOpen, song, songFirstAdded, songRemoved } = this.props;
 
     if (!isOpen || this.state == null) {
       return null;
     }
 
-    console.log(this.state);
+    const artistText = song.artist === '' ? 'Unknown artist' : song.artist;
+
 
     return (
         <Dialog className={classes.dialog} open={true} onClose={this.onClose} 
           PaperProps={{ style: { minWidth: '35vw' } }}>
           <DialogContent>
-           <img className={classes.closeButton} src={'images/close.png'} onClick={this.onClose} />
+           <img alt='close' className={classes.closeButton} src={'images/close.png'} onClick={this.onClose} />
             <div className={classes.contentHeader}>
               <img className={classes.songImage} src={verifyImageUrl(song)} alt={song.name}/>
               <div className={classes.songDescription}>
@@ -224,29 +230,30 @@ class SongInfoDialog extends Component {
                   {song.name}
                 </Typography>
                 <Typography className={[classes.songArtist, classes.ellipsisText].join(' ')} variant='h2'>
-                  {song.artist}
+                  {artistText}
                 </Typography>
               </div>
             </div>
-            <div className={classes.playDiv}>
-              <PlaybackMenu 
-                onProgressChange={this.onProgressChange}
-                onVolumeChange={this.onVolumeChange}
-                playSong={this.playSong}
-                songPaused={this.state.songPaused}
-                songProgress={this.state.songProgress ?? 0}
-                songStarted={this.state.songStarted}
-                toggleSong={this.toggleSong}
-                song={song}
-                volume={this.state.volume ?? 0}/>
-            </div>
+            {song.id ? 
+              <div className={classes.playDiv}>
+                <PlaybackMenu 
+                  onProgressChange={this.onProgressChange}
+                  onVolumeChange={this.onVolumeChange}
+                  playSong={this.playSong}
+                  songPaused={this.state.songPaused}
+                  songProgress={this.state.songProgress ?? 0}
+                  songStarted={this.state.songStarted}
+                  toggleSong={this.toggleSong}
+                  song={song}
+                  volume={this.state.volume ?? 0}/>
+              </div> : null }
             <div className={classes.timespanDescription}>
               <div className={classes.timespanSection}>
                 <Typography className={classes.timespanHeader} variant='h6'>
                   First Added
                 </Typography>
                 <Typography className={classes.timespanValue} variant='body1'>
-                  October 2021
+                  {songFirstAdded}
                 </Typography>
               </div>
               <div className={classes.timespanSection}>
@@ -254,7 +261,7 @@ class SongInfoDialog extends Component {
                   Removed
                 </Typography>
                 <Typography className={classes.timespanValue} variant='body1'>
-                  December 2021
+                  {songRemoved}
                 </Typography>
               </div>
             </div>

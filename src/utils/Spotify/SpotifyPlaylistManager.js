@@ -198,7 +198,7 @@ export default class SpotifyPlaylistManager {
                 artist: song.track ? this.combineArtists(song.track.artists) : '',
                 duration: song.track ? song.track.duration_ms / 1000 : 0,
                 // Good for key in React mapping
-                id: (song.track && song.track.id) || (this.generateRandomId()),
+                id: song.track ? song.track.id : '',
                 image: song.track ? song.track.album.images[0] : null,
                 isLocalFile: song.is_local,
                 name: song.track ? song.track.name : '',

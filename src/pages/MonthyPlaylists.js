@@ -176,8 +176,56 @@ class MonthlyPlaylists extends Component {
     return this.state.playlists[yearIndex][1][monthIndex][1];
   }
 
+  /**
+   * TODO: allow for more dynamic time ranges.
+   * @param {*} song 
+   * @returns 
+   */
+  getSongAddedRemovedDate = (song) => {
+    const playlists = this.state.playlists;
+
+    let removedDate;
+    let prevSong;
+    let removed = true;
+
+    for (let i = 0; i < playlists.length; i++) {
+      for (let j = 0; j < playlists[i][1].length; j++) {
+        let songArray = playlists[i][1][j][1];
+
+        const currSong = songArray.find(x => x.uri === song.uri);
+        // Song is "removed" if song is missing from most recent playlist, TODO: make better
+        if (i === 0 && j === 0 && currSong) {
+          removed = false;
+        }
+
+        // Current song cannot be found and previous song is defined, so we found the
+        // earliest added date.
+        if ((!removed || removed && removedDate) && prevSong && !currSong) { 
+          return {'added': prevSong.added_at, 'removed': removedDate};
+        } else if (i === playlists.length - 1 && j === playlists[i][1].length - 1 && currSong) {
+          return {'added': currSong.added_at, 'removed': removedDate};
+        }
+
+        // song has been removed at some point and has been "refound"
+        if (removed && !removedDate && currSong) {
+          const removedYear = j === 0 ? playlists[i - 1] : playlists[i];
+          const removedMonth = j > 0 ? playlists[i][1][j - 1][0] : playlists[i - 1][1][removedYear[1].length - 1][0];
+          removedDate = removedMonth.name + ' ' + removedYear[0];
+        }
+        prevSong = currSong;
+      }
+    }
+  }
+
   openSongInfoDialog = (song) => {
-    this.setState({ songDialogOpen: true, songDialogSong: song });
+    const result = this.getSongAddedRemovedDate(song);
+    console.log(result);
+    this.setState({ 
+      songDialogOpen: true,
+      songDialogSong: song,
+      songFirstAdded: result.added,
+      songRemoved: result.removed,
+    });
   }
 
   /**
@@ -234,19 +282,20 @@ class MonthlyPlaylists extends Component {
 
   render() {
     const { classes } = this.props;
-    const accessToken = SpotifyPlaylistManager.getAccessToken();
 
     // Go back to Home screen to fetch the Spotify access token.
     if (this.state) {
-      if (!accessToken) {
+      const { error, loadingProgress, loadingTotal, playlists, playlist1, playlist2, songs1, songs2,
+        songDialogOpen, songDialogSong, songFirstAdded, songRemoved } = this.state;
+      
+      if (!SpotifyPlaylistManager.getAccessToken()) {
         window.location.replace('/');
-      } else if (this.state.error) {
+      } else if (error) {
         // TODO: have a better error when fetches fail.
         return (<div> retry ? </div>);
-      } else if (this.state.loadingProgress || !this.state.playlists) {
-        return <ProgressIndicator progress={this.state.loadingProgress} total={this.state.loadingTotal} />;
-      } else if (this.state.playlists) {
-        const { playlists, playlist1, playlist2, songDialogOpen, songDialogSong } = this.state;
+      } else if (loadingProgress || !playlists) {
+        return <ProgressIndicator progress={loadingProgress} total={loadingTotal} />;
+      } else if (playlists) {
         const playlist1Id = playlist1 ? playlist1.id : undefined;
         const playlist2Id = playlist2 ? playlist2.id : undefined;
 
@@ -293,13 +342,14 @@ class MonthlyPlaylists extends Component {
               ))}
             </div>
             <div className={classes.summary}>
-              <SongInfoDialog isOpen={songDialogOpen} playlists={playlists} song={songDialogSong}
+              <SongInfoDialog isOpen={songDialogOpen} song={songDialogSong}
+                songFirstAdded={songFirstAdded} songRemoved={songRemoved} 
                 onClose={() => {this.setState({songDialogOpen: false})}} />
               <Summary
                 openSongInfoDialog={this.openSongInfoDialog}
-                playlist1={this.state.playlist1}
-                songs1={this.state.songs1}
-                songs2={this.state.songs2} />
+                playlist1={playlist1}
+                songs1={songs1}
+                songs2={songs2} />
             </div>
           </div>
         );
