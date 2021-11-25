@@ -16,7 +16,7 @@ const REQUEST_SLEEP_TIMEOUT = 1000;
 // Timer to sleep before making another request.
 const SLEEP_TIMER = () => new Promise(res => setTimeout(res, REQUEST_SLEEP_TIMEOUT))
 
-class SpotifyAPIManager {
+export default class SpotifyPlaylistManager {
   /**
    * Given a playlist id and a list of songs of the form ['spotify:track:___'],
    * make POST requests to add those songs to the playlist. Spotify API
@@ -318,21 +318,36 @@ class SpotifyAPIManager {
       .substring(1);
   }
 
+  /**
+   * Returns the loading total for a playlist loading request.
+   * @returns {number} The loading total.
+   */
   static getLoadingTotal() {
     return this.loadingTotal;
   }
 
+  /**
+   * Returns the loading progress for a playlist loading request.
+   * Progress is a number between 0 and loadingTotal.
+   * @returns {number} The loading progress.
+   */
   static getLoadingProgress() {
     return this.loadingProgress;
   }
 
+  /**
+   * Returns the global Spotify access token
+   * @returns {string} The Spotify access token
+   */
   static getAccessToken() {
     return this.accessToken;
   }
 
+  /**
+   * Sets the global access token that all the Spotify fetch requests can use
+   * @param {string} accessToken The access token provided by Spotify.
+   */
   static setAccessToken(accessToken) {
     this.accessToken = accessToken;
   }
 }
-
-export default SpotifyAPIManager;

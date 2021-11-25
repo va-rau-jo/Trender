@@ -12,7 +12,7 @@ import LoadingIndicator from '../components/LoadingIndicator';
 import ProgressIndicator from '../components/ProgressIndicator';
 import PlaylistList from '../components/Manager/PlaylistList';
 import { SHARED_STYLES } from '../utils/sharedStyles';
-import SpotifyAPIManager from '../utils/Spotify/SpotifyAPIManager';
+import SpotifyPlaylistManager from '../utils/Spotify/SpotifyPlaylistManager';
 /**
  * This is preferred over using an external css file for styling because React
  * components that are imported have their own classes that override CSS classes
@@ -222,9 +222,9 @@ class Manager extends Component {
   constructor(props) {
     super(props);
 
-    if (SpotifyAPIManager.getAccessToken()) {
+    if (SpotifyPlaylistManager.getAccessToken()) {
       // TODO: should be false, true
-      SpotifyAPIManager.getPlaylistData(false, false).then(data => {
+      SpotifyPlaylistManager.getPlaylistData(false, false).then(data => {
         this.setState({
           playlists: data['playlists'],
           shouldMakeCollaborative: false,
@@ -251,8 +251,8 @@ class Manager extends Component {
     this.setState({
       loadingInterval: setInterval(() => {
         this.setState({
-          loadingProgress: SpotifyAPIManager.getLoadingProgress(),
-          loadingTotal: SpotifyAPIManager.getLoadingTotal()
+          loadingProgress: SpotifyPlaylistManager.getLoadingProgress(),
+          loadingTotal: SpotifyPlaylistManager.getLoadingTotal()
         });
       }, 1000)
     });
@@ -278,7 +278,7 @@ class Manager extends Component {
     const collab = this.state.shouldMakeCollaborative;
     const removeDups = this.state.shouldRemoveDuplicates;
 
-    SpotifyAPIManager.createPlaylist(name, desc, isPublic, collab).then(res => {
+    SpotifyPlaylistManager.createPlaylist(name, desc, isPublic, collab).then(res => {
       const uris = []
       this.state.selectedIndices.forEach(i => {
         this.state.songs[i].forEach(song => {
@@ -291,7 +291,7 @@ class Manager extends Component {
         })
       });
       if (uris.length > 0) {
-        SpotifyAPIManager.addSongsToPlaylist(res.id, uris).then(() => {
+        SpotifyPlaylistManager.addSongsToPlaylist(res.id, uris).then(() => {
           this.notifyCreatedPlaylist(name, uris.length);
         })
       } else {
@@ -309,7 +309,7 @@ class Manager extends Component {
     if (this.state.selectedIndices.length > 0) {
       this.setState({deletedPlaylistsLoading: true});
       const indices = this.state.selectedIndices.map(i => this.state.playlists[i].id);
-      SpotifyAPIManager.deletePlaylists(indices).then(() => {
+      SpotifyPlaylistManager.deletePlaylists(indices).then(() => {
         let filteredPlaylists = this.filterDeletedPlaylists(indices, this.state.playlists);
         this.setState({
           playlists: filteredPlaylists,
@@ -452,7 +452,7 @@ class Manager extends Component {
 
   render() {
     const { classes } = this.props;
-    const accessToken = SpotifyAPIManager.getAccessToken();
+    const accessToken = SpotifyPlaylistManager.getAccessToken();
 
     // Go back to Home screen to fetch the Spotify access token.
     if (!this.state) {

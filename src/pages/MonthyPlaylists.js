@@ -5,7 +5,7 @@ import Divider from '@material-ui/core/Divider';
 import LoadingIndicator from '../components/LoadingIndicator';
 import ProgressIndicator from '../components/ProgressIndicator';
 import { SHARED_STYLES } from '../utils/sharedStyles';
-import SpotifyAPIManager from '../utils/Spotify/SpotifyAPIManager';
+import SpotifyPlaylistManager from '../utils/Spotify/SpotifyPlaylistManager';
 import Summary from '../components/MonthlyPlaylists/Summary';
 import SongInfoDialog from '../components/MonthlyPlaylists/SongInfoDialog';
 
@@ -16,33 +16,31 @@ import SongInfoDialog from '../components/MonthlyPlaylists/SongInfoDialog';
  * that the React components provide. The CSS will actually follow this!
  */
 const styles = () => ({
-  // compare button on list items
   compareBtn: {
+    borderRadius: SHARED_STYLES.BORDER_RADIUS_CIRCLE,
     cursor: 'pointer',
     height: '30%',
-    padding: '0.25vw',
+    padding: '0.5vw',
     position: 'absolute',
     right: '2vh',
     top: '50%',
     transform: 'translateY(-50%)',
     transition: 'background-color 150ms',
     '&:hover': {
-      backgroundColor: '#dedede'
+      backgroundColor: SHARED_STYLES.BUTTON_HOVER_COLOR
     },
   },
   compareBtnSelected: {
     '&:hover': {
-      backgroundColor: '#efefef'
+      backgroundColor: '#efefef' // than the default to match the darker background
     },
   },
-  // The drawer object
   drawer: {
     backgroundColor: 'white',
     height: '100%',
     overflowY: 'scroll',
     width: '25vh',
   },
-  // Parent div to display the sidebar and summary
   flex: {
     display: 'flex',
     height: SHARED_STYLES.PAGE_HEIGHT,
@@ -52,7 +50,6 @@ const styles = () => ({
     display: 'flex',
     flexDirection: 'column',
   },
-  // List item (month name) in the drawer.
   monthListItem: {
     display: 'flex',
     justifyContent: 'center',
@@ -70,7 +67,6 @@ const styles = () => ({
   selectedSecondaryItem: {
     backgroundColor: '#fd7a7a',
   },
-  // Summary component's area should expand to fit the remaining area.
   summary: {
     margin: '0 auto',
     textAlign: 'center',
@@ -80,7 +76,6 @@ const styles = () => ({
     margin: '1vh 0',
     padding: '0',
   },
-  // Label for each year in the drawer.
   yearLabel: {
     fontSize: SHARED_STYLES.FONT_SIZE_HEADER,
     fontWeight: 'bold',
@@ -93,8 +88,8 @@ class MonthlyPlaylists extends Component {
     super(props);
     this.state = {songDialogOpen: false};
 
-    if (SpotifyAPIManager.getAccessToken()) {
-      SpotifyAPIManager.getPlaylistData(true, true).then(data => {
+    if (SpotifyPlaylistManager.getAccessToken()) {
+      SpotifyPlaylistManager.getPlaylistData(true, true).then(data => {
         this.groupPlaylistsByYear(data['playlists'], data['songs']);
         this.clearLoadingInterval();
       }).catch(error => {
@@ -108,8 +103,8 @@ class MonthlyPlaylists extends Component {
     this.setState({
       loadingInterval: setInterval(() => {
         this.setState({
-          loadingProgress: SpotifyAPIManager.getLoadingProgress(),
-          loadingTotal: SpotifyAPIManager.getLoadingTotal()
+          loadingProgress: SpotifyPlaylistManager.getLoadingProgress(),
+          loadingTotal: SpotifyPlaylistManager.getLoadingTotal()
         });
       }, 1000)
     });
@@ -121,11 +116,6 @@ class MonthlyPlaylists extends Component {
       loadingProgress: null,
       loadingTotal: null,
     });
-  }
-
-  compareIsDiff(i, j) {
-    return this.state.playlist1 &&
-      this.getPlaylistFromStateVar(i, j) !== this.state.playlist1;
   }
 
   /**
@@ -244,7 +234,7 @@ class MonthlyPlaylists extends Component {
 
   render() {
     const { classes } = this.props;
-    const accessToken = SpotifyAPIManager.getAccessToken();
+    const accessToken = SpotifyPlaylistManager.getAccessToken();
 
     // Go back to Home screen to fetch the Spotify access token.
     if (this.state) {

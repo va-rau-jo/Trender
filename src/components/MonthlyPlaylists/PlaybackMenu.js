@@ -1,58 +1,154 @@
 import React, { Component } from 'react';
 import {
-  Dialog,
-  DialogContent,
   Typography,
   withStyles
 } from '@material-ui/core';
-import CloseIcon from '@mui/icons-material/Close';
-import { IconButton, Slider, VolumeDown, VolumeUp } from '@mui/material';
+import { Slider } from '@mui/material';
 
-import { verifyImageUrl } from '../../utils/helpers';
 import { SHARED_STYLES } from '../../utils/sharedStyles';
-import SpotifyAPIManager from '../../utils/Spotify/SpotifyAPIManager';
 
 const styles = () => ({
+  buttonContainer: {
+    alignItems: 'flex-start',
+    display: 'flex',
+    justifyContent: 'space-between',
+    margin: '0.5vh 0',
+    width: '100%'
+  },
+  container: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+  },
   playButton: {
-    borderRadius: '5vw',
+    borderRadius: SHARED_STYLES.BORDER_RADIUS_CIRCLE,
     cursor: 'pointer',
-    padding: '0.5vw',
+    padding: '0.3vw',
     width: '3vh',
     '&:hover': {
-      backgroundColor: '#dedede'
+      backgroundColor: SHARED_STYLES.BUTTON_HOVER_COLOR
     },
+  },
+  playButtonContainer: {
+    display: 'inline-flex'
   },
   playDiv: {
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'column',
   },
+  sliderContainer: {
+    width: '95%'
+  },
+  timeLabel: {
+    color: '#333333',
+    fontSize: SHARED_STYLES.FONT_SIZE_SMALL,
+  },
+  volumeContainer: {
+    alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'center',
+    width: '100%'
+  },
+  volumeIcon: {
+    height: '2.5vh',
+  },
   volumeSlider: {
-    height: '3vh'
+    display: 'flex',
+    alignItems: 'center',
+    padding: '0 0.5vw',
+    width: '40%'
   }
 });
 
+const overrides = {
+  progressSlider: {
+    height: 3,
+    padding: '0.5vh 0 0 0',
+    '& .MuiSlider-thumb': {
+      height: 8,
+      width: 8,
+    },
+    // Fix clipping issue
+    '& .MuiSlider-thumb:after': {
+      content: 'none'
+    },
+    '& .MuiSlider-thumb:before': {
+      content: 'none'
+    },
+    '& .MuiSlider-rail': {
+      opacity: 0.28,
+    },
+  },
+  volumeSlider: {
+    color: '#111111',
+    height: 2,
+    padding: 0,
+    '& .MuiSlider-thumb': {
+      height: 7,
+      width: 7,
+    },
+    // Fix clipping issue
+    '& .MuiSlider-thumb:after': {
+      content: 'none'
+    },
+    '& .MuiSlider-thumb:before': {
+      content: 'none'
+    },
+    '& .MuiSlider-rail': {
+      opacity: 0.28,
+    },
+  },
+};
 
 class PlaybackMenu extends Component {
+  getTimeLabel = (progress, duration) => {
+    const time = duration * (progress / 100);
+    const min = Math.floor(parseFloat(time) / 60);
+    const seconds = Math.round(parseFloat(time) % 60);
+    return min + ':' + (seconds + '').padStart(2, '0');
+  }
 
-  onVolumeChange = (event) => {
-    this.onVolumeChange(event, document.getElementById('volume').value);
+  getProgressBarValue = (progress) => {
+    return progress / this.props.song.duration * 100;
   }
 
   render() {
-    const { classes, playTrack, pauseTrack, resumeTrack, songStarted, songPaused, volume } = this.props;
+    const { classes, onProgressChange, onVolumeChange, playSong, songPaused, 
+      songProgress, songStarted, toggleSong, song, volume } = this.props;
 
     return (
-      <div>
-        {!songStarted ? 
-            <img className={classes.playButton} src={'images/play.png'} onClick={playTrack} /> :
-          songStarted && !songPaused ? 
-            <img className={classes.playButton} src={'images/pause.png'} onClick={pauseTrack} /> : 
-          songStarted && songPaused ? 
-            <img className={classes.playButton} src={'images/play.png'} onClick={resumeTrack} /> : 
-          null}
-        <Slider id='volume' value={volume} onChange={e => this.onVolumeChange(e)} />
+      <div className={classes.container}>
+        <div className={classes.sliderContainer}>
+          <Slider sx={overrides.progressSlider} value={this.getProgressBarValue(songProgress)} onChange={onProgressChange} />
+        </div>
+        <div className={classes.buttonContainer}>
+          <Typography className={classes.timeLabel} variant='body2'>
+            {this.getTimeLabel(this.getProgressBarValue(songProgress ?? 0), song.duration)}
+          </Typography>
 
+          <div className={classes.playButtonContainer}>
+            {!songStarted ? 
+              <img className={classes.playButton} src={'images/play.png'} onClick={playSong} /> :
+            songStarted && !songPaused ? 
+              <img className={classes.playButton} src={'images/pause.png'} onClick={toggleSong} /> : 
+            songStarted && songPaused ? 
+              <img className={classes.playButton} src={'images/play.png'} onClick={toggleSong} /> : 
+            null}
+          </div>
+
+          <Typography className={classes.timeLabel} variant='body2'>
+            {this.getTimeLabel(100, song.duration)}            
+          </Typography>
+        </div>
+        <div className={classes.volumeContainer}>
+          <img className={classes.volumeIcon} src={'images/volume_down.png'} />
+          <div className={classes.volumeSlider}>
+            <Slider sx={overrides.volumeSlider} value={volume * 100} onChange={onVolumeChange} />
+          </div>
+          <img className={classes.volumeIcon} src={'images/volume_up.png'} />
+        </div>
       </div>
     );
   }

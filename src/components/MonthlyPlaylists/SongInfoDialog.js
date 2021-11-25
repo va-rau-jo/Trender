@@ -5,43 +5,34 @@ import {
   Typography,
   withStyles
 } from '@material-ui/core';
-import CloseIcon from '@mui/icons-material/Close';
-import { IconButton, Slider, VolumeDown, VolumeUp } from '@mui/material';
 
 import { verifyImageUrl } from '../../utils/helpers';
 import { SHARED_STYLES } from '../../utils/sharedStyles';
-import SpotifyAPIManager from '../../utils/Spotify/SpotifyAPIManager';
+import SpotifyPlaylistManager from '../../utils/Spotify/SpotifyPlaylistManager';
 import PlaybackMenu from './PlaybackMenu';
+import SpotifyPlaybackManager from '../../utils/Spotify/SpotifyPlaybackManager';
 
-// !important needed to override the CloseIcon and IconButton styling
 const styles = () => ({
   contentHeader: {
-    // border: '1px solid red',
     display: 'flex',
   },
   closeButton: {
-    padding: '0.5vh 0.1vw !important',
-    position: 'absolute !important',
-    right: '0',
+    borderRadius: SHARED_STYLES.BORDER_RADIUS_CIRCLE,
+    cursor: 'pointer',
+    height: '3vh',
+    padding: '0.5vh 0.4vw',
+    position: 'absolute',
+    right: '0.5vw',
     top: '0.5vh',
-  },
-  closeButtonSvg: {
-    height: '3vh !important',
+    '&:hover': {
+      backgroundColor: SHARED_STYLES.BUTTON_HOVER_COLOR
+    },
   },
   ellipsisText: {
     margin: SHARED_STYLES.OVERLAY_TEXT_MARGIN,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-  },
-  playButton: {
-    borderRadius: '5vw',
-    cursor: 'pointer',
-    padding: '0.5vw',
-    width: '3vh',
-    '&:hover': {
-      backgroundColor: '#dedede'
-    },
   },
   playDiv: {
     alignItems: 'center',
@@ -65,7 +56,7 @@ const styles = () => ({
   },
   songImage: {
     borderRadius: '1vh',
-    height: '18vh',
+    height: '15vh',
   },
   songInfo: {
     display: 'flex',    
@@ -100,8 +91,6 @@ const styles = () => ({
   }
 });
 
-const PLAYER_BASE_URL = 'https://api.spotify.com/v1/me/player/';
-
 class SongInfoDialog extends Component {
   constructor(props) {
     super(props);
@@ -112,12 +101,12 @@ class SongInfoDialog extends Component {
 
     window.onSpotifyWebPlaybackSDKReady = () => {
       const player = new window.Spotify.Player({
-          name: 'Trender Spotify Player',
-          getOAuthToken: cb => { cb(SpotifyAPIManager.getAccessToken()); }
+        name: 'Trender Spotify Player',
+        getOAuthToken: cb => { cb(SpotifyPlaylistManager.getAccessToken()); },
+        volume: 0.25
       });
 
-      // player.addListener('player_state_changed', () => {console.log('player state changed')});
-      this.state = {spotifyPlayer: player, volume: 50};
+      this.setState({spotifyPlayer: player, volume: 0.25});
       this.connectToPlayer();
     }
 
@@ -129,10 +118,11 @@ class SongInfoDialog extends Component {
         clearTimeout(this.connectToPlayerTimeout);
         this.state.spotifyPlayer.addListener('ready', ({device_id}) => {
           this.setState({
-              loadingState: 'spotify player ready',
-              spotifyDeviceId: device_id,
-              spotifyPlayerReady: true
+            loadingState: 'spotify player ready',
+            spotifyDeviceId: device_id,
+            spotifyPlayerReady: true
           });
+          SpotifyPlaybackManager.setDeviceId(device_id);
         });
 
         this.state.spotifyPlayer.addListener('not_ready', ({device_id}) => {
@@ -148,71 +138,46 @@ class SongInfoDialog extends Component {
     }
   }
 
-  playTrack = () => {
-    fetch(PLAYER_BASE_URL + 'play?device_id=' + this.state.spotifyDeviceId, {
-      method: 'PUT',
-      body: JSON.stringify({uris: [this.props.song.uri]}),
-      headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${SpotifyAPIManager.getAccessToken()}`
-      }
-    }).then(async res => {
-        console.log(res);
+  playSong = () => {
+    SpotifyPlaybackManager.playSong(this.props.song.uri)
+      .then(async res => {
         if (res.status === 403) {
           this.setState({ error: 'Spotify Premium is required to play songs' });
         } else {
           this.setState({
             songPaused: false,
+            songProgress: !this.state.songProgress ? 0 : this.state.songProgress,
             songStarted: true,
           });
-          console.log('Started playback', this.state);
+          this.startProgressInterval();
+          console.log('Started playback');
         }
     }).catch((error) => {
         this.setState({loadingState: 'playback error: ' + error});
     })
   };
 
-  resumeTrack = () => {
-    if (this.state.songStarted && this.state.songPaused) {
-      fetch(PLAYER_BASE_URL + 'play?device_id=' + this.state.spotifyDeviceId, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${SpotifyAPIManager.getAccessToken()}`
-        },
-      }).then((ev) => {
-        this.setState({songPaused: false});
-      });
-      console.log("Started playback", this.state);
-    }
+  startProgressInterval = () => {
+    this.setState({ songProgressInterval: setInterval(() => {
+      this.state.spotifyPlayer.getCurrentState().then(res => {
+        this.setState({ songProgress: res.position / 1000 });
+      })
+    }, 1000)})
   }
 
-  pauseTrack = () => {
-    if (!this.state.songPaused) {
-      fetch(PLAYER_BASE_URL + 'pause?device_id=' + this.state.spotifyDeviceId, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${SpotifyAPIManager.getAccessToken()}`
-          },
-      }).then((ev) => {
-        this.setState({songPaused: true});
-      });
-    }
+  stopProgressInterval = () => {
+    clearInterval(this.state.songProgressInterval);
   }
 
-  spotifySDKCallback = () => {
-    window.onSpotifyWebPlaybackSDKReady = () => {
-      console.log(window);
-      console.log(window.Spotify);            
-      // const token = '[My Spotify Web API access token]';
-      const player = new window.Spotify.Player({
-          name: 'Spotify Demo Player',
-          getOAuthToken: cb => { cb(SpotifyAPIManager.getAccessToken()); }
-      });
-
-      player.addListener('player_state_changed', () => {console.log('player state changed')});
-      this.setState({spotifyPlayer: player});
+  toggleSong = () => {
+    if (this.state.songStarted) {
+      if (this.state.songPaused) {
+        this.startProgressInterval();
+      } else {
+        this.stopProgressInterval();
+      }
+      this.state.spotifyPlayer.togglePlay();
+      this.setState({songPaused: !this.state.songPaused});
     }
   }
 
@@ -221,10 +186,20 @@ class SongInfoDialog extends Component {
     this.props.onClose();
   }
 
-  onVolumeChange = (event, volume) => {
+  onProgressChange = (_, progress) => {
+    progress = this.props.song.duration * (progress / 100);
+    if (progress !== this.state.progress) {
+      this.setState({songProgress: progress});
+      console.log("seeking");
+      this.state.spotifyPlayer.seek(progress * 1000);
+    }
+  }
+
+  onVolumeChange = (_, volume) => {
+    volume = volume / 100; // Spotify volume is 0-1
     if (volume !== this.state.volume) {
       this.setState({volume: volume});
-      console.log('volume: ' + volume);
+      this.state.spotifyPlayer.setVolume(volume);
     }
   }
 
@@ -235,14 +210,13 @@ class SongInfoDialog extends Component {
       return null;
     }
 
-    console.log(song);
+    console.log(this.state);
+
     return (
         <Dialog className={classes.dialog} open={true} onClose={this.onClose} 
           PaperProps={{ style: { minWidth: '35vw' } }}>
           <DialogContent>
-            <IconButton className={classes.closeButton} aria-label='close' onClick={this.onClose}>
-              <CloseIcon className={classes.closeButtonSvg} />
-            </IconButton>
+           <img className={classes.closeButton} src={'images/close.png'} onClick={this.onClose} />
             <div className={classes.contentHeader}>
               <img className={classes.songImage} src={verifyImageUrl(song)} alt={song.name}/>
               <div className={classes.songDescription}>
@@ -252,19 +226,19 @@ class SongInfoDialog extends Component {
                 <Typography className={[classes.songArtist, classes.ellipsisText].join(' ')} variant='h2'>
                   {song.artist}
                 </Typography>
-                <div className={classes.playDiv}>
-                  <Typography className={classes.playLabel} variant='body1'>
-                    Play Sample
-                  </Typography>
-                  <PlaybackMenu 
-                    playTrack={this.playTrack}
-                    pauseTrack={this.pauseTrack}
-                    resumeTrack={this.resumeTrack}
-                    songStarted={this.state.songStarted}
-                    songPaused={this.state.songPaused}
-                    onVolumeChange={this.onVolumeChange} />
-                </div>
               </div>
+            </div>
+            <div className={classes.playDiv}>
+              <PlaybackMenu 
+                onProgressChange={this.onProgressChange}
+                onVolumeChange={this.onVolumeChange}
+                playSong={this.playSong}
+                songPaused={this.state.songPaused}
+                songProgress={this.state.songProgress ?? 0}
+                songStarted={this.state.songStarted}
+                toggleSong={this.toggleSong}
+                song={song}
+                volume={this.state.volume ?? 0}/>
             </div>
             <div className={classes.timespanDescription}>
               <div className={classes.timespanSection}>

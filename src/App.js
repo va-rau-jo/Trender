@@ -7,7 +7,7 @@ import Home from './pages/Home';
 import LoadingIndicator from './components/LoadingIndicator';
 import Manager from './pages/Manager';
 import MonthlyPlaylists from './pages/MonthyPlaylists';
-import SpotifyAPIManager from './utils/Spotify/SpotifyAPIManager';
+import SpotifyPlaylistManager from './utils/Spotify/SpotifyPlaylistManager';
 
 import './App.css';
 
@@ -20,7 +20,7 @@ class App extends Component {
     };
 
     if (accessToken) {
-      SpotifyAPIManager.setAccessToken(accessToken);
+      SpotifyPlaylistManager.setAccessToken(accessToken);
     }
   }
 

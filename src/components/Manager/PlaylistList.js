@@ -80,8 +80,8 @@ const styles = () => ({
     padding: '0.2vh 0.2vw !important',
   },
   selectedListItem: {
-    backgroundColor: '#ff2d52',
-    border: '0.75vh solid #ff2d52',
+    backgroundColor: SHARED_STYLES.SELECT_BORDER_COLOR,
+    border: '0.75vh solid ' + SHARED_STYLES.SELECT_BORDER_COLOR,
     borderRadius: '2vh'
   },
 });
