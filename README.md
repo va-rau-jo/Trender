@@ -16,11 +16,10 @@ By default, the client runs on localhost:3000, and redirects to the server to re
 2. Install github pages -> `npm install --save gh-pages`
 3. Set the `predeploy` and `deploy` fiels in package.json
  - ```"scripts": {
-"predeploy": "npm run build",
-"deploy": "gh-pages deploy -d build",
-"start": "react-scripts start",
-"build": "react-scripts build",
-```
+   "predeploy": "npm run build",
+   "deploy": "gh-pages deploy -d build",
+   "start": "react-scripts start",
+   "build": "react-scripts build",```
   - I've set the deploy branch to be `deploy` as it will override the contents of your master branch if you use master
   
 4. Deploy the site with `npm run deploy`
