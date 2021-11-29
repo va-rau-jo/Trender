@@ -2,7 +2,7 @@
 Shows monthly trends on Spotify when using monthly playlists
 
 # Development
-Instructions on setting up the Trender Server can be found (here)[https://github.com/va-rau-jo/Trender-Server].
+Instructions on setting up the Trender Server can be found [here](https://github.com/va-rau-jo/Trender-Server).
 
 Assuming you have the Trender Server correctly set up, navigate to this folder and run:
 
