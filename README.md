@@ -12,7 +12,21 @@ By default, the client runs on localhost:3000, and redirects to the server to re
 
 # Deployment
 
+## Heroku
+
+On the command line:
+
+~~~
+heroku login
+
+git push heroku master
+~~~
+
+
+
 ## Using Github Pages
+
+Github pages has weird problems with the BrowserRouter that I used to handle navigation on this React app. [This](https://github.com/rafgraph/spa-github-pages) supposedly solves the problem, but I couldn't get it to work.
 
 1. Set the homepage variable in `package.json` -> "homepage": "https://myusername.github.io/my-app"
 2. Install github pages -> `npm install --save gh-pages`
@@ -27,7 +41,5 @@ By default, the client runs on localhost:3000, and redirects to the server to re
   - I've set the deploy branch to be `deploy` as it will override the contents of your master branch if you use master
   
 4. Deploy the site with `npm run deploy`
-
-5. 
 
 
