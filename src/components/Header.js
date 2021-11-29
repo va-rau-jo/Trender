@@ -49,8 +49,8 @@ class Header extends Component {
     return (
       <div className={classes.container}>
         <div className={classes.tabs}>
-          <a href='/login' className={classes.logoLink}>
-            <div className={classes.logoDiv} onClick={() => window.location.replace('/')}>
+          <a href='/' className={classes.logoLink}>
+            <div className={classes.logoDiv}>
               <img className={classes.logo} src={imageLogo} alt='Trender logo' />
               <Typography className={classes.title} variant='h4'>
                 Trender

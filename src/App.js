@@ -32,8 +32,8 @@ class App extends Component {
           <Switch> any time you have multiple routes, but you want only one of
             them to render at a time */}
           <Routes>
-            <Route exact path='/'  element={<Home />} />
-            <Route path='/login'   element={<Login />} />
+            <Route exact path='/'  element={<Login />} />
+            <Route path='/home'   element={<Home />} />
             <Route path='/monthly' element={<MonthlyPlaylists />} />
             <Route path='/manager' element={<Manager />} />
             <Route>
