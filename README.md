@@ -14,14 +14,11 @@ By default, the client runs on localhost:3000, and redirects to the server to re
 
 ## Heroku
 
-On the command line:
+Deployment for both Trender and Trender-Server was done by connecting my GitHub master branch to the Heroku app.
 
-~~~
-heroku login
+Image URLs had to be updated to imports for Heroku to find them.
 
-git push heroku master
-~~~
-
+I also used [Kaffeine](http://kaffeine.herokuapp.com/) to ping both apps so they don't fall asleep.
 
 
 ## Using Github Pages
