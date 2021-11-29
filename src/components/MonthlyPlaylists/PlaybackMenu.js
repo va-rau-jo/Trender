@@ -7,6 +7,11 @@ import { Slider } from '@mui/material';
 
 import { SHARED_STYLES } from '../../utils/sharedStyles';
 
+import imagePause from '../../images/pause.png';
+import imagePlay from '../../images/play.png';
+import imageVolumeDown from '../../images/volume_down.png';
+import imageVolumeUp from '../../images/volume_up.png';
+
 const styles = () => ({
   buttonContainer: {
     alignItems: 'flex-start',
@@ -152,11 +157,11 @@ class PlaybackMenu extends Component {
 
           <div className={classes.playButtonContainer}>
             {!songStarted ? 
-              <img alt='play' className={classes.playButton} src={'images/play.png'} onClick={playSong} /> :
+              <img alt='play' className={classes.playButton} src={imagePlay} onClick={playSong} /> :
             songStarted && !songPaused ? 
-              <img alt='pause' className={classes.playButton} src={'images/pause.png'} onClick={toggleSong} /> : 
+              <img alt='pause' className={classes.playButton} src={imagePause} onClick={toggleSong} /> : 
             songStarted && songPaused ? 
-              <img alt='resume' className={classes.playButton} src={'images/play.png'} onClick={toggleSong} /> : 
+              <img alt='resume' className={classes.playButton} src={imagePlay} onClick={toggleSong} /> : 
             null}
           </div>
 
@@ -165,11 +170,11 @@ class PlaybackMenu extends Component {
           </Typography>
         </div>
         <div className={classes.volumeContainer}>
-          <img alt='volume down' className={classes.volumeIcon} src={'images/volume_down.png'} />
+          <img alt='volume down' className={classes.volumeIcon} src={imageVolumeDown} />
           <div className={classes.volumeSlider}>
             <Slider sx={overrides.volumeSlider} value={volume * 100} onChange={onVolumeChange} />
           </div>
-          <img alt='volume up' className={classes.volumeIcon} src={'images/volume_up.png'} />
+          <img alt='volume up' className={classes.volumeIcon} src={imageVolumeUp} />
         </div>
       </div>
     );

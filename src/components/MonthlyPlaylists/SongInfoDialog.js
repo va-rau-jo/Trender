@@ -12,6 +12,8 @@ import SpotifyPlaylistManager from '../../utils/Spotify/SpotifyPlaylistManager';
 import PlaybackMenu from './PlaybackMenu';
 import SpotifyPlaybackManager from '../../utils/Spotify/SpotifyPlaybackManager';
 
+import imageClose from '../../images/close.png';
+
 const styles = () => ({
   analysisDiv: {
     backgroundColor: '#EEEEEE',
@@ -270,7 +272,7 @@ class SongInfoDialog extends Component {
         <Dialog open={true} onClose={this.onClose} 
           PaperProps={{ style: { maxWidth: '60vw', minWidth: '35vw' } }}>
           <DialogContent className={classes.dialogContent}>
-            <img alt='close' className={classes.closeButton} src={'images/close.png'} onClick={this.onClose} />
+            <img alt='close' className={classes.closeButton} src={imageClose} onClick={this.onClose} />
             <div className={classes.contentHeader}>
               <img className={classes.songImage} src={verifyImageUrl(song)} alt={song.name}/>
               <div className={classes.songDescription}>

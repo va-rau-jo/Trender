@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react';
 import { Typography, withStyles } from '@material-ui/core';
-import { url } from 'inspector';
+import imageLogo from '../images/logo.png';
 
 const styles = () => ({
   container: {
@@ -51,7 +51,7 @@ class Header extends Component {
         <div className={classes.tabs}>
           <a href='/login' className={classes.logoLink}>
             <div className={classes.logoDiv} onClick={() => window.location.replace('/')}>
-              <img className={classes.logo} src={url('./images/logo.png')} alt='Trender logo' />
+              <img className={classes.logo} src={imageLogo} alt='Trender logo' />
               <Typography className={classes.title} variant='h4'>
                 Trender
               </Typography>

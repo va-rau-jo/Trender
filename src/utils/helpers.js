@@ -1,3 +1,4 @@
+import soundfile from '../images/sound_file_white.png'
 
 // Regex matches playlist names that match exactly the months of the year.
 // const EXACT_MONTH_MATCH = /\b(January|February|March|April|May|June|July|August|September|October|November|December)\b/;
@@ -102,5 +103,5 @@ export function isSongNew(song, songList) {
  * @returns {string} Either the song's image url or the default song url.
  */
 export function verifyImageUrl(obj) {
-  return (obj && obj.image) ? obj.image.url : '/images/sound_file_white.png';
+  return (obj && obj.image) ? obj.image.url : soundfile;
 }

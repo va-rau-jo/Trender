@@ -8,6 +8,8 @@ import {
 } from '@material-ui/core';
 import { SHARED_STYLES } from '../../utils/sharedStyles';
 
+import imageSoundFile from '../../images/sound_file_white.png';
+
 const styles = () => ({
   ellipsisText: {
     margin: SHARED_STYLES.OVERLAY_TEXT_MARGIN,
@@ -94,8 +96,8 @@ class PlaylistList extends Component {
     const { classes, playlists, selectedIndices, togglePlaylist, visibleIndices } = this.props;
     return (
       <ImageList className={classes.playlistList}>
-        <ImageListItem cols={2} className={classes.playlistListItemHeader} key="Subheader">
-          <ListSubheader className={classes.playlistListItemHeader} component="div">
+        <ImageListItem cols={2} className={classes.playlistListItemHeader} key='Subheader'>
+          <ListSubheader className={classes.playlistListItemHeader} component='div'>
               Playlists
           </ListSubheader>
         </ImageListItem>
@@ -111,8 +113,8 @@ class PlaylistList extends Component {
           return (
             <div key={i} onClick={() => { togglePlaylist(i) }}
               className={classes.playlistListItem + ' ' + (selected ? classes.selectedListItem : '')}>
-              <img className={classes.playlistListImage} alt="Playlist"
-                src={playlist.images[0] ? playlist.images[0].url : "/images/sound_file_white.png"} />
+              <img className={classes.playlistListImage} alt='Playlist'
+                src={playlist.images[0] ? playlist.images[0].url : imageSoundFile } />
               {selected ?
                 <div className={classes.listItemIndexDiv}>
                   <Typography className={classes.listItemIndex} variant='h6'>

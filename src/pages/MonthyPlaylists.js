@@ -3,12 +3,15 @@ import { Paper, Typography, withStyles } from '@material-ui/core';
 import Divider from '@material-ui/core/Divider';
 
 import LoadingIndicator from '../components/LoadingIndicator';
+import Login from './Login';
 import ProgressIndicator from '../components/ProgressIndicator';
 import { SHARED_STYLES } from '../utils/sharedStyles';
 import SpotifyPlaylistManager from '../utils/Spotify/SpotifyPlaylistManager';
 import Summary from '../components/MonthlyPlaylists/Summary';
 import SongInfoDialog from '../components/MonthlyPlaylists/SongInfoDialog';
-import Login from './Login';
+
+import imagePlus from '../images/plus.png';
+import imageSubtract from '../images/subtract.png';
 
 /**
  * This is preferred over using an external css file for styling because React
@@ -339,7 +342,7 @@ class MonthlyPlaylists extends Component {
                             (selectedPlaylist1 ? classes.selectedPrimaryItem :
                               selectedPlaylist2 ? classes.selectedSecondaryItem : null)].join(' ');
 
-                          const imagePath = selected ? '/images/subtract.png' : '/images/plus.png';
+                          const imagePath = selected ? imageSubtract : imagePlus;
                           const btnClass = !selected ? classes.compareBtn :
                             [classes.compareBtn, classes.compareBtnSelected].join(' ');
 

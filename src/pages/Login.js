@@ -4,6 +4,7 @@ import {
   Paper,
   Typography,  withStyles } from '@material-ui/core';
 import { SHARED_STYLES } from '../utils/sharedStyles';
+import imageSpotify from '../images/spotify_white.png';
 
 const styles = () => ({
   button: {
@@ -95,7 +96,7 @@ class Login extends Component {
     return (
       <div className={classes.flex}>
         <Button className={classes.button} variant='contained' onClick={() => window.location.replace(redirect) }>
-          <img className={classes.spotifyIcon} src='images/spotify_white.png' alt='spotify' />
+          <img className={classes.spotifyIcon} src={imageSpotify} alt='spotify' />
           <Typography className={classes.buttonText} variant='h6'>
             Login with Spotify
           </Typography>
