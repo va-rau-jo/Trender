@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Typography, withStyles } from '@material-ui/core';
+import { Paper, Typography, withStyles } from '@material-ui/core';
 import Divider from '@material-ui/core/Divider';
 
 import LoadingIndicator from '../components/LoadingIndicator';
@@ -8,6 +8,7 @@ import { SHARED_STYLES } from '../utils/sharedStyles';
 import SpotifyPlaylistManager from '../utils/Spotify/SpotifyPlaylistManager';
 import Summary from '../components/MonthlyPlaylists/Summary';
 import SongInfoDialog from '../components/MonthlyPlaylists/SongInfoDialog';
+import Login from './Login';
 
 /**
  * This is preferred over using an external css file for styling because React
@@ -45,6 +46,13 @@ const styles = () => ({
     display: 'flex',
     height: SHARED_STYLES.PAGE_HEIGHT,
   },
+  flexVertical: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    justifyContent: 'center',
+  },
   monthList: {
     alignItems: 'center',
     display: 'flex',
@@ -60,6 +68,16 @@ const styles = () => ({
   },
   monthName: {
     fontSize: SHARED_STYLES.FONT_SIZE_LARGE,
+  },
+  noPlaylistsMessageDiv: {
+    borderRadius: SHARED_STYLES.BORDER_RADIUS,
+    boxShadow: SHARED_STYLES.BOX_SHADOW_SCALED,
+    display: 'flex',
+    justifyContent: 'center',
+    padding: '2vh 2vw',
+  },
+  noPlaylistsMessage: {
+    fontSize: SHARED_STYLES.FONT_SIZE_HEADER,
   },
   selectedPrimaryItem: {
     backgroundColor: '#759fff',
@@ -93,7 +111,6 @@ class MonthlyPlaylists extends Component {
         this.groupPlaylistsByYear(data['playlists'], data['songs']);
         this.clearLoadingInterval();
       }).catch(error => {
-        console.log(error);
         this.setState({ error });
       });
     }
@@ -124,23 +141,26 @@ class MonthlyPlaylists extends Component {
    */
   groupPlaylistsByYear(playlists, songs) {
     let years = [];
-    let currentYear = null;
-    if (!songs) {
-      currentYear = new Date().getFullYear();
-      years.push([currentYear, []]);
-      playlists.forEach(playlist => { years[0][1].push([playlist, []]) })
-    } else {
+    let defaultYear = new Date().getFullYear();
+    if (playlists.length > 0) {
+      let currentYear = null;
       playlists.forEach((playlist, i) => {
         if (songs[i].length > 0) {
           const added = songs[i][Math.floor(songs[i].length / 2)].added_at;
           const year = new Date(added).getFullYear();
-          // Add the first playlist to its own list or add a later year's playlist
-          // to a new list.
+          // Add the first playlist to its own list or add a 
+          // later year's playlist to a new list.
           if (years.length === 0 || year !== currentYear) {
             years.push([year, [[playlist, songs[i]]]]);
             currentYear = year;
           } else {
             years[years.length - 1][1].push([playlist, songs[i]]);
+          }
+        } else {
+          currentYear = defaultYear;
+          if (years[0] !== currentYear) {
+            years.unshift([currentYear, []]);
+            years[0][1].push([playlist, []]);
           }
         }
       });
@@ -198,9 +218,9 @@ class MonthlyPlaylists extends Component {
           removed = false;
         }
 
-        // Current song cannot be found and previous song is defined, so we found the
-        // earliest added date.
-        if ((!removed || removed && removedDate) && prevSong && !currSong) { 
+        // Current song cannot be found and previous song is defined,
+        // so we found the earliest added date.
+        if (!(removed && !(removed && removedDate)) && prevSong && !currSong) { 
           return {'added': prevSong.added_at, 'removed': removedDate};
         } else if (i === playlists.length - 1 && j === playlists[i][1].length - 1 && currSong) {
           return {'added': currSong.added_at, 'removed': removedDate};
@@ -282,79 +302,89 @@ class MonthlyPlaylists extends Component {
   render() {
     const { classes } = this.props;
 
-    // Go back to Home screen to fetch the Spotify access token.
-    if (this.state) {
-      const { error, loadingProgress, loadingTotal, playlists, playlist1, playlist2, songs1, songs2,
-        songDialogOpen, songDialogSong, songFirstAdded, songRemoved } = this.state;
-      
-      if (!SpotifyPlaylistManager.getAccessToken()) {
-        window.location.replace('/');
-      } else if (error) {
-        // TODO: have a better error when fetches fail.
-        return (<div> retry ? </div>);
-      } else if (loadingProgress || !playlists) {
-        return <ProgressIndicator progress={loadingProgress} total={loadingTotal} />;
-      } else if (playlists) {
-        const playlist1Id = playlist1 ? playlist1.id : undefined;
-        const playlist2Id = playlist2 ? playlist2.id : undefined;
+    if (!this.state) {
+      return <LoadingIndicator />;
+    }
 
-        return (
-          <div className={classes.flex}>
+    const { error, loadingProgress, loadingTotal, playlists, playlist1, playlist2, songs1, songs2,
+      songDialogOpen, songDialogSong, songFirstAdded, songRemoved } = this.state;
+    
+    if (!SpotifyPlaylistManager.getAccessToken() || error) {      
+      return <Login />
+    } else if (loadingProgress || !playlists) {
+      return <ProgressIndicator progress={loadingProgress} total={loadingTotal} />;
+    } else if (playlists) {
+      const playlist1Id = playlist1 ? playlist1.id : undefined;
+      const playlist2Id = playlist2 ? playlist2.id : undefined;
+
+      return (
+        <div className={classes.flex}>
+          {playlists.length === 0 ? null : 
             <div className={classes.drawer}>
               {/* Year list contains ['year', [[playlist1, songs1]... ] */}
               {playlists.map((yearList, i) => (
-                <div key={i}>
-                  {i !== 0 ? <Divider /> : null}
-                  <ul className={classes.yearGroup}>
-                    <Typography variant='h6' className={classes.yearLabel}>
-                      {yearList[0]}
-                    </Typography>
-                    <div className={classes.monthList}>
-                      {yearList[1].map((playlistGroup, j) => {
-                        const selectedPlaylist1 = playlistGroup[0].id === playlist1Id;
-                        const selectedPlaylist2 = playlistGroup[0].id === playlist2Id;
-                        const selected = selectedPlaylist1 || selectedPlaylist2;
+                  <div key={i}>
+                    {i !== 0 ? <Divider /> : null}
+                    <ul className={classes.yearGroup}>
+                      <Typography variant='h6' className={classes.yearLabel}>
+                        {yearList[0]}
+                      </Typography>
+                      <div className={classes.monthList}>
+                        {yearList[1].map((playlistGroup, j) => {
+                          const selectedPlaylist1 = playlistGroup[0].id === playlist1Id;
+                          const selectedPlaylist2 = playlistGroup[0].id === playlist2Id;
+                          const selected = selectedPlaylist1 || selectedPlaylist2;
 
-                        const liClass = [classes.monthListItem,
-                          (selectedPlaylist1 ? classes.selectedPrimaryItem :
-                            selectedPlaylist2 ? classes.selectedSecondaryItem : null)].join(' ');
+                          const liClass = [classes.monthListItem,
+                            (selectedPlaylist1 ? classes.selectedPrimaryItem :
+                              selectedPlaylist2 ? classes.selectedSecondaryItem : null)].join(' ');
 
-                        const imagePath = selected ? '/images/subtract.png' : '/images/plus.png';
-                        const btnClass = !selected ? classes.compareBtn :
-                          [classes.compareBtn, classes.compareBtnSelected].join(' ');
+                          const imagePath = selected ? '/images/subtract.png' : '/images/plus.png';
+                          const btnClass = !selected ? classes.compareBtn :
+                            [classes.compareBtn, classes.compareBtnSelected].join(' ');
 
-                        return (
-                          <li key={j} className={liClass}>
-                            <Typography className={classes.monthName} variant='body1'>
-                              {playlistGroup[0].name}
-                            </Typography>
-                            {!selected && playlist1 && playlist2 ? null :
-                              <img className={btnClass} src={imagePath} alt='compare'
-                                onClick={() => { this.updateMonth(i, j) }} />
-                            }
-                          </li>
-                        );
-                      })}
-                    </div>
-                  </ul>
-                </div>
+                          return (
+                            <li key={j} className={liClass}>
+                              <Typography className={classes.monthName} variant='body1'>
+                                {playlistGroup[0].name}
+                              </Typography>
+                              {!selected && playlist1 && playlist2 ? null :
+                                <img className={btnClass} src={imagePath} alt='compare'
+                                  onClick={() => { this.updateMonth(i, j) }} />
+                              }
+                            </li>
+                          );
+                        })}
+                      </div>
+                    </ul>
+                  </div>
               ))}
             </div>
-            <div className={classes.summary}>
+          }
+          <div className={classes.summary}>
+            {songs1 ? 
               <SongInfoDialog isOpen={songDialogOpen} song={songDialogSong}
                 songFirstAdded={songFirstAdded} songRemoved={songRemoved} 
-                onClose={() => {this.setState({songDialogOpen: false})}} />
+                onClose={() => {this.setState({songDialogOpen: false})}} /> 
+              : null}
+            {playlists.length === 0 ? 
+              <div className={classes.flexVertical}>
+                <Paper className={classes.noPlaylistsMessageDiv} elevation={3}>
+                  <Typography className={classes.noPlaylistsMessage} varaint='h2'> 
+                    Try creating a new playlist with a month name!
+                  </Typography>
+                </Paper> 
+              </div>: 
               <Summary
                 openSongInfoDialog={this.openSongInfoDialog}
                 playlist1={playlist1}
                 songs1={songs1}
                 songs2={songs2} />
-            </div>
+            }
           </div>
-        );
-      }
+        </div>
+      );
     }
-    return <LoadingIndicator />;
   }
 }
 

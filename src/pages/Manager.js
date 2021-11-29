@@ -13,6 +13,8 @@ import ProgressIndicator from '../components/ProgressIndicator';
 import PlaylistList from '../components/Manager/PlaylistList';
 import { SHARED_STYLES } from '../utils/sharedStyles';
 import SpotifyPlaylistManager from '../utils/Spotify/SpotifyPlaylistManager';
+import Login from './Login';
+import { filterDeletedPlaylists } from '../utils/helpers';
 /**
  * This is preferred over using an external css file for styling because React
  * components that are imported have their own classes that override CSS classes
@@ -47,6 +49,7 @@ const styles = () => ({
   },
   createdPlaylistMessage: {
     color: 'green',
+    fontSize: SHARED_STYLES.FONT_SIZE_XLARGE,
     fontWeight: 'bold',
   },
   createTabPanel: {
@@ -88,7 +91,7 @@ const styles = () => ({
   },
   deletePlaylistTitle: {
     fontSize: SHARED_STYLES.FONT_SIZE_HEADER,
-    margin: '2vh 0',
+    margin: '2vh 0 0.5vh 0',
   },
   deleteTabPanel: {
     display: 'flex',
@@ -154,8 +157,10 @@ const styles = () => ({
     textAlign: 'center',
     width: '75%',
   },
-  nameInput: {
-    marginBottom: '8px',
+  messageError: {
+    color: 'red',
+    fontSize: SHARED_STYLES.FONT_SIZE_XLARGE,
+    fontWeight: 'bold',
   },
   optionsMessage: {
     color: '#666666',
@@ -223,8 +228,7 @@ class Manager extends Component {
     super(props);
 
     if (SpotifyPlaylistManager.getAccessToken()) {
-      // TODO: should be false, true
-      SpotifyPlaylistManager.getPlaylistData(false, false).then(data => {
+      SpotifyPlaylistManager.getPlaylistData(false, true).then(data => {
         this.setState({
           playlists: data['playlists'],
           shouldMakeCollaborative: false,
@@ -241,7 +245,6 @@ class Manager extends Component {
           this.filterPlaylists();
         });
       }).catch(error => {
-        console.log(error);
         this.setState({ error });
       });
     }
@@ -272,14 +275,15 @@ class Manager extends Component {
    */
   createPlaylist = () => {
     // Values set by the user in the options tab
-    const name = document.getElementById('playlistNameInput').value;
+    let name = document.getElementById('playlistNameInput').value;
+    name = name === '' ? 'New Playlist' : name;
     const desc = document.getElementById('playlistDescriptionInput').value;
     const isPublic = this.state.shouldMakePublic;
     const collab = this.state.shouldMakeCollaborative;
     const removeDups = this.state.shouldRemoveDuplicates;
 
-    SpotifyPlaylistManager.createPlaylist(name, desc, isPublic, collab).then(res => {
-      const uris = []
+    SpotifyPlaylistManager.createPlaylist(name, desc, isPublic, collab).then(playlist => {
+      const uris = [];
       this.state.selectedIndices.forEach(i => {
         this.state.songs[i].forEach(song => {
           if (!song.isLocalFile) {
@@ -290,13 +294,22 @@ class Manager extends Component {
           }
         })
       });
+
+      console.log(uris.length);
       if (uris.length > 0) {
-        SpotifyPlaylistManager.addSongsToPlaylist(res.id, uris).then(() => {
-          this.notifyCreatedPlaylist(name, uris.length);
-        })
+        SpotifyPlaylistManager.addSongsToPlaylist(playlist.id, uris).then(() => {
+          SpotifyPlaylistManager.fetchPlaylistById(playlist.id).then(res => {
+            SpotifyPlaylistManager.getSongData([res]).then(songs => {
+              this.notifyCreatedPlaylist(res, songs[0]);
+            });
+          });
+        });       
       } else {
-        this.notifyCreatedPlaylist(name, 0);
+        this.notifyCreatedPlaylist(playlist, []);
       }
+      // Filter so we render the new playlist
+    }).catch(() => {
+      this.notifyError('Could not create playlist');
     });
   }
 
@@ -310,7 +323,7 @@ class Manager extends Component {
       this.setState({deletedPlaylistsLoading: true});
       const indices = this.state.selectedIndices.map(i => this.state.playlists[i].id);
       SpotifyPlaylistManager.deletePlaylists(indices).then(() => {
-        let filteredPlaylists = this.filterDeletedPlaylists(indices, this.state.playlists);
+        let filteredPlaylists = filterDeletedPlaylists(indices, this.state.playlists);
         this.setState({
           playlists: filteredPlaylists,
           selectedIndices: [],
@@ -321,6 +334,10 @@ class Manager extends Component {
         this.filterPlaylists();
         this.setState({deletedPlaylistsLoading: false});
         this.notifyDeletedPlaylists(indices.length);
+      }).catch(e => {
+        console.log(e);
+        this.notifyError('Could not delete playlist(s)');
+        this.setState({deletedPlaylistsLoading: false});
       });
     }
   }
@@ -352,22 +369,49 @@ class Manager extends Component {
 
   /**
    * Displays a message that a playlist was created.
-   * @param {string} playlistName The name of the playlist.
-   * @param {number} songsAdded The number of songs added (also displayed).
+   * @param {JSON} playlist The playlist JSON object 
+   * @param {Array<JSON>} songs Array of JSON song objects
    */
-  notifyCreatedPlaylist = (playlistName, songsAdded) => {
-    this.setState({ createdPlaylistData: [playlistName, songsAdded] });
+  notifyCreatedPlaylist = (playlist, songs) => {
+    this.state.playlists.unshift(playlist);
+    this.state.songs.unshift(songs);
+    
+    this.setState({ 
+      createdPlaylistData: [playlist.name, playlist.tracks.total],
+      selectedIndices: this.state.selectedIndices.map(i => i + 1)
+     });
+
+    this.filterPlaylists();
+
 
     setTimeout(() => {
-      this.setState({ createdPlaylistData: null });
+      this.setState({ createdPlaylistData: undefined });
     }, MESSAGE_TIMEOUT);
   }
 
+  /**
+   * Displays a message that playlist(s) were deleted.
+   * @param {number} playlistsRemoved The number of playlists deleted.
+   */
   notifyDeletedPlaylists = (playlistsRemoved) => {
     this.setState({ deletedPlaylistsCount: playlistsRemoved });
 
     setTimeout(() => {
-      this.setState({ deletedPlaylistsCount: null });
+      this.setState({ deletedPlaylistsCount: undefined });
+    }, MESSAGE_TIMEOUT);
+  }
+
+
+  /**
+   * Displays an error message in the options tab. Only handles create
+   * and delete playlist errors.
+   * @param {string} message The error message to display.
+   */
+  notifyError = (message) => {
+    this.setState({ errorMessage: message });
+
+    setTimeout(() => {
+      this.setState({ errorMessage: undefined });
     }, MESSAGE_TIMEOUT);
   }
 
@@ -375,7 +419,6 @@ class Manager extends Component {
    * Select all playlists that fit the filter specifications.
    */
   selectAllPlaylists = () => {
-    console.log(this.state);
     this.setState({
       selectedIndices: this.state.visibleIndices
     });
@@ -452,20 +495,19 @@ class Manager extends Component {
 
   render() {
     const { classes } = this.props;
-    const accessToken = SpotifyPlaylistManager.getAccessToken();
 
     // Go back to Home screen to fetch the Spotify access token.
     if (!this.state) {
       return <LoadingIndicator />;
-    } else if (!accessToken) {
-      window.location.replace('/');
-    } else if (this.state.error) {
-      return (<div> retry ? </div>);
-    } else if (this.state.loadingProgress || !this.state.playlists) {
-      return <ProgressIndicator progress={this.state.loadingProgress} total={this.state.loadingTotal} />;
-    }
+    } 
+    
+    const { error, loadingProgress, loadingTotal, playlists, selectedIndices, visibleIndices } = this.state;
 
-    const { playlists, selectedIndices, visibleIndices } = this.state;
+    if (!SpotifyPlaylistManager.getAccessToken() || error) {
+      return <Login />;
+    } else if (loadingProgress || !playlists) {
+      return <ProgressIndicator progress={loadingProgress} total={loadingTotal} />;
+    }
 
     const createOptionsTab = this.renderCreateOptionsTab();
     const deleteOptionsTab = this.renderDeleteOptionsTab();
@@ -531,7 +573,7 @@ class Manager extends Component {
 
   renderCreateOptionsTab() {
     const { classes } = this.props;
-    const { createdPlaylistData } = this.state;
+    const { createdPlaylistData, errorMessage } = this.state;
 
     return (
       <>
@@ -577,15 +619,19 @@ class Manager extends Component {
             onKeyDown={this.filterInputOnKeyDown} />
         </div>
         <div className={classes.textInputDiv}>
-          <Button className={classes.actionButton} variant='contained'
-            color='primary' onClick={this.createPlaylist}> Create </Button>
+          <Button className={classes.actionButton} variant='contained' color='primary' 
+            onClick={this.createPlaylist}> Create </Button>
         </div>
 
         {createdPlaylistData ?
-          <Typography className={classes.createdPlaylistMessage}
-            variant='body1'>
-            Created '{createdPlaylistData[0]}' with {' '} {createdPlaylistData[1]}
-            {' '} song{createdPlaylistData[1] !== 1 ? 's' : ''}.
+          <Typography className={classes.createdPlaylistMessage} variant='body1'>
+              {'Created ' + createdPlaylistData[0] + ' with ' + createdPlaylistData[1] + 
+                ' song' + (createdPlaylistData[1] !== 1 ? 's.' : '.')}
+          </Typography> : null}
+
+        {errorMessage ?
+          <Typography className={classes.messageError} variant='body1'>
+            {errorMessage}
           </Typography> : null}
       </>
     );
@@ -593,7 +639,7 @@ class Manager extends Component {
 
   renderDeleteOptionsTab() {
     const { classes } = this.props;
-    const { deletedPlaylistsCount, deletedPlaylistsLoading, selectedIndices } = this.state;
+    const { deletedPlaylistsCount, deletedPlaylistsLoading, errorMessage, selectedIndices } = this.state;
 
     const anyPlaylistsSelected = selectedIndices.length > 0;
 
@@ -642,6 +688,10 @@ class Manager extends Component {
                     {deletedPlaylistsCount !== 1 ? 's' : ''}.
                   </Typography>
                 : null}
+          {errorMessage ?
+            <Typography className={classes.messageError} variant='body1'>
+              {errorMessage}
+            </Typography> : null}
         </div>
       </>
     );

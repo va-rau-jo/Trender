@@ -77,7 +77,7 @@ export default class SpotifyPlaylistManager {
   static deletePlaylists(playlistIds) {
     // Current request count. Hitting MAX_REQUESTS_PER_BATCH sleeps and resets requestCount.
     let requestCount = 0;
-    let baseUrl = BASE_URL + "playlists/";
+    let baseUrl = BASE_URL + 'playlists/';
 
     return new Promise(async (resolve, reject) => {
       for (let i = 0; i < playlistIds.length;) {
@@ -85,23 +85,38 @@ export default class SpotifyPlaylistManager {
           requestCount = 0;
           await SLEEP_TIMER();
         } else {
-          await fetch(baseUrl + playlistIds[i] + "/followers", {
+          await fetch(baseUrl + playlistIds[i] + '/followers', {
             headers: { Authorization: 'Bearer ' + this.accessToken },
             method: 'DELETE'
-          }).then(async res => {
+          }).then(res => {
             if (!res.ok) {
               // Some other error (API key, API down, etc.) (don't try again)
               reject(res.status);
+              i = playlistIds.length;
             } else {
               i++;
               if (i === playlistIds.length) {
-                console.log("RESOLVED");
                 resolve();
               }
             }
           });
         }
       }
+    });
+  }
+
+  static fetchPlaylistById(id) {
+    return new Promise(async (resolve, reject) => {
+      await fetch(BASE_URL + 'playlists/' + id, {
+        headers: { Authorization: 'Bearer ' + this.accessToken },
+        method: 'GET',
+      }).then(async res => {
+        if (!res.ok) {
+          reject(res.status);
+        } else {
+          return resolve(res.json());
+        }
+      });
     });
   }
 
@@ -145,12 +160,16 @@ export default class SpotifyPlaylistManager {
    * 'playlist' holding the playlists array and 'songs' holding arrays of songs
    * for each corresponding playlist.
    */
-  static getPlaylistData (filterByMonth, fetchSongs) {
+  static getPlaylistData(filterByMonth, fetchSongs) {
     const url = BASE_URL + 'me/playlists';
     return new Promise(async (resolve, reject) => {
       this.repeatedlyFetch(url, PLAYLISTS_PER_REQUEST, 'GET').then(playlists => {
-        if (filterByMonth) {
+        if (playlists.length > 0 && filterByMonth) {
           playlists = filterPlaylistsByMonth(playlists);
+        } 
+
+        if (playlists.length === 0) {
+          resolve({ 'playlists': playlists});
         }
 
         if (fetchSongs) {
@@ -171,18 +190,26 @@ export default class SpotifyPlaylistManager {
    * Get song data using promise from the playlist's link to its
    * details. This only adds the relevant properties to the song list object.
    * @param {Array} playlists An array of playlists.
-   * @returns {Array} An array of song objects corresponding to each playlist.
+   * @returns {Promise} A promise that when resolved, returns an
+   * array of song objects corresponding to each playlist.
    */
   static getSongData(playlists) {
-    let songs = new Array(playlists.length).fill([]);
+    const limit = SONGS_PER_ADD_REQUEST;
     this.loadingTotal = playlists.length;
     this.loadingProgress = 0;
+    let songs = new Array(playlists.length).fill([]);
     // Current request count. Hitting MAX_REQUESTS_PER_BATCH sleeps and resets requestCount.
     let requestCount = 0;
-    const limit = SONGS_PER_ADD_REQUEST;
 
     return new Promise(async (resolve, reject) => {
       for (let i = 0; i < playlists.length; i++) {
+        if (playlists[i].tracks.total === 0) {
+          this.loadingProgress++;
+          if (this.loadingProgress === playlists.length) {
+            resolve(songs);
+          }
+        }
+
         for (let j = 0; j < playlists[i].tracks.total;) {
           if (requestCount === MAX_REQUESTS_PER_BATCH) { // wait to cool down the Spotify API
             requestCount = 0;
@@ -193,16 +220,14 @@ export default class SpotifyPlaylistManager {
             requestCount++;
             this.fetchSongs(url).then(tracks => {
               songs[i] = songs[i].concat(tracks.map(song => ({
-                // TODO: Add other fields here if necessary.
                 added_at: song.added_at,
                 artist: song.track ? this.combineArtists(song.track.artists) : '',
                 duration: song.track ? song.track.duration_ms / 1000 : 0,
-                // Good for key in React mapping
                 id: song.track ? song.track.id : '',
                 image: song.track ? song.track.album.images[0] : null,
                 isLocalFile: song.is_local,
                 name: song.track ? song.track.name : '',
-                uri: song.track.uri,
+                uri: song.track ? song.track.uri : '',
               })));
               this.loadingProgress++;
               if (this.loadingProgress === playlists.length) {

@@ -1,6 +1,6 @@
 
 // Regex matches playlist names that match exactly the months of the year.
-const EXACT_MONTH_MATCH = /\b(January|February|March|April|May|June|July|August|September|October|November|December)\b/;
+// const EXACT_MONTH_MATCH = /\b(January|February|March|April|May|June|July|August|September|October|November|December)\b/;
 
 // Regex matches playlist names that contain months of the year.
 // Currently using this so names like "September 22" will pass

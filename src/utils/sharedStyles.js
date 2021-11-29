@@ -7,9 +7,9 @@ export const SHARED_STYLES = {
   // Border radius to get a perfect circle
   BORDER_RADIUS_CIRCLE: '50%',
   // Box shadow for Paper or any elevated elements
-  BOX_SHADOW_SCALED: '0px 0.3vh 0.1vh -0.2vh rgb(0 0 0 / 20%),' +
-    '0px 0.2vh 0.2vh 0px rgb(0 0 0 / 14%),' +
-    '0px 0.1vh 0.5vh 0px rgb(0 0 0 / 12%)',
+  BOX_SHADOW_SCALED: '0 0.3vh 0.1vh -0.2vh rgb(0 0 0 / 20%),' +
+    '0 0.2vh 0.2vh 0 rgb(0 0 0 / 14%),' +
+    '0 0.1vh 0.5vh 0 rgb(0 0 0 / 12%)',
   // Button height for Manager buttons
   BUTTON_HEIGHT: '4vh',
   // Hover color for action buttons like play, close (light gray)
@@ -32,4 +32,5 @@ export const SHARED_STYLES = {
   PAGE_HEIGHT: '95vh',
   // Color of a selected list item
   SELECT_BORDER_COLOR: '#f50057',
+  SPOTIFY_GREEN: '#1db954',
 };

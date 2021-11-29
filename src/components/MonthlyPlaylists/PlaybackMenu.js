@@ -39,6 +39,9 @@ const styles = () => ({
     flexDirection: 'column',
   },
   sliderContainer: {
+    display: 'flex',
+    height: 'fit-content',
+    marginTop: '2vh',
     width: '95%'
   },
   timeLabel: {
@@ -64,11 +67,11 @@ const styles = () => ({
 
 const overrides = {
   progressSlider: {
-    height: 3,
+    height: '0.5vh',
     padding: '0.5vh 0 0 0',
     '& .MuiSlider-thumb': {
-      height: 8,
-      width: 8,
+      height: '1.5vh',
+      width: '1.5vh',
     },
     // Fix clipping issue
     '& .MuiSlider-thumb:after': {
@@ -76,6 +79,9 @@ const overrides = {
     },
     '& .MuiSlider-thumb:before': {
       content: 'none'
+    },
+    '& .MuiSlider-track': {
+      borderWidth: '0.15vh'
     },
     '& .MuiSlider-rail': {
       opacity: 0.28,
@@ -83,11 +89,11 @@ const overrides = {
   },
   volumeSlider: {
     color: '#111111',
-    height: 2,
+    height: '0.5vh',
     padding: 0,
     '& .MuiSlider-thumb': {
-      height: 7,
-      width: 7,
+      height: '1.2vh',
+      width: '1.2vh',
     },
     // Fix clipping issue
     '& .MuiSlider-thumb:after': {
@@ -95,6 +101,9 @@ const overrides = {
     },
     '& .MuiSlider-thumb:before': {
       content: 'none'
+    },
+    '& .MuiSlider-track': {
+      borderWidth: '0.15vh'
     },
     '& .MuiSlider-rail': {
       opacity: 0.28,

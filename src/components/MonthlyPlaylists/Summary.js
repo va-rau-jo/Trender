@@ -23,12 +23,14 @@ const styles = () => ({
     padding: '1vh 0',
   },
   songListPaper: {
+    borderRadius: SHARED_STYLES.BORDER_RADIUS,
+    boxShadow: SHARED_STYLES.BOX_SHADOW_SCALED,
     margin: '1vh 1.5vw'
   },
   songListTitle: {
     fontSize: SHARED_STYLES.FONT_SIZE_HEADER,
     fontWeight: 'bold',
-    marginTop: '1vh',
+    marginTop: '0.5vh',
   },
 });
 

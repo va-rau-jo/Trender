@@ -15,8 +15,9 @@ const styles = () => ({
   },
   logoDiv: {
     alignItems: 'center',
+    cursor: 'pointer',
     display: 'inline-flex',
-    height: '100%'
+    height: '100%',
   },
   logo: {
     height: '4vh',
@@ -47,8 +48,8 @@ class Header extends Component {
     return (
       <div className={classes.container}>
         <div className={classes.tabs}>
-          <a href='/' className={classes.logoLink}>
-            <div className={classes.logoDiv}>
+          <a href='/login' className={classes.logoLink}>
+            <div className={classes.logoDiv} onClick={() => window.location.replace('/')}>
               <img className={classes.logo} src='./images/logo.png' alt='Trender logo' />
               <Typography className={classes.title} variant='h4'>
                 Trender

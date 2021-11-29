@@ -32,7 +32,7 @@ const styles = () => ({
   },
   songItemDescription: {
     backgroundColor: SHARED_STYLES.OVERLAY_COLOR,
-    borderRadius: '0 0 ' + SHARED_STYLES.LIST_BORDER_RADIUS + ' ' + SHARED_STYLES.LIST_BORDER_RADIUS,
+    borderRadius: '0 0 ' + SHARED_STYLES.LIST_ITEM_BORDER_RADIUS + ' ' + SHARED_STYLES.LIST_ITEM_BORDER_RADIUS,
     bottom: '0',
     display: 'flex',
     flexDirection: 'column',
@@ -44,17 +44,18 @@ const styles = () => ({
   songList: {
     margin: '0 1vw',
     overflowX: 'scroll',
-    padding: '1vh 0 0 0',
+    padding: '0',
     transform: 'translateZ(0)',
     whiteSpace: 'nowrap',
   },
   songListImage: {
-    borderRadius: SHARED_STYLES.LIST_BORDER_RADIUS,
+    borderRadius: SHARED_STYLES.LIST_ITEM_BORDER_RADIUS,
     height: '100%',
     position: 'absolute',
   },
   songListItem: {
     border: '0.75vh solid white',
+    borderRadius: SHARED_STYLES.LIST_ITEM_BORDER_RADIUS,
     color: 'white',
     cursor: 'pointer',
     display: 'inline-flex',

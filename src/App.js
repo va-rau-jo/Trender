@@ -4,7 +4,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import Header from './components/Header';
 import Home from './pages/Home';
-import LoadingIndicator from './components/LoadingIndicator';
+import Login from './pages/Login';
 import Manager from './pages/Manager';
 import MonthlyPlaylists from './pages/MonthyPlaylists';
 import SpotifyPlaylistManager from './utils/Spotify/SpotifyPlaylistManager';
@@ -15,37 +15,25 @@ class App extends Component {
   constructor(props) {
     super(props);
     const accessToken = queryString.parse(window.location.search).access_token;
-    this.state = {
-      accessToken
-    };
+    this.state = {accessToken: accessToken};
 
-    if (accessToken) {
+    if (accessToken) {      
       SpotifyPlaylistManager.setAccessToken(accessToken);
     }
   }
 
   render() {
-    const redirect = window.location.href.includes('localhost')
-      ? 'http://localhost:8888/'
-      : 'https://spotify-trender-server.herokuapp.com';
-
-    if (this.state && !this.state.accessToken) {
-      window.location.replace(redirect);
-      return null;
-    } else if (!this.state) {
-      return <LoadingIndicator />;
-    }
-
     return (
       <>
         <Header />
-        <BrowserRouter>
+        <BrowserRouter >
           {/* A <Switch> looks through all its children <Route> elements and
           renders the first one whose path matches the current URL. Use a
           <Switch> any time you have multiple routes, but you want only one of
             them to render at a time */}
           <Routes>
-            <Route exact path='/' element={<Home />} />
+            <Route exact path='/'  element={<Home />} />
+            <Route path='/login'   element={<Login />} />
             <Route path='/monthly' element={<MonthlyPlaylists />} />
             <Route path='/manager' element={<Manager />} />
             <Route>

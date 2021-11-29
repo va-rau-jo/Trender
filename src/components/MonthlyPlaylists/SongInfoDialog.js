@@ -36,6 +36,11 @@ const styles = () => ({
       backgroundColor: SHARED_STYLES.BUTTON_HOVER_COLOR
     },
   },
+  dialogContent: {
+    borderRadius: SHARED_STYLES.BORDER_RADIUS,
+    boxShadow: SHARED_STYLES.BOX_SHADOW_SCALED,
+    padding: '2vh 4vw !important',
+  },
   playDiv: {
     alignItems: 'center',
     display: 'flex',
@@ -262,10 +267,10 @@ class SongInfoDialog extends Component {
     const listenTime = getListenTime(songFirstAdded, songRemoved);
 
     return (
-        <Dialog className={classes.dialog} open={true} onClose={this.onClose} 
+        <Dialog open={true} onClose={this.onClose} 
           PaperProps={{ style: { maxWidth: '60vw', minWidth: '35vw' } }}>
-          <DialogContent>
-           <img alt='close' className={classes.closeButton} src={'images/close.png'} onClick={this.onClose} />
+          <DialogContent className={classes.dialogContent}>
+            <img alt='close' className={classes.closeButton} src={'images/close.png'} onClick={this.onClose} />
             <div className={classes.contentHeader}>
               <img className={classes.songImage} src={verifyImageUrl(song)} alt={song.name}/>
               <div className={classes.songDescription}>

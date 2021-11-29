@@ -44,6 +44,9 @@ const styles = () => ({
   listItemText: {
     fontSize: SHARED_STYLES.FONT_SIZE_XLARGE,
   },
+  noPlaylistsMessage: {
+    fontSize: SHARED_STYLES.FONT_SIZE_HEADER,
+  },
   playlistList: {
     justifyContent: 'space-evenly',
     margin: '0 !important',
@@ -96,7 +99,13 @@ class PlaylistList extends Component {
               Playlists
           </ListSubheader>
         </ImageListItem>
-        {visibleIndices.map(i => {
+        {visibleIndices.length === 0 ? 
+          <Typography className={classes.noPlaylistsMessage} variant='body1'>
+            No playlists found
+          </Typography>
+
+         : 
+         visibleIndices.map(i => {
           const playlist = playlists[i];
           const selected = selectedIndices.includes(i);
           return (
