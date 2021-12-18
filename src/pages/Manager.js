@@ -309,7 +309,6 @@ class Manager extends Component {
         })
       });
 
-      console.log(uris.length);
       if (uris.length > 0) {
         SpotifyPlaylistManager.addSongsToPlaylist(playlist.id, uris).then(() => {
           SpotifyPlaylistManager.fetchPlaylistById(playlist.id).then(res => {
