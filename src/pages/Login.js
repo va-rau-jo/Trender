@@ -109,36 +109,36 @@ class Login extends Component {
                 Playlists
               </Typography>
               <ul className={classes.permissionsList}>
-                <li className={classes.listItem}> 
+                <li className={classes.listItem}>
                   <Typography className={classes.permissionName} variant='body1'>
                     'playlist-modify-private'
                   </Typography>
                   <Typography className={classes.permissionLabel} variant='body1'>
-                    - Create and delete private playlists
+                    - Required to create and delete private playlists
                   </Typography>
                 </li>
-                <li className={classes.listItem}> 
+                <li className={classes.listItem}>
                   <Typography className={classes.permissionName} variant='body1'>
                     'playlist-read-collaborative'
                   </Typography>
                   <Typography className={classes.permissionLabel} variant='body1'>
-                    - Display public and collaborative playlists
+                    - Required to display public and collaborative playlists
                   </Typography>
                 </li>
-                <li className={classes.listItem}> 
+                <li className={classes.listItem}>
                   <Typography className={classes.permissionName} variant='body1'>
                     'playlist-read-private'
                   </Typography>
                   <Typography className={classes.permissionLabel} variant='body1'>
-                    - Display your private playlists
+                    - Required to display your private playlists
                   </Typography>
                 </li>
-                <li className={classes.listItem}> 
+                <li className={classes.listItem}>
                   <Typography className={classes.permissionName} variant='body1'>
                     'playlist-modify-public'
                   </Typography>
                   <Typography className={classes.permissionLabel} variant='body1'>
-                    - Create and delete public and collaborative playlists
+                    - Required to create and delete public and collaborative playlists
                   </Typography>
                 </li>
               </ul>
@@ -148,20 +148,42 @@ class Login extends Component {
                 Playback
               </Typography>
               <ul className={classes.permissionsList}>
-                <li className={classes.listItem}> 
+                <li className={classes.listItem}>
                   <Typography className={classes.permissionName} variant='body1'>
                     'app-remote-control'
                   </Typography>
                   <Typography className={classes.permissionLabel} variant='body1'>
-                    - Playing and pausing music 
+                    - Required to play and pause music
                   </Typography>
                 </li>
-                <li className={classes.listItem}> 
+                <li className={classes.listItem}>
                   <Typography className={classes.permissionName} variant='body1'>
                     'streaming'
                   </Typography>
                   <Typography className={classes.permissionLabel} variant='body1'>
-                    - Streaming music
+                    - Required to allow for streaming music
+                  </Typography>
+                </li>
+                <li className={classes.listItem}>
+                  <Typography className={classes.permissionName} variant='body1'>
+                    'user-modify-playback-state'
+                  </Typography>
+                  <Typography className={classes.permissionName} variant='body1'>
+                    'user-read-playback-state'
+                  </Typography>
+                  <Typography className={classes.permissionName} variant='body1'>
+                    'user-read-currently-playing'
+                  </Typography>
+                  <Typography className={classes.permissionLabel} variant='body1'>
+                    - All required for the Spotify playback to function properly.
+                  </Typography>
+                </li>
+                 <li className={classes.listItem}>
+                  <Typography className={classes.permissionName} variant='body1'>
+                    'user-read-private | user-read-email'
+                  </Typography>
+                  <Typography className={classes.permissionLabel} variant='body1'>
+                    - Required to check if the user has Spotify Premium (which is required for playback)
                   </Typography>
                 </li>
               </ul>
