@@ -14,14 +14,14 @@ import PlaylistList from '../components/Manager/PlaylistList';
 import { SHARED_STYLES } from '../utils/sharedStyles';
 import SpotifyPlaylistManager from '../utils/Spotify/SpotifyPlaylistManager';
 import Login from './Login';
-import { filterDeletedPlaylists } from '../utils/helpers';
+import { filterDeletedPlaylists, SOFT_MONTH_MATCH } from '../utils/helpers';
+
 /**
  * This is preferred over using an external css file for styling because React
  * components that are imported have their own classes that override CSS classes
  * in external files. The CSS will actually follow this (some require the use
  * of !important).
  */
-
 const styles = () => ({
   actionButton: {
     borderRadius: SHARED_STYLES.BORDER_RADIUS,
@@ -85,7 +85,7 @@ const styles = () => ({
     borderRadius: SHARED_STYLES.BORDER_RADIUS,
     listStyle: 'none',
     margin: '0 1vw 1vh 1vw',
-    maxHeight: '60vh',
+    maxHeight: '50vh',
     overflowY: 'scroll',
     paddingLeft: '2vw',
   },
@@ -115,7 +115,7 @@ const styles = () => ({
     borderRadius: SHARED_STYLES.BORDER_RADIUS,
     boxShadow: SHARED_STYLES.BOX_SHADOW_SCALED,
     display: 'flex',
-    height: '5vh',
+    height: '7vh',
     justifyContent: 'space-evenly',
     margin: 'auto 1vw auto 0',
     padding: '1vh 0',
@@ -124,17 +124,27 @@ const styles = () => ({
   filterHeader: {
     alignItems: 'flex-end',
     display: 'flex',
-    height: '10vh',
+    height: '11vh',
   },
   filterInputContainer: {
     alignItems: 'center',
     display: 'flex',
     justifyContent: 'space-evenly',
-    width: '35%',
+  },
+  filterOptions: {
+    display: 'inline-flex',
+    justifyContent: 'space-around',
+    marginTop: '0.7vh',
+    width: '100%',
+  },
+  filterSubContainer: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'column',
   },
   flexHorizontal: {
     display: 'flex',
-    height: '85vh',
+    height: '84vh',
   },
   flexVertical: {
     display: 'flex',
@@ -147,7 +157,6 @@ const styles = () => ({
   inputTextbox: {
     width: '18vw',
   },
-  // The container to display all the playlists
   listContainer: {
     borderRadius: SHARED_STYLES.BORDER_RADIUS,
     boxShadow: SHARED_STYLES.BOX_SHADOW_SCALED,
@@ -219,6 +228,9 @@ const styles = () => ({
     justifyContent: 'center',
     marginBottom: '2vh',
   },
+  useRegexDiv: {
+    display: 'inline-flex',
+  }
 });
 
 const MESSAGE_TIMEOUT = 5000;
@@ -230,6 +242,8 @@ class Manager extends Component {
     if (SpotifyPlaylistManager.getAccessToken()) {
       SpotifyPlaylistManager.getPlaylistData(false, true).then(data => {
         this.setState({
+          filterMonthly: false,
+          filterWithRegex: false,
           playlists: data['playlists'],
           shouldMakeCollaborative: false,
           shouldMakePublic: false,
@@ -303,7 +317,7 @@ class Manager extends Component {
               this.notifyCreatedPlaylist(res, songs[0]);
             });
           });
-        });       
+        });
       } else {
         this.notifyCreatedPlaylist(playlist, []);
       }
@@ -357,26 +371,36 @@ class Manager extends Component {
    */
   filterPlaylists = () => {
     const input = document.getElementById('filterInput');
-    const filterText = input ? input.value.toLowerCase() : '';
 
-    this.setState({
-      visibleIndices: this.state.playlists
-        .map((playlist, i) => [playlist, i])
-        .filter(list => list[0].name.toLowerCase().includes(filterText))
-        .map(list => list[1])
-    });
+    if (!this.state.filterWithRegex) {
+      const filterText = input ? input.value.toLowerCase() : '';
+      this.setState({
+        visibleIndices: this.state.playlists
+          .map((playlist, i) => [playlist, i])
+          .filter(list => list[0].name.toLowerCase().includes(filterText))
+          .map(list => list[1])
+      });
+    } else {
+      const regex = input ? new RegExp(input.value) : new RegExp("");
+      this.setState({
+        visibleIndices: this.state.playlists
+          .map((playlist, i) => [playlist, i])
+          .filter(list => regex.test(list[0].name))
+          .map(list => list[1])
+      });
+    }
   }
 
   /**
    * Displays a message that a playlist was created.
-   * @param {JSON} playlist The playlist JSON object 
+   * @param {JSON} playlist The playlist JSON object
    * @param {Array<JSON>} songs Array of JSON song objects
    */
   notifyCreatedPlaylist = (playlist, songs) => {
     this.state.playlists.unshift(playlist);
     this.state.songs.unshift(songs);
-    
-    this.setState({ 
+
+    this.setState({
       createdPlaylistData: [playlist.name, playlist.tracks.total],
       selectedIndices: this.state.selectedIndices.map(i => i + 1)
      });
@@ -421,6 +445,29 @@ class Manager extends Component {
   selectAllPlaylists = () => {
     this.setState({
       selectedIndices: this.state.visibleIndices
+    });
+  }
+
+  /**
+   * When checkbox value is true, filter textbox content is updated to
+   * filter for all monthly playlists, and use regex is set to true.
+   */
+  toggleFilterMonthly = () => {
+    this.setState({
+      filterMonthly: !this.state.filterMonthly,
+      filterWithRegex: !this.state.filterMonthly
+    });
+
+    document.getElementById('filterInput').value = SOFT_MONTH_MATCH;
+  }
+
+  /**
+   * Toggles whether the filter button filters using regex or not.
+   * If false, does an exact text search.
+   */
+  toggleFilterWithRegex = () => {
+    this.setState({
+      filterWithRegex: !this.state.filterWithRegex
     });
   }
 
@@ -499,8 +546,8 @@ class Manager extends Component {
     // Go back to Home screen to fetch the Spotify access token.
     if (!this.state) {
       return <LoadingIndicator />;
-    } 
-    
+    }
+
     const { error, loadingProgress, loadingTotal, playlists, selectedIndices, visibleIndices } = this.state;
 
     if (!SpotifyPlaylistManager.getAccessToken() || error) {
@@ -517,12 +564,33 @@ class Manager extends Component {
         <Tabs className={classes.flexVertical} defaultIndex={0}>
           <div className={classes.filterHeader}>
             <Paper elevation={1} className={classes.filterContainer}>
-              <div className={classes.filterInputContainer}>
-                <input id='filterInput' className={classes.textbox}
-                  onKeyDown={this.filterInputOnKeyDown} placeholder='Filter'/>
-                <Button className={classes.filterButton} variant='contained' color='primary'
-                  onClick={this.filterPlaylists}> Filter
-                </Button>
+              <div className={classes.filterSubContainer}>
+                <div className={classes.filterInputContainer}>
+                  <input id='filterInput' className={classes.textbox}
+                    onKeyDown={this.filterInputOnKeyDown} placeholder='Filter'/>
+                  <Button className={classes.filterButton} variant='contained'
+                    color='primary' onClick={this.filterPlaylists}>
+                      Filter
+                  </Button>
+                </div>
+                <div className={classes.filterOptions}>
+                  <div className={classes.useRegexDiv}>
+                    <input className={classes.settingsCheckbox} type='checkbox'
+                      checked={this.state.filterWithRegex}
+                      onChange={this.toggleFilterWithRegex} />
+                    <Typography className={classes.settingsLabel} variant='body1'>
+                      Use Regex
+                    </Typography>
+                  </div>
+                  <div className={classes.useRegexDiv}>
+                    <input className={classes.settingsCheckbox} type='checkbox'
+                      checked={this.state.filterMonthly}
+                      onChange={this.toggleFilterMonthly} />
+                    <Typography className={classes.settingsLabel} variant='body1'>
+                      Filter monthly playlists
+                    </Typography>
+                  </div>
+                </div>
               </div>
               <div className={classes.selectButtons}>
                 <Button className={classes.selectButton} variant='contained' color='secondary'
@@ -619,13 +687,13 @@ class Manager extends Component {
             onKeyDown={this.filterInputOnKeyDown} />
         </div>
         <div className={classes.textInputDiv}>
-          <Button className={classes.actionButton} variant='contained' color='primary' 
+          <Button className={classes.actionButton} variant='contained' color='primary'
             onClick={this.createPlaylist}> Create </Button>
         </div>
 
         {createdPlaylistData ?
           <Typography className={classes.createdPlaylistMessage} variant='body1'>
-              {'Created ' + createdPlaylistData[0] + ' with ' + createdPlaylistData[1] + 
+              {'Created ' + createdPlaylistData[0] + ' with ' + createdPlaylistData[1] +
                 ' song' + (createdPlaylistData[1] !== 1 ? 's.' : '.')}
           </Typography> : null}
 
@@ -640,7 +708,6 @@ class Manager extends Component {
   renderDeleteOptionsTab() {
     const { classes } = this.props;
     const { deletedPlaylistsCount, deletedPlaylistsLoading, errorMessage, selectedIndices } = this.state;
-
     const anyPlaylistsSelected = selectedIndices.length > 0;
 
     return (

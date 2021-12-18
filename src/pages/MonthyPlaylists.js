@@ -116,6 +116,25 @@ class MonthlyPlaylists extends Component {
       }).catch(error => {
         this.setState({ error });
       });
+
+      // Load the Spotify Web Player through a script tag
+      const script = document.createElement('script');
+      script.src = 'https://sdk.scdn.co/spotify-player.js';
+      script.async = true;
+      document.body.appendChild(script);
+
+      // Callback must be set here otherwise the function is not found by the Spotify API
+      window.onSpotifyWebPlaybackSDKReady = () => {
+        const player = new window.Spotify.Player({
+          name: 'Trender Spotify Player',
+          getOAuthToken: callback => {
+            callback(SpotifyPlaylistManager.getAccessToken());
+          },
+          volume: 0.1
+        });
+
+        this.setState({ spotifyPlayer: player });
+      }
     }
   }
 
@@ -151,7 +170,7 @@ class MonthlyPlaylists extends Component {
         if (songs[i].length > 0) {
           const added = songs[i][Math.floor(songs[i].length / 2)].added_at;
           const year = new Date(added).getFullYear();
-          // Add the first playlist to its own list or add a 
+          // Add the first playlist to its own list or add a
           // later year's playlist to a new list.
           if (years.length === 0 || year !== currentYear) {
             years.push([year, [[playlist, songs[i]]]]);
@@ -201,8 +220,8 @@ class MonthlyPlaylists extends Component {
 
   /**
    * TODO: allow for more dynamic time ranges.
-   * @param {*} song 
-   * @returns 
+   * @param {*} song
+   * @returns
    */
   getSongAddedRemovedDate = (song) => {
     const playlists = this.state.playlists;
@@ -223,7 +242,7 @@ class MonthlyPlaylists extends Component {
 
         // Current song cannot be found and previous song is defined,
         // so we found the earliest added date.
-        if (!(removed && !(removed && removedDate)) && prevSong && !currSong) { 
+        if (!(removed && !(removed && removedDate)) && prevSong && !currSong) {
           return {'added': prevSong.added_at, 'removed': removedDate};
         } else if (i === playlists.length - 1 && j === playlists[i][1].length - 1 && currSong) {
           return {'added': currSong.added_at, 'removed': removedDate};
@@ -242,7 +261,7 @@ class MonthlyPlaylists extends Component {
 
   openSongInfoDialog = (song) => {
     const result = this.getSongAddedRemovedDate(song);
-    this.setState({ 
+    this.setState({
       songDialogOpen: true,
       songDialogSong: song,
       songFirstAdded: result.added,
@@ -309,10 +328,10 @@ class MonthlyPlaylists extends Component {
       return <LoadingIndicator />;
     }
 
-    const { error, loadingProgress, loadingTotal, playlists, playlist1, playlist2, songs1, songs2,
-      songDialogOpen, songDialogSong, songFirstAdded, songRemoved } = this.state;
-    
-    if (!SpotifyPlaylistManager.getAccessToken() || error) {      
+    const { error, loadingProgress, loadingTotal, playlists, playlist1, playlist2, spotifyPlayer,
+      songs1, songs2, songDialogOpen, songDialogSong, songFirstAdded, songRemoved } = this.state;
+
+    if (!SpotifyPlaylistManager.getAccessToken() || error) {
       return <Login />
     } else if (loadingProgress || !playlists) {
       return <ProgressIndicator progress={loadingProgress} total={loadingTotal} />;
@@ -322,7 +341,7 @@ class MonthlyPlaylists extends Component {
 
       return (
         <div className={classes.flex}>
-          {playlists.length === 0 ? null : 
+          {playlists.length === 0 ? null :
             <div className={classes.drawer}>
               {/* Year list contains ['year', [[playlist1, songs1]... ] */}
               {playlists.map((yearList, i) => (
@@ -365,19 +384,20 @@ class MonthlyPlaylists extends Component {
             </div>
           }
           <div className={classes.summary}>
-            {songs1 ? 
+            {songs1 ?
               <SongInfoDialog isOpen={songDialogOpen} song={songDialogSong}
-                songFirstAdded={songFirstAdded} songRemoved={songRemoved} 
-                onClose={() => {this.setState({songDialogOpen: false})}} /> 
+                songFirstAdded={songFirstAdded} songRemoved={songRemoved}
+                spotifyPlayer={spotifyPlayer}
+                onClose={() => {this.setState({songDialogOpen: false})}} />
               : null}
-            {playlists.length === 0 ? 
+            {playlists.length === 0 ?
               <div className={classes.flexVertical}>
                 <Paper className={classes.noPlaylistsMessageDiv} elevation={3}>
-                  <Typography className={classes.noPlaylistsMessage} varaint='h2'> 
+                  <Typography className={classes.noPlaylistsMessage} varaint='h2'>
                     Try creating a new playlist with a month name!
                   </Typography>
-                </Paper> 
-              </div>: 
+                </Paper>
+              </div>:
               <Summary
                 openSongInfoDialog={this.openSongInfoDialog}
                 playlist1={playlist1}

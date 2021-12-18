@@ -5,7 +5,7 @@ import soundfile from '../images/sound_file_white.png'
 
 // Regex matches playlist names that contain months of the year.
 // Currently using this so names like "September 22" will pass
-const SOFT_MONTH_MATCH = /^January|February|March|April|May|June|July|August|September|October|November|December$/;
+export const SOFT_MONTH_MATCH = 'January|February|March|April|May|June|July|August|September|October|November|December';
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'];
@@ -17,7 +17,7 @@ const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
  */
 export function filterPlaylistsByMonth(playlists) {
   let copy = playlists.slice();
-  let regex = SOFT_MONTH_MATCH;
+  let regex = new RegExp(SOFT_MONTH_MATCH);
   for (let i = playlists.length - 1; i >= 0; i--) {
     if (!regex.test(playlists[i].name)) {
       copy.splice(i, 1);
@@ -46,20 +46,20 @@ export function filterDeletedPlaylists(ids, playlists) {
  * Formats the given date to a human readable string.
  * Ex input: 2020-11-24T00:41:29Z
  * Ex output: November 24th, 2020
- * @param {string} date Raw date string 
+ * @param {string} date Raw date string
  * @returns {string} A beautified date string with the day, month, and year.
  */
 export function formatReadableDate(date) {
   const split = date.split('-');
   const year = split[0];
-  const month = MONTH_NAMES[parseInt(split[1]) - 1]; 
+  const month = MONTH_NAMES[parseInt(split[1]) - 1];
   let day = split[2].substring(0, 2);
   const lastDigit = day.charAt(1);
 
   const suffix = (lastDigit === '1' && day !== '11') ? 'st' :
-    (lastDigit === '2' && day !== '12') ? 'nd' : 
+    (lastDigit === '2' && day !== '12') ? 'nd' :
     (lastDigit === '3' && day !== '13') ? 'rd' :
-    'th'; 
+    'th';
 
   if (day.charAt(0) ==='0') { // remove starting 0 from day
     day = day.substring(1);
@@ -71,7 +71,7 @@ export function formatReadableDate(date) {
 export function getListenTime(added, removed) {
   const split = added.split('-');
   const addedYear = parseInt(split[0]);
-  const addedMonth = parseInt(split[1]); 
+  const addedMonth = parseInt(split[1]);
 
   const date = new Date();
   const removedSplit = removed ? removed.split(' ') : null;
@@ -99,7 +99,7 @@ export function isSongNew(song, songList) {
  * Verifies that the object passed in (song or playlist) has a
  * valid image property. Songs that are local files don't have images,
  * so we replace the url with a blank sound file image.
- * @param {JSON} obj An object with an image property. 
+ * @param {JSON} obj An object with an image property.
  * @returns {string} Either the song's image url or the default song url.
  */
 export function verifyImageUrl(obj) {

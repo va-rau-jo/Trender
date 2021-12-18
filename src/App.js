@@ -17,7 +17,7 @@ class App extends Component {
     const accessToken = queryString.parse(window.location.search).access_token;
     this.state = {accessToken: accessToken};
 
-    if (accessToken) {      
+    if (accessToken) {
       SpotifyPlaylistManager.setAccessToken(accessToken);
     }
   }

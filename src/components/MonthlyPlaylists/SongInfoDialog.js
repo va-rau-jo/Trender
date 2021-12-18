@@ -8,7 +8,6 @@ import {
 
 import { formatReadableDate, getListenTime, verifyImageUrl } from '../../utils/helpers';
 import { SHARED_STYLES } from '../../utils/sharedStyles';
-import SpotifyPlaylistManager from '../../utils/Spotify/SpotifyPlaylistManager';
 import PlaybackMenu from './PlaybackMenu';
 import SpotifyPlaybackManager from '../../utils/Spotify/SpotifyPlaybackManager';
 
@@ -102,25 +101,14 @@ class SongInfoDialog extends Component {
   constructor(props) {
     super(props);
 
-    // Load the Spotify Web Player through a script tag
-    const script = document.createElement('script');
-    script.src = 'https://sdk.scdn.co/spotify-player.js';
-    script.async = true;
+    this.state = { progress: 0, volume: 0.1 };
+    this.connectToPlayer();
+  }
 
-    // Callback must be set here otherwise the function is not
-    // found by the Spotify API
-    window.onSpotifyWebPlaybackSDKReady = () => {
-      const player = new window.Spotify.Player({
-        name: 'Trender Spotify Player',
-        getOAuthToken: cb => { cb(SpotifyPlaylistManager.getAccessToken()); },
-        volume: 0.25
-      });
-
-      this.setState({spotifyPlayer: player, volume: 0.25});
-      this.connectToPlayer();
-    }
-
-    document.body.appendChild(script);
+  componentWillUnmount() {
+    this.setState({ songPaused: false, songStarted: false });
+    this.props.spotifyPlayer.removeListener('ready');
+    this.props.spotifyPlayer.removeListener('not_ready');
   }
 
   /**
@@ -128,28 +116,25 @@ class SongInfoDialog extends Component {
    * Stores the device id for later usage.
    */
   connectToPlayer = () => {
-    if (this.state.spotifyPlayer) {
-        clearTimeout(this.connectToPlayerTimeout);
-        this.state.spotifyPlayer.addListener('ready', ({device_id}) => {
-          this.setState({
-            loadingState: 'spotify player ready',
-            spotifyDeviceId: device_id,
-            spotifyPlayerReady: true
-          });
-          SpotifyPlaybackManager.setDeviceId(device_id);
-        });
+    this.props.spotifyPlayer.addListener('ready', ({ device_id }) => {
+      this.setState({
+        loadingState: 'spotify player ready',
+        spotifyDeviceId: device_id,
+        spotifyPlayerReady: true
+      });
+      SpotifyPlaybackManager.setDeviceId(device_id);
+    });
 
-        this.state.spotifyPlayer.addListener('not_ready', ({device_id}) => {
-          this.setState({error: 'Device id has gone offline ' + device_id});
-        });
+    this.props.spotifyPlayer.addListener('not_ready', ({device_id}) => {
+      this.setState({ error: 'Device id has gone offline ' + device_id });
+    });
 
-        this.state.spotifyPlayer.connect()
-          .then(_ => {
-              this.setState({loadingState: 'connected to player'});
-          });
-    } else {
-      this.connectToPlayerTimeout = setTimeout(this.connectToPlayer.bind(this), 1000);
-    }
+    this.props.spotifyPlayer.connect()
+      .then(_ => {
+        if (!this.state.unmounted) {
+          this.setState({ loadingState: 'connected to player' });
+        }
+    });
   }
 
   /**
@@ -157,8 +142,8 @@ class SongInfoDialog extends Component {
    * Pauses the song if it is playing and closes the dialog.
    */
   onClose = () => {
-    this.state.spotifyPlayer.pause();
-    this.setState({ songPaused: false, songStarted: false });
+    this.props.spotifyPlayer.pause();
+    this.props.spotifyPlayer.seek(0);
     this.props.onClose();
   }
 
@@ -173,7 +158,7 @@ class SongInfoDialog extends Component {
     progress = this.props.song.duration * (progress / 100);
     if (progress !== this.state.progress) {
       this.setState({songProgress: progress});
-      this.state.spotifyPlayer.seek(progress * 1000);
+      this.props.spotifyPlayer.seek(progress * 1000);
     }
   }
 
@@ -188,7 +173,7 @@ class SongInfoDialog extends Component {
     volume = volume / 100;
     if (volume !== this.state.volume) {
       this.setState({volume: volume});
-      this.state.spotifyPlayer.setVolume(volume);
+      this.props.spotifyPlayer.setVolume(volume);
     }
   }
 
@@ -221,7 +206,7 @@ class SongInfoDialog extends Component {
    */
   startProgressInterval = () => {
     this.setState({ songProgressInterval: setInterval(() => {
-      this.state.spotifyPlayer.getCurrentState().then(res => {
+      this.props.spotifyPlayer.getCurrentState().then(res => {
         if (res) {
           if (res.position === 0) {
             this.setState({
@@ -253,7 +238,7 @@ class SongInfoDialog extends Component {
       } else {
         this.stopProgressInterval();
       }
-      this.state.spotifyPlayer.togglePlay();
+      this.props.spotifyPlayer.togglePlay();
       this.setState({songPaused: !this.state.songPaused});
     }
   }
@@ -269,7 +254,7 @@ class SongInfoDialog extends Component {
     const listenTime = getListenTime(songFirstAdded, songRemoved);
 
     return (
-        <Dialog open={true} onClose={this.onClose} 
+        <Dialog open={true} onClose={this.onClose}
           PaperProps={{ style: { maxWidth: '60vw', minWidth: '35vw' } }}>
           <DialogContent className={classes.dialogContent}>
             <img alt='close' className={classes.closeButton} src={imageClose} onClick={this.onClose} />
@@ -284,9 +269,9 @@ class SongInfoDialog extends Component {
                 </Typography>
               </div>
             </div>
-            {song.id ? 
+            {song.id ?
               <div className={classes.playDiv}>
-                <PlaybackMenu 
+                <PlaybackMenu
                   onProgressChange={this.onProgressChange}
                   onVolumeChange={this.onVolumeChange}
                   playSong={this.playSong}
@@ -297,7 +282,7 @@ class SongInfoDialog extends Component {
                   song={song}
                   volume={this.state.volume ?? 0}/>
               </div> : null }
-            <div className={classes.analysisDiv}> 
+            <div className={classes.analysisDiv}>
               <div className={classes.timespanDescription}>
                 <div className={classes.timespanSection}>
                   <Typography className={classes.timespanHeader} variant='h6'>
@@ -307,7 +292,7 @@ class SongInfoDialog extends Component {
                     {formatReadableDate(songFirstAdded)}
                   </Typography>
                 </div>
-                {songRemoved ? 
+                {songRemoved ?
                   <div className={classes.timespanSection}>
                     <Typography className={classes.timespanHeader} variant='h6'>
                       Removed
