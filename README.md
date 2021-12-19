@@ -19,24 +19,3 @@ Deployment for both Trender and Trender-Server was done by connecting my GitHub 
 Image URLs had to be updated to imports for Heroku to find them.
 
 I also used [Kaffeine](http://kaffeine.herokuapp.com/) to ping both apps so they don't fall asleep.
-
-
-## Using Github Pages
-
-Github pages has weird problems with the BrowserRouter that I used to handle navigation on this React app. [This](https://github.com/rafgraph/spa-github-pages) supposedly solves the problem, but I couldn't get it to work.
-
-1. Set the homepage variable in `package.json` -> "homepage": "https://myusername.github.io/my-app"
-2. Install github pages -> `npm install --save gh-pages`
-3. Set the `predeploy` and `deploy` fields in package.json
- ~~~
- "scripts": {
-  + "predeploy": "npm run build",
-  + "deploy": "gh-pages deploy -d build",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
- ~~~
-  - I've set the deploy branch to be `deploy` as it will override the contents of your master branch if you use master
-  
-4. Deploy the site with `npm run deploy`
-
-
